@@ -1,0 +1,77 @@
+@startuml name diagrama de clases
+
+enum tipoOperacion{
+    COMPRA
+    VENTA
+}
+
+abstract class Persona{
+    - usuario: string
+    - contraseña: string
+    + registrar(): void
+    + iniciarSesion(): void
+}
+
+class Inversor extends Persona{
+    - saldoVirtual: number
+    - portafolio: Portafolio
+
+    + comprarActivos(activo: Activo, cantidad: number): void
+    + venderActivos(activo: Activo, cantidad: number): void
+    + consultarPortafolio(): Portafolio 
+}
+
+class Administrador extends Persona{
+    + crearActivo(nombre: string, precio: number): Activo
+    + modificarActivo(activo: Activo): void
+    + eliminarActivo(activo: Activo): void
+    + listarUsuarios(): Inversor[]
+}
+
+class Portafolio{
+    - operaciones: Operacion[]
+    - posicionActivo: PosicionActivo[]
+
+    + getGananciaPerdida(): number
+    + getHistorial(): Operacion[]
+}
+
+class PosicionActivo{
+    - cantidad: number
+    - activo: Activo
+}
+
+class Activo{
+    - id: number
+    - nombre: string
+    - precio: number
+    - variacion: number
+    + getPrecioActual(): number
+}
+
+class Operacion{
+    - id: number
+    - tipo: tipoOperacion
+    - cantidad: number
+    - precioEjecutado: number
+    - fecha: Date
+}
+
+note right of Activo
+    getPrecioActual() retorna el precio
+    del activo, que sera asignado
+    a precioEjecutado al momento
+    de realizar una operacion
+    (compra o venta)
+end note
+
+
+Inversor o-- Portafolio 
+Portafolio *-- Operacion
+Operacion .l.> tipoOperacion
+Administrador ..> Activo
+Portafolio o-- PosicionActivo
+PosicionActivo --> Activo
+Administrador ..> Inversor
+
+@enduml
