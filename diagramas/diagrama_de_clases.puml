@@ -1,6 +1,6 @@
 @startuml name diagrama de clases
 
-enum tipoOperacion{
+enum tipoTransaccion{
     COMPRA
     VENTA
 }
@@ -8,17 +8,25 @@ enum tipoOperacion{
 abstract class Persona{
     - usuario: string
     - contraseña: string
-    + registrar(): void
     + iniciarSesion(): void
+}
+
+interface Registrar{
+    + registrar(): void
 }
 
 class Inversor extends Persona{
     - saldoVirtual: number
     - portafolio: Portafolio
+    - saldoCaucionado: number
 
+    - validarTarjeta(tarjeta: number, fechaVencimiento: Date, cvc: number): void
     + comprarActivos(activo: Activo, cantidad: number): void
     + venderActivos(activo: Activo, cantidad: number): void
-    + consultarPortafolio(): Portafolio 
+    + consultarPortafolio(): Portafolio
+    + ingresarFondos(monto: number, tarjeta: number, fechaVencimiento: Date, cvc: number): void
+    + colocarCaucion(monto: number, dias: number): void
+    + getters()
 }
 
 class Administrador extends Persona{
@@ -31,9 +39,11 @@ class Administrador extends Persona{
 class Portafolio{
     - operaciones: Operacion[]
     - posicionActivo: PosicionActivo[]
+    - valorPortafolio: number
 
     + getGananciaPerdida(): number
     + getHistorial(): Operacion[]
+    + getters()
 }
 
 class PosicionActivo{
@@ -45,19 +55,32 @@ class Activo{
     - id: number
     - nombre: string
     - precio: number
+    - precioInicial: number
     - variacion: number
+    - transacciones: Transaccion[]
     + getPrecioActual(): number
+    + getVariacionDiaria(): number
+    + getters()
 }
 
-class Operacion{
+class Transaccion{
     - id: number
-    - tipo: tipoOperacion
+    - tipo: tipoTransaccion
     - cantidad: number
     - precioEjecutado: number
     - fecha: Date
+    + getters()
 }
 
-note right of Activo
+class Simulador{
+    - activos: Activo[]
+
+    - realizarCompra(activo: Activo):void
+    - realizarVenta(activo: Activo):void
+    + Simular(): Activo
+}
+
+note left of Activo
     getPrecioActual() retorna el precio
     del activo, que sera asignado
     a precioEjecutado al momento
@@ -65,13 +88,42 @@ note right of Activo
     (compra o venta)
 end note
 
+note right of Simulador 
+    Simular(){
+        ... logica de decision compra/venta
+        llamar a realizarCompra/realizarVenta
+    }
+    realizarCompra(){
+        ... decision de cantidad de compra y 
+            operacion de compra
+        sleep(2)
+        this.Simular()
+    }
+    relizarVenta(){
+        ...
+    }
+end note
+
+note left of Inversor 
+    colocarCaucion(){
+        ... logica de rebote si excede a saldo Virtual
+        ... modificacion a saldo virtual
+        ... incrementacion de saldo caucionado
+    }
+    ingresarFondos(){
+        this.validarTarjeta()
+        ... modificar saldoVirtual
+    }
+end note
 
 Inversor o-- Portafolio 
-Portafolio *-- Operacion
-Operacion .l.> tipoOperacion
+Portafolio *-- Transaccion
+Transaccion .l.> tipoTransaccion
 Administrador ..> Activo
 Portafolio o-- PosicionActivo
 PosicionActivo --> Activo
 Administrador ..> Inversor
+Registrar .u.> Inversor
+Simulador *-l- Activo
 
 @enduml
