@@ -5,7 +5,7 @@ enum tipoTransaccion{
     VENTA
 }
 
-abstract class Persona{
+abstract class User{
     - usuario: string
     - contraseña: string
     + iniciarSesion(): void
@@ -15,7 +15,7 @@ interface Registrar{
     + registrar(): void
 }
 
-class Inversor extends Persona{
+class Inversor extends User{
     - saldoVirtual: number
     - portafolio: Portafolio
     - saldoCaucionado: number
@@ -29,7 +29,7 @@ class Inversor extends Persona{
     + getters()
 }
 
-class Administrador extends Persona{
+class Administrador extends User{
     + crearActivo(nombre: string, precio: number): Activo
     + modificarActivo(activo: Activo): void
     + eliminarActivo(activo: Activo): void
@@ -37,8 +37,8 @@ class Administrador extends Persona{
 }
 
 class Portafolio{
-    - operaciones: Operacion[]
-    - posicionActivo: PosicionActivo[]
+    - transacciones: Transaccion[]
+    - tenenciaActivo: TenenciaActivo[]
     - valorPortafolio: number
 
     + getGananciaPerdida(): number
@@ -46,7 +46,7 @@ class Portafolio{
     + getters()
 }
 
-class PosicionActivo{
+class TenenciaActivo{
     - cantidad: number
     - activo: Activo
 }
@@ -54,6 +54,7 @@ class PosicionActivo{
 class Activo{
     - id: number
     - nombre: string
+    - ticker: string
     - precio: number
     - precioInicial: number
     - variacion: number
@@ -65,6 +66,7 @@ class Activo{
 
 class Transaccion{
     - id: number
+    - ticker: string
     - tipo: tipoTransaccion
     - cantidad: number
     - precioEjecutado: number
@@ -79,6 +81,15 @@ class Simulador{
     - realizarVenta(activo: Activo):void
     + Simular(): Activo
 }
+
+class Sistema{}
+
+note right of Sistema
+    Definir metodo que genere transacciones con diferente firma,
+     para las simuladas y las creadas por el usuario.
+     Tomar metodo asignarTarjeta() !?
+     Pensar si ingresarFondos() puede ser con transferencia bancaria.
+end note
 
 note left of Activo
     getPrecioActual() retorna el precio
@@ -120,8 +131,8 @@ Inversor o-- Portafolio
 Portafolio *-- Transaccion
 Transaccion .l.> tipoTransaccion
 Administrador ..> Activo
-Portafolio o-- PosicionActivo
-PosicionActivo --> Activo
+Portafolio o-- TenenciaActivo
+TenenciaActivo --> Activo
 Administrador ..> Inversor
 Registrar .u.> Inversor
 Simulador *-l- Activo
