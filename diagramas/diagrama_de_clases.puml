@@ -21,8 +21,8 @@ class Inversor extends User{
     - saldoCaucionado: number
 
     - validarTarjeta(tarjeta: number, fechaVencimiento: Date, cvc: number): void
-    + comprarActivos(activo: Activo, cantidad: number): void
-    + venderActivos(activo: Activo, cantidad: number): void
+    ' + comprarActivos(activo: Activo, cantidad: number): void
+    ' + venderActivos(activo: Activo, cantidad: number): void
     + consultarPortafolio(): Portafolio
     + ingresarFondos(monto: number, tarjeta: number, fechaVencimiento: Date, cvc: number): void
     + colocarCaucion(monto: number, dias: number): void
@@ -76,15 +76,33 @@ class Transaccion{
 
 class Simulador{
     - activos: Activo[]
+    - url: string[]
 
     - realizarCompra(activo: Activo):void
     - realizarVenta(activo: Activo):void
     + Simular(): Activo
 }
 
-class Sistema{}
+class Sistema{
+    + procesarCompra(activoId:number,cantidad:number,usuarioId:number)
+    + comprarActivos(activo:Activo,cantidad:number,inversor:Inversor)
+    + venderActivos(activo:Activo,cantidad:number,inversor:Inversor)
+}
+
 
 note right of Sistema
+    el controller tiene un @Post('/comprar')y@Post('/vender'){
+        const usuarioId = req.user.id;
+        return this.sistemaService.procesarCompra(dto.acivoId,dto.cantidad,usuarioId)
+    }
+    procesarCompra(acivoId:number,cantidad:number,usuarioId:number){
+        const activo = await this.activoRepository.findOneBy({ id: activoId })
+        const inversor = await this.inversorRepository.findOneBy({ usuarioId })
+    }
+    comprarActivo{
+        toma el precio del activo y la cantidad y crea un precio final,
+        se fija si es menor o igual que el saldo del inversor
+    }
     Definir metodo que genere transacciones con diferente firma,
      para las simuladas y las creadas por el usuario.
      Tomar metodo asignarTarjeta() !?
