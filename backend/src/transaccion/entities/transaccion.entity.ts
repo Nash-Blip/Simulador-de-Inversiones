@@ -1,5 +1,6 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, CreateDateColumn } from "typeorm";
 import { Portafolio } from "../../portafolio/entities/portafolio.entity";
+import { Activo } from "../../activo/entities/activo.entity";
 
 export enum TipoTransaccion {
     COMPRA = "COMPRA",
@@ -28,5 +29,8 @@ export class Transaccion {
 
     @ManyToOne(() => Portafolio, (portafolio) => portafolio.transacciones)
     portafolio!: Portafolio;
+
+    @ManyToOne(() => Activo, (activo) => activo.transacciones)
+    activo!: Portafolio;
 }
 
