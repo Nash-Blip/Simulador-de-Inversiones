@@ -1,5 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, OneToOne, JoinColumn } from "typeorm";
 import { Transaccion } from "../../transaccion/entities/transaccion.entity";
+import { TenenciaActivo } from "../../tenenciaActivo/entities/tenenciaActivo.entity";
 
 @Entity()
 export class Portafolio {
@@ -11,4 +12,7 @@ export class Portafolio {
 
     @OneToMany(() => Transaccion, (transaccion) => transaccion.portafolio)
     transacciones!: Transaccion[];
+
+    @OneToMany(() => TenenciaActivo, (tenenciaActivo) => tenenciaActivo.portafolio)
+    tenenciaActivo!: TenenciaActivo[];
 }

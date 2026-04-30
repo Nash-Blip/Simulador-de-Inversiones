@@ -1,34 +1,22 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { PortafolioService } from './portafolio.service';
-import { CreatePortafolioDto } from './dto/create-portafolio.dto';
-import { UpdatePortafolioDto } from './dto/update-portafolio.dto';
+import { Controller, Get, Param, ParseIntPipe } from "@nestjs/common";
+import { PortafolioService } from "./portafolio.service";
 
-@Controller('portafolio')
+@Controller("portafolio")
 export class PortafolioController {
-  constructor(private readonly portafolioService: PortafolioService) {}
+    constructor(private readonly portafolioService: PortafolioService) {}
 
-  @Post()
-  create(@Body() createPortafolioDto: CreatePortafolioDto) {
-    return this.portafolioService.create(createPortafolioDto);
-  }
+    @Get(":id")
+    findOne(@Param("id", ParseIntPipe) id: number) {
+        return this.portafolioService.findOne(id);
+    }
 
-  @Get()
-  findAll() {
-    return this.portafolioService.findAll();
-  }
+    @Get(":id/historial")
+    getHistorial(@Param("id", ParseIntPipe) id: number) {
+        return this.portafolioService.getHistorial(id);
+    }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.portafolioService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePortafolioDto: UpdatePortafolioDto) {
-    return this.portafolioService.update(+id, updatePortafolioDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.portafolioService.remove(+id);
-  }
+    @Get(":id/ganancia")
+    getGananciaPerdida(@Param("id", ParseIntPipe) id: number) {
+        return this.portafolioService.getGananciaPerdida(id);
+    }
 }

@@ -1,26 +1,42 @@
-import { Injectable } from '@nestjs/common';
-import { CreatePortafolioDto } from './dto/create-portafolio.dto';
-import { UpdatePortafolioDto } from './dto/update-portafolio.dto';
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { Portafolio } from "./entities/portafolio.entity";
 
 @Injectable()
 export class PortafolioService {
-  create(createPortafolioDto: CreatePortafolioDto) {
-    return 'This action adds a new portafolio';
-  }
+    constructor(
+        @InjectRepository(Portafolio)
+        private readonly portafolioRepository: Repository<Portafolio>,
+    ) {}
 
-  findAll() {
-    return `This action returns all portafolio`;
-  }
+    async create(): Promise<Portafolio> {
+        const portafolio = this.portafolioRepository.create({
+            valorPortafolio: 0,
+        });
+        return await this.portafolioRepository.save(portafolio);
+    }
 
-  findOne(id: number) {
-    return `This action returns a #${id} portafolio`;
-  }
+    async findOne(id: number): Promise<Portafolio> {
+        const portafolio = await this.portafolioRepository.findOne({
+            where: { id },
+            relations: ["transacciones", "tenenciaActivo"]
+        });
+        if (!portafolio) throw new NotFoundException(`Portafolio con id ${id} no encontrado`);
+        return portafolio;
+    }
 
-  update(id: number, updatePortafolioDto: UpdatePortafolioDto) {
-    return `This action updates a #${id} portafolio`;
-  }
+    async getHistorial(id: number): Promise<Portafolio> {
+        const portafolio = await this.portafolioRepository.findOne({
+            where: { id },
+            relations: ["transacciones"]
+        });
+        if (!portafolio) throw new NotFoundException(`Portafolio con id ${id} no encontrado`);
+        return portafolio;
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} portafolio`;
-  }
+    async getGananciaPerdida(id: number): Promise<number> {
+        await this.findOne(id); 
+        return 0; // LÓGICA PENDIENTE
+    }
 }
