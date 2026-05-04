@@ -32,7 +32,6 @@ class Inversor extends User{
 class Administrador extends User{
     + crearActivo(nombre: string, precio: number): Activo
     + modificarActivo(activo: Activo): void
-    + eliminarActivo(activo: Activo): void
     + listarUsuarios(): Inversor[]
 }
 
