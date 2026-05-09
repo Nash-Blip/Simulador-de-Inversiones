@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ParseIntPipe } from '@nestjs/common';
 import { ActivoService } from './activo.service';
 import { CreateActivoDto } from './dto/create-activo.dto';
 import { CompraActivoDto } from './dto/compra-activo.dto';
@@ -33,7 +33,7 @@ export class ActivoController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.activoService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.activoService.findOne(id);
   }
 }

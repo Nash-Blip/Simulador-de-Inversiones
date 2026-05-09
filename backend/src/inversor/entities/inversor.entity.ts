@@ -9,10 +9,15 @@ export class Inversor {
     @Column()
     nombre!: string;
 
-    @Column()
+    @Column({type: 'decimal',precision: 12,scale: 2,
+        transformer: {
+        to: (value: number) => value,
+        from: (value: string) => parseFloat(value),
+        }
+    })
     saldoVirtual!: number;
 
-    @OneToOne(() => Portafolio, (portfolio) => portfolio.inversor, {cascade: true,eager: true})
+    @OneToOne(() => Portafolio, (portfolio) => portfolio.inversor, { cascade: true,eager: true })
     @JoinColumn()
     portafolio!: Portafolio;
 }

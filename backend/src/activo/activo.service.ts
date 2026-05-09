@@ -21,11 +21,16 @@ export class ActivoService {
   }
 
   findAll() {
-    return this.activoRepo.find();
+    return this.activoRepo.find({
+      relations: ['transacciones']
+    });
   }
 
   async findOne(id: number) {
-    const activo = await this.activoRepo.findOneBy({ id });
+    const activo = await this.activoRepo.findOne({
+      where: { id },
+      relations: ['transacciones']
+    });
     if(!activo){
       throw new NotFoundException(`Activo con id ${id} no encontrado.`);
     }

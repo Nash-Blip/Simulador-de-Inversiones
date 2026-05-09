@@ -15,7 +15,12 @@ export class Transaccion {
     @Column({type: 'enum', enum: TipoTransaccion,})
     tipoTransaccion!: TipoTransaccion;
     
-    @Column({ type: 'decimal' })
+    @Column({type: 'decimal',precision: 12,scale: 2,
+        transformer: {
+        to: (value: number) => value,
+        from: (value: string) => parseFloat(value),
+        }
+    })
     cantidad!: number;
 
     @Column({ type: 'decimal' })

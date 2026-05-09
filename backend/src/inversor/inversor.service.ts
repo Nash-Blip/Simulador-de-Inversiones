@@ -16,8 +16,14 @@ export class InversorService {
     if(existeInversor){
       throw new ConflictException(`El Inversor ${dto.nombre} ya existe.`);
     }
-    const activo = this.inversorRepo.create(dto);
-    return this.inversorRepo.save(activo);
+    const inversor = this.inversorRepo.create({
+      nombre: dto.nombre,
+      saldoVirtual: dto.saldoVirtual,
+      portafolio: {
+        valorPortafolio: 0,
+      }
+    });
+    return this.inversorRepo.save(inversor);
   }
 
   findAll() {
@@ -30,5 +36,13 @@ export class InversorService {
       throw new NotFoundException(`Inversor con id ${id} no encontrado.`);
     }
     return inversor;
+  }
+
+  async findPortafolio(id: number) {
+    const inversor = await this.inversorRepo.findOneBy({ id });
+    if(!inversor){
+      throw new NotFoundException(`Inversor con id ${id} no encontrado.`);
+    }
+    return inversor.portafolio;
   }
 }

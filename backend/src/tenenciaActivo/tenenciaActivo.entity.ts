@@ -7,14 +7,17 @@ export class TenenciaActivo {
   @PrimaryGeneratedColumn()
   id!: number;
 
-  @Column({ type: 'decimal', precision: 12, scale: 4 })
+  @Column({type: 'decimal',precision: 12,scale: 2,
+        transformer: {
+        to: (value: number) => value,
+        from: (value: string) => parseFloat(value),
+        }
+    })
   cantidad!: number;
 
-  // Relación con el Portafolio
   @ManyToOne(() => Portafolio, (portafolio) => portafolio.tenencias)
   portafolio!: Portafolio;
 
-  // Relación con el Activo
   @ManyToOne(() => Activo)
   activo!: Activo;
 }

@@ -8,10 +8,15 @@ export class Portafolio {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Column({ type: 'decimal', precision: 12, scale: 2, default: 0 })
+    @Column({type: 'decimal',precision: 12,scale: 2,
+        transformer: {
+        to: (value: number) => value,
+        from: (value: string) => parseFloat(value),
+        }
+    })
     valorPortafolio!: number;
 
-    @OneToMany(() => Transaccion, (transaccion) => transaccion.portafolio, {cascade: true})
+    @OneToMany(() => Transaccion, (transaccion) => transaccion.portafolio, { cascade: true })
     transacciones!: Transaccion[];
 
     @OneToMany(() => TenenciaActivo, (tenencia) => tenencia.portafolio, { cascade: true })

@@ -12,7 +12,12 @@ export class Activo {
     @Column()
     ticker!: string;
 
-    @Column({ type: 'decimal', precision: 12, scale: 2 })
+    @Column({type: 'decimal',precision: 12,scale: 2,
+        transformer: {
+        to: (value: number) => value,
+        from: (value: string) => parseFloat(value),
+        }
+    })
     precioActual!: number;
 
     @OneToMany(() => Transaccion, (t) => t.activo)
