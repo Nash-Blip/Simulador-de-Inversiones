@@ -27,7 +27,7 @@ export class InversorService {
   async findOne(id: number) {
     const inversor = await this.inversorRepo.findOneBy({ id });
     if(!inversor){
-      throw new NotFoundException(`Activo con id ${id} no encontrado.`);
+      throw new NotFoundException(`Inversor con id ${id} no encontrado.`);
     }
     return inversor;
   }

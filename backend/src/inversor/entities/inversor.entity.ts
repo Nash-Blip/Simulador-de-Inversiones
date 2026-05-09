@@ -1,5 +1,5 @@
 import { Portafolio } from "@/portafolio/portafolio.entity";
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Inversor {
@@ -13,5 +13,6 @@ export class Inversor {
     saldoVirtual!: number;
 
     @OneToOne(() => Portafolio, (portfolio) => portfolio.inversor, {cascade: true,eager: true})
+    @JoinColumn()
     portafolio!: Portafolio;
 }

@@ -2,11 +2,19 @@ import { Activo } from "@/activo/entities/activo.entity";
 import { Portafolio } from "@/portafolio/portafolio.entity";
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
+export enum TipoTransaccion {
+    COMPRA,
+    VENTA,
+}
+
 @Entity()
 export class Transaccion {
     @PrimaryGeneratedColumn()
     id!: number;
 
+    @Column({type: 'enum', enum: TipoTransaccion,})
+    tipoTransaccion!: TipoTransaccion;
+    
     @Column({ type: 'decimal' })
     cantidad!: number;
 

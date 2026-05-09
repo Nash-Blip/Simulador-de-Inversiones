@@ -1,4 +1,5 @@
 import { Inversor } from "@/inversor/entities/inversor.entity";
+import { TenenciaActivo } from "@/tenenciaActivo/tenenciaActivo.entity";
 import { Transaccion } from "@/transaccion/transaccion.entity";
 import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
@@ -12,6 +13,9 @@ export class Portafolio {
 
     @OneToMany(() => Transaccion, (transaccion) => transaccion.portafolio, {cascade: true})
     transacciones!: Transaccion[];
+
+    @OneToMany(() => TenenciaActivo, (tenencia) => tenencia.portafolio, { cascade: true })
+    tenencias!: TenenciaActivo[];
 
     @OneToOne(() => Inversor, (inversor) => inversor.portafolio)
     inversor!: Inversor;

@@ -3,6 +3,7 @@ import { ActivoService } from './activo.service';
 import { CreateActivoDto } from './dto/create-activo.dto';
 import { CompraActivoDto } from './dto/compra-activo.dto';
 import { Sistema } from '@/sistema/sistema';
+import { VentaActivoDto } from './dto/venta-activo.dto';
 
 @Controller('activo')
 export class ActivoController {
@@ -19,6 +20,11 @@ export class ActivoController {
   @Post('comprar')
   comprar(@Body() compraDto: CompraActivoDto) {
     return this.sistema.procesarCompra(compraDto);
+  }
+
+  @Post('vender')
+  vender(@Body() ventaDto: VentaActivoDto) {
+    return this.sistema.procesarVenta(ventaDto);
   }
 
   @Get()
