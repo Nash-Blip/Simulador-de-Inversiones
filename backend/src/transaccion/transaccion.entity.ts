@@ -34,5 +34,4 @@ export class Transaccion {
 
     @ManyToOne(() => Activo, (activo) => activo.transacciones)
     activo!: Activo;
-
 }

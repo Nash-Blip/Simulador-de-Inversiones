@@ -39,7 +39,9 @@ export class InversorService {
   }
 
   async findPortafolio(id: number) {
-    const inversor = await this.inversorRepo.findOneBy({ id });
+    const inversor = await this.inversorRepo.findOne({      
+      where: { id },
+      relations: ['portafolio.tenencias', 'portafolio.transacciones']});
     if(!inversor){
       throw new NotFoundException(`Inversor con id ${id} no encontrado.`);
     }

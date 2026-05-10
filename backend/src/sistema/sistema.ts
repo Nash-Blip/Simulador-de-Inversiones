@@ -108,11 +108,11 @@ export class Sistema {
       inversor.portafolio.valorPortafolio -= gananciaTotal;
 
       const nuevaTransaccion = queryRunner.manager.create(Transaccion, {
-      tipoTransaccion: TipoTransaccion.VENTA,
-      cantidad: dto.cantidad,
-      precioEjecutado: activo.precioActual,
-      portafolio: inversor.portafolio,
-      activo: activo,
+        tipoTransaccion: TipoTransaccion.VENTA,
+        cantidad: dto.cantidad,
+        precioEjecutado: activo.precioActual,
+        portafolio: inversor.portafolio,
+        activo: activo,
       });
 
       await queryRunner.manager.save(inversor);
