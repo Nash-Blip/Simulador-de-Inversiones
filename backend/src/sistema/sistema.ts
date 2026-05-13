@@ -1,58 +1,66 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
-import { DataSource } from 'typeorm';
+import {Repository } from 'typeorm';
 import { Inversor } from '@/inversor/entities/inversor.entity'; 
 import { Activo } from '@/activo/entities/activo.entity'; 
 import { TipoTransaccion, Transaccion } from '@/transaccion/transaccion.entity'; 
 import { CompraActivoDto } from '@/activo/dto/compra-activo.dto'; 
 import { VentaActivoDto } from '@/activo/dto/venta-activo.dto';
 import { TenenciaActivo } from '@/tenenciaActivo/tenenciaActivo.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 
 @Injectable()
 export class Sistema {
-  constructor(private dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(Inversor)
+    private readonly inversorRepo: Repository<Inversor>,
+    @InjectRepository(Activo)
+    private readonly activoRepo: Repository<Activo>,
+    @InjectRepository(TenenciaActivo)
+    private readonly tenenciaRepo: Repository<TenenciaActivo>,
+    @InjectRepository(Transaccion)
+    private readonly transaccionRepo: Repository<Transaccion>,
+  ) {}
 
   async procesarCompra(dto: CompraActivoDto) {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
     try {
-      const inversor = await queryRunner.manager.findOne(Inversor, {where: { id: dto.inversorId }});
+      // buscar inversor(vamos a utilizar el id del portafolio para encontrar la tenencia)
+      const inversor = await this.inversorRepo.findOne({
+        where: { id: dto.inversorId },
+        relations: ['portafolio'] 
+      });
       if (!inversor) throw new NotFoundException('El inversor no existe');
 
-      if (!inversor.portafolio.tenencias) {
-        inversor.portafolio.tenencias = [];
-      }
-
-      const activo = await queryRunner.manager.findOne(Activo, { where: { id: dto.activoId } });
+      // buscar activo
+      const activo = await this.activoRepo.findOneBy({ id: dto.activoId });
       if (!activo) throw new NotFoundException('El activo no existe');
 
-      const costoTotal = activo.precioActual * dto.cantidad;
-      if (inversor.saldoVirtual < costoTotal) {
-        throw new BadRequestException('Saldo insuficiente');
-      }
+      // establece el costo total de la transaccion
+      const costoTotal = activo.precioActual * dto.cantidad; 
+      if (inversor.saldoVirtual < costoTotal) throw new BadRequestException('Saldo insuficiente');
 
-      let tenencia = inversor.portafolio.tenencias.find(t => t.activo.id === dto.activoId);
-      if (!tenencia) {
-        tenencia = queryRunner.manager.create(TenenciaActivo, {
-        cantidad: dto.cantidad,
-        portafolio: inversor.portafolio,
-        activo: activo,
+      // buscar tenencia
+      let tenencia = await this.tenenciaRepo.findOne({
+        where: {
+          portafolio: { id: inversor.portafolio.id },
+          activo: { id: dto.activoId }
+        }
+      });
+      if (!tenencia) { // si no existe la tenencia la crea
+        tenencia = this.tenenciaRepo.create({
+          cantidad: dto.cantidad,
+          portafolio: inversor.portafolio,
+          activo: activo,
         });
-      }
-      else {
+      }else { 
         tenencia.cantidad += dto.cantidad;
       }
+      
+      inversor.saldoVirtual -= costoTotal; // restamos saldo
+      inversor.portafolio.valorPortafolio += costoTotal; // sumamos valor del portafolio
 
-      if (!tenencia.id) { 
-        inversor.portafolio.tenencias.push(tenencia);
-      }
-
-      inversor.saldoVirtual -= costoTotal;
-      inversor.portafolio.valorPortafolio += costoTotal;
-
-      const nuevaTransaccion = queryRunner.manager.create(Transaccion, {
+      // creamos transaccion
+      const nuevaTransaccion = this.transaccionRepo.create({
         tipoTransaccion: TipoTransaccion.COMPRA,
         cantidad: dto.cantidad,
         precioEjecutado: activo.precioActual,
@@ -60,54 +68,51 @@ export class Sistema {
         activo: activo,
       });
 
-      await queryRunner.manager.save(inversor);
-      await queryRunner.manager.save(nuevaTransaccion);
-
-      await queryRunner.commitTransaction();
+      // guardamos
+      await this.tenenciaRepo.save(tenencia);
+      await this.inversorRepo.save(inversor);
+      await this.transaccionRepo.save(nuevaTransaccion);
 
       return { status: 'success', data: nuevaTransaccion };
-
     } catch (error) {
-      await queryRunner.rollbackTransaction();
-      throw error;
-    } finally {
-      await queryRunner.release();
+        throw error;
     }
   }
 
   async procesarVenta(dto: VentaActivoDto){
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
     try{
-      const inversor = await queryRunner.manager.findOne(Inversor, {
+      const inversor = await this.inversorRepo.findOne({
         where: { id: dto.inversorId },
-        relations: ['portafolio', 'portafolio.tenencias', 'portafolio.tenencias.activo'],
+        relations: ['portafolio']
       });
       if (!inversor) throw new NotFoundException('El inversor no existe');
 
-      const activo = await queryRunner.manager.findOne(Activo, { where: { id: dto.activoId } });
+      const activo = await this.activoRepo.findOneBy({ id: dto.activoId });
       if (!activo) throw new NotFoundException('El activo no existe');
 
-      const tenencia = inversor.portafolio.tenencias.find(t => t.activo.id === dto.activoId);
+      let tenencia = await this.tenenciaRepo.findOne({
+        where: {
+          portafolio: { id: inversor.portafolio.id },
+          activo: { id: dto.activoId }
+        }
+      });
       if (!tenencia || tenencia.cantidad < dto.cantidad) {
         throw new BadRequestException('No tienes suficientes activos para vender');
       }
 
       tenencia.cantidad -= dto.cantidad;
-
+      // si con la venta la tenencia llego a cero, la eliminamos
       if (tenencia.cantidad === 0) {
-        await queryRunner.manager.remove(tenencia);
+        await this.tenenciaRepo.remove(tenencia);
       } else {
-        await queryRunner.manager.save(tenencia);
+        await this.tenenciaRepo.save(tenencia);
       }
 
       const gananciaTotal = activo.precioActual * dto.cantidad;
       inversor.saldoVirtual += gananciaTotal;
       inversor.portafolio.valorPortafolio -= gananciaTotal;
 
-      const nuevaTransaccion = queryRunner.manager.create(Transaccion, {
+      const nuevaTransaccion = this.transaccionRepo.create({
         tipoTransaccion: TipoTransaccion.VENTA,
         cantidad: dto.cantidad,
         precioEjecutado: activo.precioActual,
@@ -115,17 +120,12 @@ export class Sistema {
         activo: activo,
       });
 
-      await queryRunner.manager.save(inversor);
-      await queryRunner.manager.save(nuevaTransaccion);
-      await queryRunner.commitTransaction();
+      await this.inversorRepo.save(inversor);
+      await this.transaccionRepo.save(nuevaTransaccion);
 
       return { status: 'success', data: nuevaTransaccion };
-
     }catch(error){
-      await queryRunner.rollbackTransaction();
-      throw error;
-    } finally {
-      await queryRunner.release();
+        throw error;
     }
   }
 }
