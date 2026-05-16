@@ -63,7 +63,7 @@ export class Sistema {
       const nuevaTransaccion = this.transaccionRepo.create({
         tipoTransaccion: TipoTransaccion.COMPRA,
         cantidad: dto.cantidad,
-        precioEjecutado: activo.precioActual,
+        precioEjecutado: costoTotal,
         portafolio: inversor.portafolio,
         activo: activo,
       });
@@ -115,7 +115,7 @@ export class Sistema {
       const nuevaTransaccion = this.transaccionRepo.create({
         tipoTransaccion: TipoTransaccion.VENTA,
         cantidad: dto.cantidad,
-        precioEjecutado: activo.precioActual,
+        precioEjecutado: gananciaTotal,
         portafolio: inversor.portafolio,
         activo: activo,
       });
