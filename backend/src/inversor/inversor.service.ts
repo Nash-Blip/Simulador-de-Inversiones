@@ -47,4 +47,9 @@ export class InversorService {
     }
     return inversor.portafolio;
   }
+
+  async getSaldoVirtual(id: number) {
+    const inversor = this.findOne(id);
+    return (await inversor).saldoVirtual;
+  }
 }
