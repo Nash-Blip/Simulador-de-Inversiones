@@ -10,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { InversorService } from '@/inversor/inversor.service';
 import { ActivoService } from '@/activo/activo.service';
 import { Portafolio } from '@/portafolio/portafolio.entity';
+import { error } from 'console';
 
 @Injectable()
 export class Sistema {
@@ -22,6 +23,9 @@ export class Sistema {
     private readonly tenenciaRepo: Repository<TenenciaActivo>,
     @InjectRepository(Transaccion)
     private readonly transaccionRepo: Repository<Transaccion>,
+    @InjectRepository(Portafolio)
+    private readonly portafolioRepo: Repository<Portafolio>,
+
     private readonly inversorService: InversorService,
     private readonly activoService: ActivoService,
   ) {}
@@ -30,29 +34,22 @@ export class Sistema {
     try {
       const inversor = await this.inversorService.findOne(dto.inversorId);
       const activo = await this.activoService.findOne(dto.activoId);
-      const portafolio = await this.inversorService.findPortafolio(dto.inversorId);
-      const tenencia = this.verificarTenencia(portafolio,activo,dto);
-
       // establece el costo total de la transaccion
       const costoTotal = activo.precioActual * dto.cantidad; 
       if (inversor.saldoVirtual < costoTotal) throw new BadRequestException('Saldo insuficiente');
 
-      inversor!.saldoVirtual -= costoTotal; // restamos saldo
-      inversor!.portafolio.valorPortafolio += costoTotal; // sumamos valor del portafolio
+      const portafolio = await this.inversorService.findPortafolio(dto.inversorId);
+      const tenencia = this.verificarTenenciaCompra(portafolio,activo,dto);
+    
+      inversor.saldoVirtual -= costoTotal; // restamos saldo
+      inversor.portafolio.valorPortafolio += costoTotal; // sumamos valor del portafolio
 
       // creamos transaccion
-      const nuevaTransaccion = this.transaccionRepo.create({
-        tipoTransaccion: TipoTransaccion.COMPRA,
-        cantidad: dto.cantidad,
-        precioEjecutado: costoTotal,
-        portafolio: inversor!.portafolio,
-        activo: activo,
-      });
+      const nuevaTransaccion = this.crearTransaccion(dto,costoTotal,portafolio,activo);
 
       // guardamos
-      await this.tenenciaRepo.save(tenencia!);
-      await this.inversorRepo.save(inversor!);
-      await this.transaccionRepo.save(nuevaTransaccion);
+      await this.portafolioRepo.save(portafolio);
+      await this.inversorRepo.save(inversor);
 
       return { status: 'success', data: nuevaTransaccion };
     } catch (error) {
@@ -60,13 +57,12 @@ export class Sistema {
     }
   }
 
-  verificarTenencia(portafolio: Portafolio, activo: Activo, dto: CompraActivoDto | VentaActivoDto) {
+  verificarTenenciaCompra(portafolio: Portafolio, activo: Activo, dto: CompraActivoDto) {
     let tenencia: TenenciaActivo;
     portafolio.tenencias.forEach((t) => {
       if(t.activo === activo){
-        tenencia = t
-        tenencia.cantidad += dto.cantidad;
-        return tenencia;
+        t.cantidad += dto.cantidad;
+        return t;
       }
     })
     tenencia = this.tenenciaRepo.create({
@@ -75,6 +71,31 @@ export class Sistema {
       activo: activo,
     })     
     return tenencia; 
+  }
+
+  verificarTenenciaVenta(portafolio: Portafolio, activo: Activo, dto: VentaActivoDto) {
+    portafolio.tenencias.forEach((t) => {
+      if(t.activo === activo && t.cantidad >= dto.cantidad){
+        t.cantidad -= dto.cantidad;
+        if(t.cantidad === 0){
+          this.tenenciaRepo.remove(t);
+        }
+        return t
+      } else {
+        throw new BadRequestException('tenencia inexistente.')
+      }
+    })
+  }
+
+  crearTransaccion(dto: CompraActivoDto | VentaActivoDto, costoTotal: number, portafolio: Portafolio, activo: Activo) {
+    const transaccion = this.transaccionRepo.create({
+      tipoTransaccion: TipoTransaccion.COMPRA,
+      cantidad: dto.cantidad,
+      precioEjecutado: costoTotal,
+      portafolio: portafolio,
+      activo: activo,
+    });
+    return transaccion;
   }
 
   async procesarVenta(dto: VentaActivoDto){

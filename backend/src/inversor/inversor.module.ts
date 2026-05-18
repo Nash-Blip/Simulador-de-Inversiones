@@ -8,6 +8,7 @@ import { Portafolio } from '@/portafolio/portafolio.entity';
 @Module({
   controllers: [InversorController],
   providers: [InversorService],
-  imports: [TypeOrmModule.forFeature([Inversor, Portafolio])],
+  imports: [TypeOrmModule.forFeature([Inversor, Portafolio,])],
+  exports: [InversorService],
 })
 export class InversorModule {}
