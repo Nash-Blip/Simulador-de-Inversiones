@@ -1,14 +1,14 @@
 import { Inversor } from "@/inversor/entities/inversor.entity";
 import { TenenciaActivo } from "@/tenenciaActivo/tenenciaActivo.entity";
 import { Transaccion } from "@/transaccion/transaccion.entity";
-import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity()
 export class Portafolio {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Column({type: 'decimal',precision: 12,scale: 2,
+    @Column({type: 'decimal',precision: 20,scale: 2,
         transformer: {
         to: (value: number) => value,
         from: (value: string) => parseFloat(value),

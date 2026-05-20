@@ -17,15 +17,10 @@ export class Sistema {
   constructor(
     @InjectRepository(Inversor)
     private readonly inversorRepo: Repository<Inversor>,
-    @InjectRepository(Activo)
-    private readonly activoRepo: Repository<Activo>,
     @InjectRepository(TenenciaActivo)
     private readonly tenenciaRepo: Repository<TenenciaActivo>,
     @InjectRepository(Transaccion)
     private readonly transaccionRepo: Repository<Transaccion>,
-    @InjectRepository(Portafolio)
-    private readonly portafolioRepo: Repository<Portafolio>,
-
     private readonly inversorService: InversorService,
     private readonly activoService: ActivoService,
   ) {}
@@ -37,114 +32,94 @@ export class Sistema {
       // establece el costo total de la transaccion
       const costoTotal = activo.precioActual * dto.cantidad; 
       if (inversor.saldoVirtual < costoTotal) throw new BadRequestException('Saldo insuficiente');
-
       const portafolio = await this.inversorService.findPortafolio(dto.inversorId);
-      const tenencia = this.verificarTenenciaCompra(portafolio,activo,dto);
-    
+      // verifica la tenencia, si existe, suma la cantidad, si no, la crea
+      await this.verificarTenenciaCompra(portafolio!,activo,dto.cantidad);
+      
       inversor.saldoVirtual -= costoTotal; // restamos saldo
       inversor.portafolio.valorPortafolio += costoTotal; // sumamos valor del portafolio
 
       // creamos transaccion
-      const nuevaTransaccion = this.crearTransaccion(dto,costoTotal,portafolio,activo);
+      const nuevaTransaccion = await this.crearTransaccion(dto,costoTotal,TipoTransaccion.COMPRA,portafolio!,activo);
 
       // guardamos
-      await this.portafolioRepo.save(portafolio);
       await this.inversorRepo.save(inversor);
-
-      return { status: 'success', data: nuevaTransaccion };
+      
+      return {
+        cantidad: nuevaTransaccion.cantidad,
+        fecha: nuevaTransaccion.fecha,
+        precioEjecutado: nuevaTransaccion.precioEjecutado,
+        TipoTransaccion: nuevaTransaccion.tipoTransaccion
+      };
     } catch (error) {
         throw error;
     }
   }
 
-  verificarTenenciaCompra(portafolio: Portafolio, activo: Activo, dto: CompraActivoDto) {
-    let tenencia: TenenciaActivo;
-    portafolio.tenencias.forEach((t) => {
-      if(t.activo === activo){
-        t.cantidad += dto.cantidad;
-        return t;
-      }
-    })
-    tenencia = this.tenenciaRepo.create({
-      cantidad: dto.cantidad,
-      portafolio: portafolio,
-      activo: activo,
-    })     
-    return tenencia; 
+  async verificarTenenciaCompra(portafolio: Portafolio, activo: Activo, cantidadCompra: number) {
+    const tenenciaExistente = portafolio.tenencias.find(t => t.activo.id === activo.id);
+    // Si existe, actualizamos la cantidad
+    if (tenenciaExistente) {
+      tenenciaExistente.cantidad += cantidadCompra;
+      await this.tenenciaRepo.save(tenenciaExistente);
+    } else {
+      // Si no existe, creamos la nueva
+      const nuevaTenencia = this.tenenciaRepo.create({
+        cantidad: cantidadCompra,
+        portafolio: portafolio,
+        activo: activo,
+      });
+      await this.tenenciaRepo.save(nuevaTenencia);
+    }
   }
 
-  verificarTenenciaVenta(portafolio: Portafolio, activo: Activo, dto: VentaActivoDto) {
-    portafolio.tenencias.forEach((t) => {
-      if(t.activo === activo && t.cantidad >= dto.cantidad){
-        t.cantidad -= dto.cantidad;
-        if(t.cantidad === 0){
-          this.tenenciaRepo.remove(t);
-        }
-        return t
-      } else {
-        throw new BadRequestException('tenencia inexistente.')
-      }
-    })
-  }
-
-  crearTransaccion(dto: CompraActivoDto | VentaActivoDto, costoTotal: number, portafolio: Portafolio, activo: Activo) {
+  async crearTransaccion(dto: CompraActivoDto | VentaActivoDto, precioEjecutado: number, tipoTransaccion: TipoTransaccion, portafolio: Portafolio, activo: Activo) {
     const transaccion = this.transaccionRepo.create({
-      tipoTransaccion: TipoTransaccion.COMPRA,
+      tipoTransaccion: tipoTransaccion,
       cantidad: dto.cantidad,
-      precioEjecutado: costoTotal,
+      precioEjecutado: precioEjecutado,
       portafolio: portafolio,
       activo: activo,
     });
-    return transaccion;
+    return await this.transaccionRepo.save(transaccion);
+  }
+
+  async verificarTenenciaVenta(portafolio: Portafolio, activo: Activo, cantidadCompra: number) {
+    const tenenciaExistente = portafolio.tenencias.find(t => t.activo.id === activo.id);
+    if(tenenciaExistente && tenenciaExistente.cantidad >= cantidadCompra) {
+      tenenciaExistente.cantidad -= cantidadCompra;
+      if(tenenciaExistente.cantidad === 0){
+        await this.tenenciaRepo.remove(tenenciaExistente);
+        return;
+      }
+      await this.tenenciaRepo.save(tenenciaExistente);
+    }
   }
 
   async procesarVenta(dto: VentaActivoDto){
     try{
-      const inversor = await this.inversorRepo.findOne({
-        where: { id: dto.inversorId },
-        relations: ['portafolio']
-      });
-      if (!inversor) throw new NotFoundException('El inversor no existe');
+      const inversor = await this.inversorService.findOne(dto.inversorId);
+      const activo = await this.activoService.findOne(dto.activoId);
+      const portafolio = await this.inversorService.findPortafolio(dto.inversorId);
 
-      const activo = await this.activoRepo.findOneBy({ id: dto.activoId });
-      if (!activo) throw new NotFoundException('El activo no existe');
+      await this.verificarTenenciaVenta(portafolio!,activo,dto.cantidad)
 
-      let tenencia = await this.tenenciaRepo.findOne({
-        where: {
-          portafolio: { id: inversor.portafolio.id },
-          activo: { id: dto.activoId }
-        }
-      });
-      if (!tenencia || tenencia.cantidad < dto.cantidad) {
-        throw new BadRequestException('No tienes suficientes activos para vender');
-      }
-
-      tenencia.cantidad -= dto.cantidad;
-      // si con la venta la tenencia llego a cero, la eliminamos
-      if (tenencia.cantidad === 0) {
-        await this.tenenciaRepo.remove(tenencia);
-      } else {
-        await this.tenenciaRepo.save(tenencia);
-      }
-
-      const gananciaTotal = activo.precioActual * dto.cantidad;
+      const gananciaTotal = activo.precioActual * dto.cantidad; 
       inversor.saldoVirtual += gananciaTotal;
       inversor.portafolio.valorPortafolio -= gananciaTotal;
 
-      const nuevaTransaccion = this.transaccionRepo.create({
-        tipoTransaccion: TipoTransaccion.VENTA,
-        cantidad: dto.cantidad,
-        precioEjecutado: gananciaTotal,
-        portafolio: inversor.portafolio,
-        activo: activo,
-      });
+      const nuevaTransaccion = await this.crearTransaccion(dto,gananciaTotal,TipoTransaccion.VENTA,portafolio!,activo);
 
       await this.inversorRepo.save(inversor);
-      await this.transaccionRepo.save(nuevaTransaccion);
-
-      return { status: 'success', data: nuevaTransaccion };
-    }catch(error){
-        throw error;
+      
+      return {
+        cantidad: nuevaTransaccion.cantidad,
+        fecha: nuevaTransaccion.fecha,
+        precioEjecutado: nuevaTransaccion.precioEjecutado,
+        TipoTransaccion: nuevaTransaccion.tipoTransaccion
+      };
+    } catch(error) {
+      throw error;
     }
   }
 }
