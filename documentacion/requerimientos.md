@@ -24,16 +24,67 @@
 |---------|------------|----------------|---------------------------------|
 | 1.0   | 2026-05-04 | [Alejo Suarez] | Versión inicial del documento   |
 | 1.1    | 2026-05-05 | [Agustin Begue - Matias Fernandez] | Actualización del documento   |
+| 1.2   | 2026-05-20 | [Agustin Begue - Matias Fernandez - Alejo Suarez] | Revision y actualizacion del documento   |
 
 ---
 
 ## Requerimientos Funcionales
 
-### RF-001 — Compra de Activos
+### RF-001 — Registro de Inversor
 
 | Campo         | Detalle        |
 |---------------|----------------|
 | **ID**        | RF-001         |
+| **Nombre**    | Registro de Inversor |
+| **Tipo**      | Funcional      |
+| **Prioridad** | `Alta`         |
+| **Estado**    | `Pendiente`    |
+
+#### Descripción
+> El usuario interesado en operar en la plataforma accederá a la página de registro, donde se le presentará un formulario para ingresar sus datos personales (nombre completo, correo electrónico, contraseña). El sistema contará con un botón para confirmar el registro. 
+
+```
+El sistema debe permitir dar de alta a un nuevo inversor siempre y cuando el correo electrónico ingresado no se encuentre registrado previamente y la contraseña cumpla con las políticas de seguridad. En el caso en que esta operación sea exitosa, se creará el perfil del usuario, se le asignará una billetera digital con un saldo inicial de $10000.
+```
+
+#### Criterios de Aceptación
+- [x] El sistema debe mostrar un mensaje de error claro si alguno de los campos obligatorios del formulario queda vacío.
+- [x] El servidor debe validar en tiempo real que el formato del correo electrónico sea válido y que las contraseñas coincidan.
+- [x] El servidor retorna el código HTTP `201 Created` en caso de que la operación de registro sea exitosa.
+- [x] El servidor retorna el código HTTP `400 Bad Request` en caso de que el correo electrónico ya exista en el sistema o los datos enviados no cumplan con las validaciones de negocio.
+
+---
+
+### RF-002 — Inicio de Sesion
+
+| Campo         | Detalle        |
+|---------------|----------------|
+| **ID**        | RF-002         |
+| **Nombre**    | Inicio de Sesion |
+| **Tipo**      | Funcional      |
+| **Prioridad** | `Alta`         |
+| **Estado**    | `Pendiente`    |
+
+#### Descripción
+> El usuario registrado accederá a la página de inicio de sesión, donde se le presentará un formulario para ingresar sus credenciales (correo electrónico y contraseña). El sistema contará con un botón para ingresar y una opción para recuperar la contraseña. 
+
+```
+El sistema debe permitir el acceso a la plataforma solo a aquellos usuarios que introduzcan un correo electrónico y una contraseña válidos que coincidan con los registros del sistema. En el caso en que esta operación sea exitosa, se generará una sesión activa (token de autenticación) y se redireccionará al usuario a la pantalla principal o dashboard de activos.
+```
+
+#### Criterios de Aceptación
+- [x] El sistema debe enmascarar los caracteres de la contraseña a medida que el usuario los introduce por motivos de seguridad.
+- [x] El servidor debe validar que el correo electrónico introducido tenga un formato válido antes de procesar la solicitud.
+- [x] El servidor retorna el código HTTP `200 OK` junto con el token de acceso en caso de que las credenciales sean correctas.
+- [x] El servidor retorna el código HTTP `401 Unauthorized` en caso de que el correo electrónico o la contraseña sean incorrectos, mostrando un mensaje genérico para evitar la exposición de datos.
+
+---
+
+### RF-003 — Compra de Activos
+
+| Campo         | Detalle        |
+|---------------|----------------|
+| **ID**        | RF-003         |
 | **Nombre**    | Compra de Activos |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Alta`         |
@@ -44,7 +95,7 @@
 
 ```
 El sistema debe permitir comprar activos cuando el inversor que esta logueado tenga el saldo suficiente 
-para adquirirlo. En el caso en que esta operacion sea exitossa,se descontara el dinero de la transaccion de
+para adquirirlo. En el caso en que esta operacion sea exitosa, se descontara el dinero de la transaccion de
 su saldo digital y se asignara el activo a su portafolio como parte de sus tenencias.
 ```
 
@@ -56,11 +107,11 @@ su saldo digital y se asignara el activo a su portafolio como parte de sus tenen
 
 ---
 
-### RF-002 — Venta de Activos
+### RF-004 — Venta de Activos
 
 | Campo         | Detalle        |
 |---------------|----------------|
-| **ID**        | RF-002         |
+| **ID**        | RF-004         |
 | **Nombre**    | Venta de Activos |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Alta`         |
@@ -88,11 +139,11 @@ se realizaran desde el portafolio lo que imposibilitará al usuario a vender un 
 
 ---
 
-### RF-003 — Creacion de Activos
+### RF-005 — Creacion de Activos
 
 | Campo         | Detalle        |
 |---------------|----------------|
-| **ID**        | RF-003         |
+| **ID**        | RF-005         |
 | **Nombre**    | Creacion de Activos |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Baja`         |
@@ -115,11 +166,11 @@ el activo debe integrarse y mostrarse dinámicamente en el listado principal de 
 
 ---
 
-### RF-004 — Modificación de Activos
+### RF-006 — Modificación de Activos
 
 | Campo         | Detalle        |
 |---------------|----------------|
-| **ID**        | RF-004         |
+| **ID**        | RF-006         |
 | **Nombre**    | Modificación de Activos |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Baja`         |
@@ -130,8 +181,8 @@ el activo debe integrarse y mostrarse dinámicamente en el listado principal de 
 > El sistema debe permitir a un usuario con rol de Administrador modificar los datos identificatorios de un activo existente en la plataforma. Por reglas de integridad de negocio, esta funcionalidad está restringida únicamente a la edición del Nombre y/o el Ticker (Símbolo) del activo
 
 ```
-El administrador seleccionará un activo del listado y accederá a un formulario de edición donde los campos 
-de precio, tipo de activo y moneda aparecerán como "Solo lectura". Una vez realizados los cambios en el 
+El administrador seleccionará un activo del listado y accederá a un formulario de edición donde el campo 
+de precio aparecera como "Solo lectura". Una vez realizados los cambios en el 
 nombre o ticker, el sistema deberá validar que el nuevo ticker no esté duplicado y actualizar la información
 en toda la plataforma, incluyendo el portafolio de los usuarios que ya posean dicho activo.
 ```
@@ -144,11 +195,11 @@ en toda la plataforma, incluyendo el portafolio de los usuarios que ya posean di
 
 ---
 
-### RF-005— Registro de Transacciones del Inversor
+### RF-007— Registro de Transacciones del Inversor
 
 | Campo         | Detalle        |
 |---------------|----------------|
-| **ID**        | RF-005         |
+| **ID**        | RF-007         |
 | **Nombre**    | Registro de Transacciones del inversor |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Media`         |
@@ -172,9 +223,9 @@ monto y fecha. La información debe persistirse en la base de datos y recuperars
 - [x] El servidor debe ordenar las transacciones por fecha de creación en orden descendente (más recientes primero).
 - [x] El servidor debe permitir filtrar las transacciones por activo mediante un parámetro opcional.
 - [x] El servidor debe garantizar que los datos retornados correspondan a transacciones persistidas en la base de datos.
-- [x] El servidor retorna el código HTTP 500 Internal Server Error en caso de fallas inesperadas al recuperar la información.
+- [x] El servidor retorna el código HTTP `500 Internal Server` Error en caso de fallas inesperadas al recuperar la información.
 - [x] Cada transacción debe incluir los siguientes campos obligatorios: (ID de la transacción, Tipo de operación (compra/venta), Activo, Cantidad, Monto, Fecha de creación)
-- [x] El servidor retorna el código HTTP 200 OK cuando la consulta se realiza correctamente.
+- [x] El servidor retorna el código HTTP `200 OK` cuando la consulta se realiza correctamente.
 - [x] El servidor retorna el código HTTP `401 Unauthorized` si el usuario no está autenticado.
 - [x] El servidor debe garantizar que los datos retornados correspondan únicamente a transacciones persistidas y asociadas al inversor.
 
@@ -205,7 +256,7 @@ quedar registrada en una base de datos centralizada.
 
 #### Criterios de Aceptación
 - [x] Las contraseñas de los inversores deben ser procesadas con un algoritmo de hashing (ej: BCrypt).
-- [x] El tiempo de sesión del usuario debe expirar tras 10 minutos de inactividad para evitar accesos no autorizados.
+- [x] El tiempo de sesión del usuario debe expirar tras 10 minutos de inactividad para evitar accesos no autorizados. 
 
 ---
 
@@ -230,7 +281,6 @@ Este componente debe actuar "por debajo" (background), inyectando órdenes en el
 #### Criterios de Aceptación
 - [x] El script debe generar al menos una operación de mercado cada 10 segundos para los activos de mayor volumen.
 - [x] La fluctuación de precios generada por el script no debe exceder un +/- 5% para evitar volatilidad irreal.
-- [x] El motor de simulación debe ejecutarse de forma independiente al servidor web para no afectar los tiempos de respuesta de la interfaz de usuario.
 
 ---
 
@@ -275,13 +325,13 @@ El sistema debe implementar un diseño Responsive fluido que asegure que las tab
 > El código fuente debe estar estructurado de forma que sea fácil de entender, testear y extender por otros desarrolladores.
 
 ```
-El software debe desarrollarse siguiendo patrones de diseño en caso de ser necesario, que desacoplen la lógica de negocio (el motor de inversiones) de la infraestructura (base de datos y controladores). Esto es vital para que, en el futuro, si se decide cambiar la base de datos o el proveedor de precios en tiempo real, el impacto en el código sea mínimo.
+El software debe desarrollarse siguiendo patrones de diseño en caso de ser necesario, que desacoplen la lógica de negocio (el motor de inversiones). Esto es vital para que, en el futuro, si se decide cambiar el proveedor de precios en tiempo real, el impacto en el código sea mínimo.
 
 Se exige el uso de estándares de codificación consistentes (Linting) y una estructura de carpetas modular. La mantenibilidad también implica que cualquier lógica compleja, como script de simulación de mercado, debe estar debidamente encapsulada y comentada, facilitando que nuevos desarrolladores se integren al proyecto y realicen cambios sin introducir regresiones en el sistema.
 ```
 
 #### Criterios de Aceptación
-- [x] El proyecto debe contar con una cobertura de pruebas unitarias (Unit Tests) de al menos el 80% en la lógica de negocio (especialmente en transacciones).
+- [x] El proyecto debe contar con una cobertura de pruebas unitarias (Unit Tests) de al menos el 80%.
 - [x] El código debe estar documentado siguiendo los estándares del lenguaje utilizado (ej: JSDoc para JS o Swagger para la API).
 
 ---
