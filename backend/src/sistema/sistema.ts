@@ -10,7 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { InversorService } from '@/inversor/inversor.service';
 import { ActivoService } from '@/activo/activo.service';
 import { Portafolio } from '@/portafolio/portafolio.entity';
-import { error } from 'console';
+
 
 @Injectable()
 export class Sistema {
@@ -89,11 +89,11 @@ export class Sistema {
     if(tenenciaExistente && tenenciaExistente.cantidad >= cantidadCompra) {
       tenenciaExistente.cantidad -= cantidadCompra;
       if(tenenciaExistente.cantidad === 0){
-        await this.tenenciaRepo.remove(tenenciaExistente);
-        return;
+        return await this.tenenciaRepo.remove(tenenciaExistente);
       }
-      await this.tenenciaRepo.save(tenenciaExistente);
+      return this.tenenciaRepo.save(tenenciaExistente);
     }
+    throw new BadRequestException('Cantidad de activos insuficiente.')
   }
 
   async procesarVenta(dto: VentaActivoDto){
