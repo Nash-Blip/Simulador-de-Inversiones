@@ -1,6 +1,6 @@
 > **Proyecto:** Simulador de Inversiones
 
-> **Versión del documento:** 1.0
+> **Versión del documento:** 1.3
 
 > **Fecha:** 2026-05-04
 
@@ -20,11 +20,12 @@
 
 ## Control de Versiones del Documento
 
-| Versión | Fecha      | Autor          | Descripción del Cambio          |
+| Versión | Fecha      | Autor         | Descripción del Cambio          |
 |---------|------------|----------------|---------------------------------|
-| 1.0   | 2026-05-04 | [Alejo Suarez] | Versión inicial del documento   |
-| 1.1    | 2026-05-05 | [Agustin Begue - Matias Fernandez] | Actualización del documento   |
-| 1.2   | 2026-05-20 | [Agustin Begue - Matias Fernandez - Alejo Suarez] | Revision y actualizacion del documento   |
+| 1.0     | 2026-05-04 | [Alejo Suarez] | Versión inicial del documento   |
+| 1.1     | 2026-05-05 | [Agustin Begue - Matias Fernandez] | Actualización del documento   |
+| 1.2     | 2026-05-20 | [Agustin Begue - Matias Fernandez - Alejo Suarez] | Revision y actualizacion del documento   |
+| 1.3     | 2026-05-21 | [Agustin Begue]| Ajuste en criterios de autorizacion RF-003 al RF-006 |    
 
 ---
 
@@ -38,7 +39,7 @@
 | **Nombre**    | Registro de Inversor |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Alta`         |
-| **Estado**    | `Pendiente`    |
+| **Estado**    | `En desarrollo`    |
 
 #### Descripción
 > El usuario interesado en operar en la plataforma accederá a la página de registro, donde se le presentará un formulario para ingresar sus datos personales (nombre completo, correo electrónico, contraseña). El sistema contará con un botón para confirmar el registro. 
@@ -63,7 +64,7 @@ El sistema debe permitir dar de alta a un nuevo inversor siempre y cuando el cor
 | **Nombre**    | Inicio de Sesion |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Alta`         |
-| **Estado**    | `Pendiente`    |
+| **Estado**    | `En desarrollo`    |
 
 #### Descripción
 > El usuario registrado accederá a la página de inicio de sesión, donde se le presentará un formulario para ingresar sus credenciales (correo electrónico y contraseña). El sistema contará con un botón para ingresar y una opción para recuperar la contraseña. 
@@ -88,13 +89,13 @@ El sistema debe permitir el acceso a la plataforma solo a aquellos usuarios que 
 | **Nombre**    | Compra de Activos |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Alta`         |
-| **Estado**    | `Pendiente`    |
+| **Estado**    | `En desarrollo`    |
 
 #### Descripción
 > En el caso de una compra el inversor accedera a la pagina de mercado, seleccionara el activo a comprar, se mostrara una seccion con informacion al detalle donde se le permitira ingresar el monto y tendra un boton para confirmar. 
 
 ```
-El sistema debe permitir comprar activos cuando el inversor que esta logueado tenga el saldo suficiente 
+El sistema debe permitir comprar activos cuando el inversor, con una sesion iniciada, tenga el saldo suficiente 
 para adquirirlo. En el caso en que esta operacion sea exitosa, se descontara el dinero de la transaccion de
 su saldo digital y se asignara el activo a su portafolio como parte de sus tenencias.
 ```
@@ -102,6 +103,7 @@ su saldo digital y se asignara el activo a su portafolio como parte de sus tenen
 #### Criterios de Aceptación
 - [x] El sistema debe mostrar el saldo disponible del inversor en la pantalla de confirmación de compra.
 - [x] El servidor debe validar en tiempo real que el monto de la compra no exceda el saldo digital del usuario.
+- [x] El servidor retorna el codigo HTTP `401 Unauthorized` si el usuario no ha iniciado sesion.
 - [x] El servidor retorna el codigo HTTP `200 OK` en caso de que la operacion sea exitosa.
 - [x] El servidor retorna el codigo HTTP `400 Bad Request` en caso de que el saldo del inversor sea insuficiente para la opeacion que intenta realizar.
 
@@ -115,7 +117,7 @@ su saldo digital y se asignara el activo a su portafolio como parte de sus tenen
 | **Nombre**    | Venta de Activos |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Alta`         |
-| **Estado**    | `Pendiente`    |
+| **Estado**    | `En desarrollo`    |
 
 #### Descripción
 En caso de una venta el usuario inversor deberá acceder a su portafolio, donde el sistema muestra únicamente los activos con tenencia disponible y muestra la cantidad existente de cada uno de ellos. Se seleccionará el activo, su cantidad y visualizará un boton para proseguir a la venta.
@@ -132,6 +134,7 @@ se realizaran desde el portafolio lo que imposibilitará al usuario a vender un 
 - [x] El servidor debe descontar correctamente la cantidad vendida de la tenencia del activo.
 - [x] El servidor debe eliminar el registro de la tenencia en el portafolio si la cantidad resultante es igual a 0.
 - [x] El servidor debe acreditar en el saldo del usuario el monto correspondiente a la venta del activo.
+- [x] El servidor retorna el codigo HTTP `401 Unauthorized` si el usuario no ha iniciado sesion.
 - [x] El servidor retorna el código HTTP `200 OK` en caso de que la operación de venta sea exitosa.
 - [x] El servidor retorna el código HTTP `400 Bad Request` si la cantidad ingresada es inválida (menor o igual a 0).
 - [x] El servidor retorna el código HTTP `409 Conflict` si la cantidad a vender es mayor a la tenencia disponible.
@@ -147,11 +150,11 @@ se realizaran desde el portafolio lo que imposibilitará al usuario a vender un 
 | **Nombre**    | Creacion de Activos |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Baja`         |
-| **Estado**    | `Pendiente`    |
+| **Estado**    | `En desarrollo`    |
 ---
 
 #### Descripción
-> El sistema debe permitir a un usuario con rol de Administrador crear nuevos activos financieros. Esta operación habilitará la disponibilidad del activo para que aparezca listado y esté disponible para operaciones en la página de mercado.
+> El sistema debe permitir a un usuario con rol de Administrador (ADMIN) crear nuevos activos financieros. Esta operación habilitará la disponibilidad del activo para que aparezca listado y esté disponible para operaciones en la página de mercado.
 
 ```
 El sistema debe proveer una interfaz para ingresar los datos mínimos del activo, validar los datos 
@@ -161,6 +164,8 @@ el activo debe integrarse y mostrarse dinámicamente en el listado principal de 
 
 #### Criterios de Aceptación
 - [x] El servidor debe validar que el Símbolo/Ticker no exista previamente en la base de datos antes de confirmar la creación.
+- [x] El servidor retorna el codigo HTTP `401 Unauthorized` si el usuario no ha iniciado sesion.
+- [x] El servidor retorna el codigo HTTP `403 Forbidden` si el usuario autenticado no posee el rol de Administrador.
 - [x] El servidor retorna el código HTTP `201 Created` en caso de que la operación de creación sea exitosa.
 - [x] El servidor retorna el código HTTP `409 Conflict` si se intenta crear un activo con un Símbolo/Ticker ya existente.
 
@@ -189,6 +194,8 @@ en toda la plataforma, incluyendo el portafolio de los usuarios que ya posean di
 
 #### Criterios de Aceptación
 - [x] El servidor debe validar que el nuevo Ticker, en caso de haber sido modificado, no coincida con uno ya existente en la base de datos (exceptuando el propio ID del activo en edición).
+- [x] El servidor retorna el codigo HTTP `401 Unauthorized` si el usuario no ha iniciado sesion.
+- [x] El servidor retorna el codigo HTTP `403 Forbidden` si el usuario autenticado no posee el rol de Administrador.
 - [x] El servidor retorna el código HTTP `200 OK` en caso de que la actualización sea exitosa.
 - [x] El servidor retorna el código HTTP `404 Not Found` si el ID del activo a editar no existe.
 - [x] El servidor retorna el código HTTP `409 Conflict` si el nuevo Ticker ingresado ya pertenece a otro activo registrado.
@@ -243,7 +250,7 @@ monto y fecha. La información debe persistirse en la base de datos y recuperars
 | **Tipo**       | No Funcional    |
 | **Categoría**  | `Seguridad`    |
 | **Prioridad**  | `Alta`          |
-| **Estado**     | `Pendiente`     |
+| **Estado**     | `En desarrollo`     |
 
 #### Descripción
 > El sistema debe garantizar la integridad y confidencialidad de la información financiera y personal de los usuarios.
@@ -255,7 +262,7 @@ quedar registrada en una base de datos centralizada.
 ```
 
 #### Criterios de Aceptación
-- [x] Las contraseñas de los inversores deben ser procesadas con un algoritmo de hashing (ej: BCrypt).
+- [x] Las contraseñas de los inversores deben ser procesadas con un algoritmo de hashing (bcrypt).
 - [x] El tiempo de sesión del usuario debe expirar tras 10 minutos de inactividad para evitar accesos no autorizados. 
 
 ---
