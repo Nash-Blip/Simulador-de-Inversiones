@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards, Req } from '@nestjs/common';
+import type { Request } from 'express';
 import { ActivoService } from './activo.service';
 import { CreateActivoDto } from './dto/create-activo.dto';
 import { CompraActivoDto } from './dto/compra-activo.dto';
@@ -25,14 +26,14 @@ export class ActivoController {
 
   @Post('comprar')
   @UseGuards(JwtAuthGuard)
-  comprar(@Body() compraDto: CompraActivoDto) {
-    return this.sistema.procesarCompra(compraDto);
+  comprar(@Body() compraDto: CompraActivoDto, @Req() req: Request) {
+    return this.sistema.procesarCompra(compraDto, (req as any).user.id);
   }
 
   @Post('vender')
   @UseGuards(JwtAuthGuard)
-  vender(@Body() ventaDto: VentaActivoDto) {
-    return this.sistema.procesarVenta(ventaDto);
+  vender(@Body() ventaDto: VentaActivoDto, @Req() req: Request) {
+    return this.sistema.procesarVenta(ventaDto, (req as any).user.id,);
   }
 
   @Get()
