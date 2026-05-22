@@ -16,7 +16,7 @@ import { InversorModule } from '@/inversor/inversor.module';
             inject: [ConfigService],
             useFactory: (configService: ConfigService) => ({
                 secret: configService.get<string>('JWT_SECRET'),
-                signOptions: { expiresIn: '24h' },
+                signOptions: { expiresIn: '10m' },
             }),
         }),
     ],
