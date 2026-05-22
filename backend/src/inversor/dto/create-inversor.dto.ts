@@ -15,7 +15,4 @@ export class CreateInversorDto {
     @IsOptional()
     @IsEnum(InversorRol)
     rol?: InversorRol;
-
-    @IsNumber()
-    saldoVirtual!: number;
 }

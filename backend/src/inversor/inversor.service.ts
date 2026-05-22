@@ -23,7 +23,7 @@ export class InversorService {
       nombre: dto.nombre,
       password: hashedPassword,
       rol: dto.rol ?? undefined,
-      saldoVirtual: dto.saldoVirtual,
+      saldoVirtual: 10000,
       portafolio: {
         valorPortafolio: 0,
       }
