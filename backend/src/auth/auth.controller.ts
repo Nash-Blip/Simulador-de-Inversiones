@@ -33,4 +33,10 @@ export class AuthController {
         });
         return { message: 'Login exitoso', inversor };
     }
+
+    @Post('logout')
+logout(@Res({ passthrough: true }) res: Response) {
+    res.clearCookie('token', { httpOnly: true, sameSite: 'strict' });
+    return { message: 'Sesión cerrada exitosamente' };
+}
 }
