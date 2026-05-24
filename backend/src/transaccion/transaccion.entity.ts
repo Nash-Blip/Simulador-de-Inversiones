@@ -29,8 +29,8 @@ export class Transaccion {
     @CreateDateColumn()
     fecha!: Date;
 
-    @ManyToOne(() => Portafolio, (portafolio) => portafolio.transacciones)
-    portafolio!: Portafolio;
+    @ManyToOne(() => Portafolio, (portafolio) => portafolio.transacciones, {nullable: true})
+    portafolio!: Portafolio | null;
 
     @ManyToOne(() => Activo, (activo) => activo.transacciones)
     activo!: Activo;

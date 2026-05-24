@@ -46,7 +46,7 @@ export class InversorService {
   async findByEmail(email: string) {
     return this.inversorRepo.findOneBy({ email });
   }
-
+  
   async findPortafolio(id: number) {
     const inversor = await this.inversorRepo.findOne({
       where: { id },
@@ -61,10 +61,5 @@ export class InversorService {
       throw new NotFoundException(`Inversor con id ${id} no encontrado.`);
     }
     return inversor.portafolio;
-  }
-
-  async getSaldoVirtual(id: number) {
-    const inversor = this.findOne(id);
-    return (await inversor).saldoVirtual;
   }
 }

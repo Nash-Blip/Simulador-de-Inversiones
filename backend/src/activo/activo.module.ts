@@ -10,6 +10,7 @@ import { Transaccion } from '@/transaccion/transaccion.entity';
 import { Portafolio } from '@/portafolio/portafolio.entity';
 import { InversorModule } from '@/inversor/inversor.module';
 
+
 @Module({
   controllers: [ActivoController],
   providers: [ActivoService, Sistema],

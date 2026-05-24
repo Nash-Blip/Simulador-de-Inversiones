@@ -44,7 +44,7 @@ export class Sistema {
       // creamos transaccion
       const nuevaTransaccion = await this.crearTransaccion(dto,costoTotal,TipoTransaccion.COMPRA,portafolio!,activo);
       // actualizamos el precio
-      await this.actualizarPrecioActivo(activo,dto.cantidad,TipoTransaccion.COMPRA);
+      await this.activoService.actualizarPrecioActivo(activo,dto.cantidad,TipoTransaccion.COMPRA);
       // guardamos
       await this.inversorRepo.save(inversor);
       
@@ -73,7 +73,7 @@ export class Sistema {
 
       const nuevaTransaccion = await this.crearTransaccion(dto,gananciaTotal,TipoTransaccion.VENTA,portafolio!,activo);
 
-      await this.actualizarPrecioActivo(activo,dto.cantidad,TipoTransaccion.VENTA);
+      await this.activoService.actualizarPrecioActivo(activo,dto.cantidad,TipoTransaccion.COMPRA);
       
       await this.inversorRepo.save(inversor);
       
@@ -126,20 +126,5 @@ export class Sistema {
       return this.tenenciaRepo.save(tenenciaExistente);
     }
     throw new BadRequestException('Cantidad de activos insuficiente.')
-  }
-
-  private async actualizarPrecioActivo(activo: Activo, cantidad: number, tipo: TipoTransaccion) {
-    // Sensibilidad: Qué tanto afecta cada unidad operada al precio.
-    // Ej: 0.0001 significa que 100 unidades operadas mueven el precio un 1%.
-    const factorSensibilidad = 0.0001; 
-    const impacto = activo.precioActual * (cantidad * factorSensibilidad);
-
-    if (tipo === TipoTransaccion.COMPRA) {
-      // La compra aumenta la demanda -> Sube el precio
-      await this.activoRepo.update(activo.id, {precioActual: activo.precioActual + impacto});
-    } else {
-      // La venta aumenta la oferta -> Baja el precio (mínimo 0.01)
-      await this.activoRepo.update(activo.id, {precioActual: Math.max(0.01, activo.precioActual - impacto)});
-    }
   }
 }
