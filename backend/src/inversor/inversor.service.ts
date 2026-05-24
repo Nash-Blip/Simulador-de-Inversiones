@@ -3,29 +3,29 @@ import { CreateInversorDto } from './dto/create-inversor.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Inversor } from './entities/inversor.entity';
 import { Repository } from 'typeorm';
-import { Portafolio } from '@/portafolio/portafolio.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class InversorService {
   constructor(
     @InjectRepository(Inversor)
-    private readonly inversorRepo: Repository<Inversor>,
-    @InjectRepository(Portafolio)
-    private readonly portafolioRepo: Repository<Portafolio>,
-    ) {}
+    private readonly inversorRepo: Repository<Inversor>
+  ) { }
 
   async create(dto: CreateInversorDto) {
-    const existeInversor = await this.inversorRepo.findOneBy({nombre: dto.nombre});
-    if(existeInversor){
-      throw new ConflictException(`El Inversor ${dto.nombre} ya existe.`);
+    const existeInversor = await this.inversorRepo.findOneBy({ email: dto.email });
+    if (existeInversor) {
+      throw new ConflictException(`El email ${dto.email} ya está registrado.`);
     }
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
     const inversor = this.inversorRepo.create({
+      email: dto.email,
       nombre: dto.nombre,
-      saldoVirtual: dto.saldoVirtual,
+      password: hashedPassword,
+      rol: dto.rol ?? undefined,
+      saldoVirtual: 10000,
       portafolio: {
         valorPortafolio: 0,
-        transacciones: [],
-        tenencias: [],
       }
     });
     return this.inversorRepo.save(inversor);
@@ -37,18 +37,30 @@ export class InversorService {
 
   async findOne(id: number) {
     const inversor = await this.inversorRepo.findOneBy({ id });
-    if(!inversor){
+    if (!inversor) {
       throw new NotFoundException(`Inversor con id ${id} no encontrado.`);
     }
     return inversor;
   }
 
-  async findPortafolio(idInversor: number) {
-    await this.findOne(idInversor);
-    const portafolio = await this.portafolioRepo.findOne({      
-      where: { inversor: { id: idInversor }},
-      relations: ['tenencias', 'transacciones', 'tenencias.activo']});
-    return portafolio;
+  async findByEmail(email: string) {
+    return this.inversorRepo.findOneBy({ email });
+  }
+
+  async findPortafolio(id: number) {
+    const inversor = await this.inversorRepo.findOne({
+      where: { id },
+      relations: {
+        portafolio: {
+          tenencias: { activo: true },
+          transacciones: true,
+        }
+      }
+    });
+    if (!inversor?.portafolio) {
+      throw new NotFoundException(`Inversor con id ${id} no encontrado.`);
+    }
+    return inversor.portafolio;
   }
 
   async getSaldoVirtual(id: number) {

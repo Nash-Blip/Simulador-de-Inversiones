@@ -3,10 +3,11 @@ import { InversorModule } from './inversor/inversor.module';
 import { ActivoModule } from './activo/activo.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
-    InversorModule, ActivoModule,
+    InversorModule, ActivoModule, AuthModule,
 
     ConfigModule.forRoot({
       isGlobal: true,

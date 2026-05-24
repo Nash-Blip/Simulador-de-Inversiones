@@ -25,14 +25,14 @@ export class Sistema {
     private readonly activoService: ActivoService,
   ) {}
 
-  async procesarCompra(dto: CompraActivoDto) {
+  async procesarCompra(dto: CompraActivoDto, inversorId: number) {
     try {
-      const inversor = await this.inversorService.findOne(dto.inversorId);
+      const inversor = await this.inversorService.findOne(inversorId);
       const activo = await this.activoService.findOne(dto.activoId);
       // establece el costo total de la transaccion
       const costoTotal = activo.precioActual * dto.cantidad; 
       if (inversor.saldoVirtual < costoTotal) throw new BadRequestException('Saldo insuficiente');
-      const portafolio = await this.inversorService.findPortafolio(dto.inversorId);
+      const portafolio = await this.inversorService.findPortafolio(inversorId);
       // verifica la tenencia, si existe, suma la cantidad, si no, la crea
       await this.verificarTenenciaCompra(portafolio!,activo,dto.cantidad);
       
@@ -96,11 +96,11 @@ export class Sistema {
     throw new BadRequestException('Cantidad de activos insuficiente.')
   }
 
-  async procesarVenta(dto: VentaActivoDto){
+  async procesarVenta(dto: VentaActivoDto, inversorId: number){
     try{
-      const inversor = await this.inversorService.findOne(dto.inversorId);
+      const inversor = await this.inversorService.findOne(inversorId);
       const activo = await this.activoService.findOne(dto.activoId);
-      const portafolio = await this.inversorService.findPortafolio(dto.inversorId);
+      const portafolio = await this.inversorService.findPortafolio(inversorId);
 
       await this.verificarTenenciaVenta(portafolio!,activo,dto.cantidad)
 
