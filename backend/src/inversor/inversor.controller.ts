@@ -1,4 +1,5 @@
-import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards, Req } from '@nestjs/common';
+import type { Request } from 'express';
 import { InversorService } from './inversor.service';
 import { CreateInversorDto } from './dto/create-inversor.dto';
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
@@ -8,7 +9,7 @@ import { InversorRol } from '@/inversor/entities/inversor.entity';
 
 @Controller('inversor')
 export class InversorController {
-  constructor(private readonly inversorService: InversorService) {}
+  constructor(private readonly inversorService: InversorService) { }
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -22,6 +23,12 @@ export class InversorController {
   @Roles(InversorRol.ADMIN)
   findAll() {
     return this.inversorService.findAll();
+  }
+
+  @Get('portafolio')
+  @UseGuards(JwtAuthGuard)
+  findMyPortafolio(@Req() req: Request) {
+    return this.inversorService.findPortafolio((req as any).user.id);
   }
 
   @Get(':id')
