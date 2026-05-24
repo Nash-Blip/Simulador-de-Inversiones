@@ -16,7 +16,12 @@ export class ActivoService {
     if(existeActivo){
       throw new ConflictException(`El Activo ${dto.nombre} ya existe.`);
     }
-    const activo = this.activoRepo.create(dto);
+    const activo = this.activoRepo.create({
+      nombre: dto.nombre,
+      ticker: dto.ticker,
+      precioInicial: dto.precioInicial,
+      precioActual: dto.precioInicial
+    });
     return this.activoRepo.save(activo);
   }
 

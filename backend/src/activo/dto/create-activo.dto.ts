@@ -11,5 +11,5 @@ export class CreateActivoDto {
     
     @IsNumber()
     @IsPositive()
-    precioActual!: number;
+    precioInicial!: number;
 }
