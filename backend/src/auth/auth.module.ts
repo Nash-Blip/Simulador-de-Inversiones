@@ -24,4 +24,5 @@ import { InversorModule } from '@/inversor/inversor.module';
     providers: [AuthService, JwtStrategy],
     exports: [AuthService],
 })
-export class AuthModule {}
+
+export class AuthModule { }

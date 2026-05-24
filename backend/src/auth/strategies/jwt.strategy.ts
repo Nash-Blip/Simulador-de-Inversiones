@@ -4,6 +4,7 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { InversorService } from '@/inversor/inversor.service';
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
     constructor(
@@ -17,8 +18,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
             secretOrKey: configService.get<string>('JWT_SECRET')!,
         });
     }
+
     async validate(payload: { id: number; rol: string }) {
         const inversor = await this.inversorService.findOne(payload.id);
+
         if (!inversor) throw new UnauthorizedException();
         return inversor;
     }
