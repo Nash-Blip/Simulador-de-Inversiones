@@ -21,6 +21,8 @@ export class Sistema {
     private readonly tenenciaRepo: Repository<TenenciaActivo>,
     @InjectRepository(Transaccion)
     private readonly transaccionRepo: Repository<Transaccion>,
+    @InjectRepository(Activo)
+    private readonly activoRepo: Repository<Activo>,
     private readonly inversorService: InversorService,
     private readonly activoService: ActivoService,
   ) {}
@@ -41,7 +43,8 @@ export class Sistema {
 
       // creamos transaccion
       const nuevaTransaccion = await this.crearTransaccion(dto,costoTotal,TipoTransaccion.COMPRA,portafolio!,activo);
-
+      // actualizamos el precio
+      await this.activoService.actualizarPrecioActivo(activo,dto.cantidad,TipoTransaccion.COMPRA);
       // guardamos
       await this.inversorRepo.save(inversor);
       
@@ -55,6 +58,35 @@ export class Sistema {
         throw error;
     }
   }
+
+  async procesarVenta(dto: VentaActivoDto, inversorId: number){
+    try{
+      const inversor = await this.inversorService.findOne(inversorId);
+      const activo = await this.activoService.findOne(dto.activoId);
+      const portafolio = await this.inversorService.findPortafolio(inversorId);
+
+      await this.verificarTenenciaVenta(portafolio!,activo,dto.cantidad)
+
+      const gananciaTotal = activo.precioActual * dto.cantidad; 
+      inversor.saldoVirtual += gananciaTotal;
+      inversor.portafolio.valorPortafolio -= gananciaTotal;
+
+      const nuevaTransaccion = await this.crearTransaccion(dto,gananciaTotal,TipoTransaccion.VENTA,portafolio!,activo);
+
+      await this.activoService.actualizarPrecioActivo(activo,dto.cantidad,TipoTransaccion.COMPRA);
+      
+      await this.inversorRepo.save(inversor);
+      
+      return {
+        cantidad: nuevaTransaccion.cantidad,
+        fecha: nuevaTransaccion.fecha,
+        precioEjecutado: nuevaTransaccion.precioEjecutado,
+        TipoTransaccion: nuevaTransaccion.tipoTransaccion
+      };
+    } catch(error) {
+      throw error;
+    }
+  }  
 
   async verificarTenenciaCompra(portafolio: Portafolio, activo: Activo, cantidadCompra: number) {
     const tenenciaExistente = portafolio.tenencias.find(t => t.activo.id === activo.id);
@@ -94,32 +126,5 @@ export class Sistema {
       return this.tenenciaRepo.save(tenenciaExistente);
     }
     throw new BadRequestException('Cantidad de activos insuficiente.')
-  }
-
-  async procesarVenta(dto: VentaActivoDto, inversorId: number){
-    try{
-      const inversor = await this.inversorService.findOne(inversorId);
-      const activo = await this.activoService.findOne(dto.activoId);
-      const portafolio = await this.inversorService.findPortafolio(inversorId);
-
-      await this.verificarTenenciaVenta(portafolio!,activo,dto.cantidad)
-
-      const gananciaTotal = activo.precioActual * dto.cantidad; 
-      inversor.saldoVirtual += gananciaTotal;
-      inversor.portafolio.valorPortafolio -= gananciaTotal;
-
-      const nuevaTransaccion = await this.crearTransaccion(dto,gananciaTotal,TipoTransaccion.VENTA,portafolio!,activo);
-
-      await this.inversorRepo.save(inversor);
-      
-      return {
-        cantidad: nuevaTransaccion.cantidad,
-        fecha: nuevaTransaccion.fecha,
-        precioEjecutado: nuevaTransaccion.precioEjecutado,
-        TipoTransaccion: nuevaTransaccion.tipoTransaccion
-      };
-    } catch(error) {
-      throw error;
-    }
   }
 }

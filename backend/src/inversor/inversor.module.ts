@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, OnModuleInit } from '@nestjs/common';
 import { InversorService } from './inversor.service';
 import { InversorController } from './inversor.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -11,4 +11,7 @@ import { Portafolio } from '@/portafolio/portafolio.entity';
   imports: [TypeOrmModule.forFeature([Inversor, Portafolio,])],
   exports: [InversorService, TypeOrmModule],
 })
-export class InversorModule {}
+export class InversorModule implements OnModuleInit {
+  constructor(private readonly inversorService: InversorService) {}
+  onModuleInit() {}
+}

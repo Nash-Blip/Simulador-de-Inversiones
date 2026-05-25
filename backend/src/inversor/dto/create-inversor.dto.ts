@@ -12,7 +12,7 @@ export class CreateInversorDto {
     @MinLength(6)
     password!: string;
 
-    @IsOptional()
-    @IsEnum(InversorRol)
-    rol?: InversorRol;
+    // @IsOptional()
+    // @IsEnum(InversorRol)
+    // rol?: InversorRol;
 }

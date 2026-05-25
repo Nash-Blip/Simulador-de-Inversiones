@@ -4,10 +4,16 @@ import { ActivoModule } from './activo/activo.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
+import { ScheduleModule } from '@nestjs/schedule';
+import { SimuladorModule } from './simulador/simulador.module';
 
 @Module({
   imports: [
-    InversorModule, ActivoModule, AuthModule,
+    InversorModule,
+    ActivoModule, 
+    AuthModule, 
+    SimuladorModule,
+    ScheduleModule.forRoot(),
 
     ConfigModule.forRoot({
       isGlobal: true,

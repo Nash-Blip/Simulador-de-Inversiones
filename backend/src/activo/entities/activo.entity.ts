@@ -18,6 +18,14 @@ export class Activo {
         from: (value: string) => parseFloat(value),
         }
     })
+    precioInicial!: number;
+    
+    @Column({type: 'decimal',precision: 12,scale: 2,
+        transformer: {
+        to: (value: number) => value,
+        from: (value: string) => parseFloat(value),
+        }
+    })
     precioActual!: number;
 
     @OneToMany(() => Transaccion, (t) => t.activo)
