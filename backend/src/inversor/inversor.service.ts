@@ -1,9 +1,10 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateInversorDto } from './dto/create-inversor.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Inversor } from './entities/inversor.entity';
+import { Inversor, InversorRol } from './entities/inversor.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { Roles } from '@/auth/decorators/roles.decorator';
 
 @Injectable()
 export class InversorService {
@@ -11,6 +12,25 @@ export class InversorService {
     @InjectRepository(Inversor)
     private readonly inversorRepo: Repository<Inversor>
   ) { }
+
+  async onApplicationBootstrap() {
+    await this.crearAdmin();
+  }
+
+  private async crearAdmin() {
+    const passwordHasheada = await bcrypt.hash('pruebas000', 16);
+    const admin = this.inversorRepo.create({
+      email: "pruebasAdmin@mail.com",
+      nombre: "admin",
+      password: passwordHasheada,
+      rol: InversorRol.ADMIN,
+      saldoVirtual: 0,
+      portafolio: {
+        valorPortafolio: 0,
+      }
+    });
+    return this.inversorRepo.save(admin);
+  }
 
   async create(dto: CreateInversorDto) {
     const existeInversor = await this.inversorRepo.findOneBy({ email: dto.email });
@@ -22,7 +42,7 @@ export class InversorService {
       email: dto.email,
       nombre: dto.nombre,
       password: hashedPassword,
-      rol: dto.rol ?? undefined,
+      rol: InversorRol.USER,
       saldoVirtual: 10000,
       portafolio: {
         valorPortafolio: 0,
