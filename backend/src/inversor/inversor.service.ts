@@ -18,18 +18,22 @@ export class InversorService {
   }
 
   private async crearAdmin() {
-    const passwordHasheada = await bcrypt.hash('pruebas000', 16);
-    const admin = this.inversorRepo.create({
-      email: "pruebasAdmin@mail.com",
-      nombre: "admin",
-      password: passwordHasheada,
-      rol: InversorRol.ADMIN,
-      saldoVirtual: 0,
-      portafolio: {
-        valorPortafolio: 0,
-      }
-    });
+    const adminEnSistema = await this.inversorRepo.count()
+    
+    if(adminEnSistema === 0){
+      const passwordHasheada = await bcrypt.hash('pruebas000', 16);
+      const admin = this.inversorRepo.create({
+        email: "pruebasAdmin@mail.com",
+        nombre: "admin",
+        password: passwordHasheada,
+        rol: InversorRol.ADMIN,
+        saldoVirtual: 0,
+        portafolio: {
+          valorPortafolio: 0,
+        }
+      });
     return this.inversorRepo.save(admin);
+    }
   }
 
   async create(dto: CreateInversorDto) {
