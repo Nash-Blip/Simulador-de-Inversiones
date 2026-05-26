@@ -2,7 +2,7 @@
 import { useState } from 'react';
 
 export default function LoginPage() {
-    const [usuario, setUsuario] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [token, setToken] = useState('');
 
@@ -13,7 +13,7 @@ export default function LoginPage() {
                 {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ usuario, password })
+                    body: JSON.stringify({ email, password })
                 });
             const data = await response.json();
             setToken(data.token);
@@ -23,14 +23,14 @@ export default function LoginPage() {
     }
 
     function handleReset() {
-        setUsuario('');
+        setEmail('');
         setPassword('');
     }
     return (
         <div>
             <form onSubmit={handleSubmit} onReset={handleReset}>
-                <label htmlFor="usuario">usuario</label>
-                <input id="usuario" type="text" value={usuario} onChange={(e) => setUsuario(e.target.value)} />
+                <label htmlFor="email">email</label>
+                <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                 <label htmlFor="password">password</label>
                 <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
                 <button type="submit">Enviar</button>
