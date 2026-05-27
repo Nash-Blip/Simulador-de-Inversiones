@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SimuladorModule } from './simulador/simulador.module';
+import { FinnhubModule } from './api/finnhub.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { SimuladorModule } from './simulador/simulador.module';
     ActivoModule, 
     AuthModule, 
     SimuladorModule,
+    FinnhubModule,
     ScheduleModule.forRoot(),
 
     ConfigModule.forRoot({

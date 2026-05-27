@@ -34,11 +34,11 @@ export class SimuladorService implements OnApplicationBootstrap {
     
     if (cantidad === 0) {
     const activosSemilla = [
-        { nombre: 'Apple Inc.', ticker: 'AAPL', precioInicial: 175.50, precioActual: 175.50 },
-        { nombre: 'Microsoft Corporation', ticker: 'MSFT', precioInicial: 420.00, precioActual: 420.00 },
-        { nombre: 'NVIDIA Corporation', ticker: 'NVDA', precioInicial: 850.00, precioActual: 850.00 },
-        { nombre: 'Amazon.com Inc.', ticker: 'AMZN', precioInicial: 180.00, precioActual: 180.00 },
-        { nombre: 'Tesla Inc.', ticker: 'TSLA', precioInicial: 170.20, precioActual: 170.20 },
+        { nombre: 'Apple Inc.', ticker: 'AAPL', precioInicial: 0, precioActual: 0 },
+        { nombre: 'Microsoft Corporation', ticker: 'MSFT', precioInicial: 0, precioActual: 0 },
+        { nombre: 'NVIDIA Corporation', ticker: 'NVDA', precioInicial: 0, precioActual: 0 },
+        { nombre: 'Amazon.com Inc.', ticker: 'AMZN', precioInicial: 0, precioActual: 0 },
+        { nombre: 'Tesla Inc.', ticker: 'TSLA', precioInicial: 0, precioActual: 0 },
     ];
 
       const entidades = this.activoRepo.create(activosSemilla);
