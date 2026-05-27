@@ -6,6 +6,7 @@ export default function RegisterPage(){
     const [ email, setEmail ] = useState('');
     const [ password, setPassword ] = useState('');
     const [ message, setMessage ] = useState('');
+    const [ nombre, setNombre ] = useState('');
     const [register, setRegister] = useState(false);
     const router = useRouter();
 
@@ -31,6 +32,7 @@ export default function RegisterPage(){
     }
     
     function handleReset() {
+        setNombre('');
         setEmail('');
         setPassword('');
     }
@@ -43,10 +45,12 @@ export default function RegisterPage(){
                 </div>
             ) : (
                 <form onSubmit={handleSubmit} onReset={handleReset}>
+                    <label htmlFor="nombre">nombre</label>
+                    <input id="nombre" type="text" value={nombre} onChange={(e) => setNombre(e.target.value)}></input>
                     <label htmlFor="email">email</label>
-                    <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                    <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)}/>
                     <label htmlFor="password">password</label>
-                    <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                    <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)}/>
                     <button type="submit">Enviar</button>
                     <button type="reset">Restablecer</button>
                     <p>{message}</p>
