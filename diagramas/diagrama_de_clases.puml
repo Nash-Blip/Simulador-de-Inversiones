@@ -5,33 +5,23 @@ enum tipoTransaccion{
     VENTA
 }
 
-abstract class User{
-    - usuario: string
+class Inversor{
+    - nombre: string
+    - email: string
     - contraseña: string
-    + iniciarSesion(): void
-}
-
-interface Registrar{
-    + registrar(): void
-}
-
-class Inversor extends User{
     - saldoVirtual: number
     - portafolio: Portafolio
     - saldoCaucionado: number
 
     - validarTarjeta(tarjeta: number, fechaVencimiento: Date, cvc: number): void
-    ' + comprarActivos(activo: Activo, cantidad: number): void
-    ' + venderActivos(activo: Activo, cantidad: number): void
     + consultarPortafolio(): Portafolio
     + ingresarFondos(monto: number, tarjeta: number, fechaVencimiento: Date, cvc: number): void
     + colocarCaucion(monto: number, dias: number): void
-    + getters()
+    + listarActivos(): activo[]
 }
 
-class Administrador extends User{
+class Administrador extends Inversor{
     + crearActivo(nombre: string, precio: number): Activo
-    + modificarActivo(activo: Activo): void
     + listarUsuarios(): Inversor[]
 }
 
@@ -39,28 +29,11 @@ class Portafolio{
     - transacciones: Transaccion[]
     - tenenciaActivo: TenenciaActivo[]
     - valorPortafolio: number
-
-    + getGananciaPerdida(): number
-    + getHistorial(): Operacion[]
-    + getters()
 }
 
 class TenenciaActivo{
     - cantidad: number
     - activo: Activo
-}
-
-class Activo{
-    - id: number
-    - nombre: string
-    - ticker: string
-    - precio: number
-    - precioInicial: number
-    - variacion: number
-    - transacciones: Transaccion[]
-    + getPrecioActual(): number
-    + getVariacionDiaria(): number
-    + getters()
 }
 
 class Transaccion{
@@ -70,65 +43,34 @@ class Transaccion{
     - cantidad: number
     - precioEjecutado: number
     - fecha: Date
-    + getters()
+}
+
+class Activo{
+    - id: number
+    - nombre: string
+    - ticker: string
+    - precio: number
+    - precioInicial: number
+    - transacciones: Transaccion[]
 }
 
 class Simulador{
-    - activos: Activo[]
-    - url: string[]
-
-    - realizarCompra(activo: Activo):void
-    - realizarVenta(activo: Activo):void
-    + Simular(): Activo
+    + cargarActivosInicailes()
+    + simularMercado()
 }
 
 class Sistema{
-    + procesarCompra(activoId:number,cantidad:number,usuarioId:number)
-    + comprarActivos(activo:Activo,cantidad:number,inversor:Inversor)
-    + venderActivos(activo:Activo,cantidad:number,inversor:Inversor)
+    + procesarCompra(dto: CompraActivoDto, inversorId: number)
+    + procesarVenta(dto: CompraActivoDto, inversorId: number)
 }
 
 
-note right of Sistema
-    el controller tiene un @Post('/comprar')y@Post('/vender'){
-        const usuarioId = req.user.id;
-        return this.sistemaService.procesarCompra(dto.acivoId,dto.cantidad,usuarioId)
-    }
-    procesarCompra(acivoId:number,cantidad:number,usuarioId:number){
-        const activo = await this.activoRepository.findOneBy({ id: activoId })
-        const inversor = await this.inversorRepository.findOneBy({ usuarioId })
-    }
-    comprarActivo{
-        toma el precio del activo y la cantidad y crea un precio final,
-        se fija si es menor o igual que el saldo del inversor
-    }
-    Definir metodo que genere transacciones con diferente firma,
-     para las simuladas y las creadas por el usuario.
-     Tomar metodo asignarTarjeta() !?
-     Pensar si ingresarFondos() puede ser con transferencia bancaria.
-end note
-
-note left of Activo
-    getPrecioActual() retorna el precio
-    del activo, que sera asignado
-    a precioEjecutado al momento
-    de realizar una operacion
-    (compra o venta)
-end note
-
 note right of Simulador 
-    Simular(){
-        ... logica de decision compra/venta
-        llamar a realizarCompra/realizarVenta
-    }
-    realizarCompra(){
-        ... decision de cantidad de compra y 
-            operacion de compra
-        sleep(2)
-        this.Simular()
-    }
-    relizarVenta(){
-        ...
+    simularMercado(){
+        ... decision del activo a operar
+        ... decision de compra/venta
+        ... decision de la cantidad
+        ... creacion de la transaccion 
     }
 end note
 
@@ -146,12 +88,11 @@ end note
 
 Inversor o-- Portafolio 
 Portafolio *-- Transaccion
-Transaccion .l.> tipoTransaccion
+Transaccion .r.> tipoTransaccion
 Administrador ..> Activo
 Portafolio o-- TenenciaActivo
 TenenciaActivo --> Activo
-Administrador ..> Inversor
-Registrar .u.> Inversor
 Simulador *-l- Activo
+Sistema *-d- Activo
 
 @enduml
