@@ -1,10 +1,12 @@
 "use client";
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
-    const [token, setToken] = useState('');
+    const [message, setMessage] = useState('');
+    const router = useRouter();
 
     function handleSubmit(e: React.SyntheticEvent) {
         e.preventDefault();
@@ -16,7 +18,12 @@ export default function LoginPage() {
                     body: JSON.stringify({ email, password })
                 });
             const data = await response.json();
-            setToken(data.token);
+
+            if (response.ok) {
+                router.push('/');
+            } else {
+                setMessage(data.message);
+            }
         }
 
         fetchLogin();
@@ -35,6 +42,7 @@ export default function LoginPage() {
                 <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
                 <button type="submit">Enviar</button>
                 <button type="reset">Restablecer</button>
+                <p>{message}</p>
             </form>
         </div>
     );
