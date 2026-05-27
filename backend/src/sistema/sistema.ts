@@ -10,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { InversorService } from '@/inversor/inversor.service';
 import { ActivoService } from '@/activo/activo.service';
 import { Portafolio } from '@/portafolio/portafolio.entity';
+import { TransaccionService } from '@/transaccion/transaccion.service';
 
 
 @Injectable()
@@ -19,10 +20,7 @@ export class Sistema {
     private readonly inversorRepo: Repository<Inversor>,
     @InjectRepository(TenenciaActivo)
     private readonly tenenciaRepo: Repository<TenenciaActivo>,
-    @InjectRepository(Transaccion)
-    private readonly transaccionRepo: Repository<Transaccion>,
-    @InjectRepository(Activo)
-    private readonly activoRepo: Repository<Activo>,
+    private readonly transaccionService: TransaccionService,
     private readonly inversorService: InversorService,
     private readonly activoService: ActivoService,
   ) {}
@@ -42,7 +40,7 @@ export class Sistema {
       inversor.portafolio.valorPortafolio += costoTotal; // sumamos valor del portafolio
 
       // creamos transaccion
-      const nuevaTransaccion = await this.crearTransaccion(dto,costoTotal,TipoTransaccion.COMPRA,portafolio!,activo);
+      const nuevaTransaccion = await this.transaccionService.create(TipoTransaccion.COMPRA,dto.cantidad,costoTotal,portafolio,activo)
       // actualizamos el precio
       await this.activoService.actualizarPrecioActivo(activo,dto.cantidad,TipoTransaccion.COMPRA);
       // guardamos
@@ -71,7 +69,7 @@ export class Sistema {
       inversor.saldoVirtual += gananciaTotal;
       inversor.portafolio.valorPortafolio -= gananciaTotal;
 
-      const nuevaTransaccion = await this.crearTransaccion(dto,gananciaTotal,TipoTransaccion.VENTA,portafolio!,activo);
+      const nuevaTransaccion = await this.transaccionService.create(TipoTransaccion.VENTA,dto.cantidad,gananciaTotal,portafolio,activo)
 
       await this.activoService.actualizarPrecioActivo(activo,dto.cantidad,TipoTransaccion.COMPRA);
       
@@ -103,17 +101,6 @@ export class Sistema {
       });
       await this.tenenciaRepo.save(nuevaTenencia);
     }
-  }
-
-  async crearTransaccion(dto: CompraActivoDto | VentaActivoDto, precioEjecutado: number, tipoTransaccion: TipoTransaccion, portafolio: Portafolio, activo: Activo) {
-    const transaccion = this.transaccionRepo.create({
-      tipoTransaccion: tipoTransaccion,
-      cantidad: dto.cantidad,
-      precioEjecutado: precioEjecutado,
-      portafolio: portafolio,
-      activo: activo,
-    });
-    return await this.transaccionRepo.save(transaccion);
   }
 
   async verificarTenenciaVenta(portafolio: Portafolio, activo: Activo, cantidadCompra: number) {

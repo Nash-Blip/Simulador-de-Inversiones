@@ -7,11 +7,13 @@ import { AuthModule } from './auth/auth.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SimuladorModule } from './simulador/simulador.module';
 import { FinnhubModule } from './api/finnhub.module';
+import { TransaccionModule } from './transaccion/transaccion.module';
 
 @Module({
   imports: [
     InversorModule,
     ActivoModule, 
+    TransaccionModule,
     AuthModule, 
     SimuladorModule,
     FinnhubModule,
