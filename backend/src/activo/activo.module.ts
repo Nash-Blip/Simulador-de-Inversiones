@@ -9,12 +9,13 @@ import { TenenciaActivo } from '@/tenenciaActivo/tenenciaActivo.entity';
 import { Transaccion } from '@/transaccion/transaccion.entity';
 import { Portafolio } from '@/portafolio/portafolio.entity';
 import { InversorModule } from '@/inversor/inversor.module';
+import { TransaccionModule } from '@/transaccion/transaccion.module';
 
 
 @Module({
   controllers: [ActivoController],
   providers: [ActivoService, Sistema],
-  imports: [TypeOrmModule.forFeature([Activo,Inversor,TenenciaActivo,Transaccion,Portafolio,]),InversorModule],
+  imports: [TypeOrmModule.forFeature([Activo,Inversor,TenenciaActivo,Transaccion,Portafolio,]),InversorModule,TransaccionModule],
   exports: [ActivoService],
 })
 export class ActivoModule {}

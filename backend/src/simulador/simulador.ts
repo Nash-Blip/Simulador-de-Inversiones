@@ -6,6 +6,7 @@ import { Activo } from '../activo/entities/activo.entity';
 import { Transaccion } from '@/transaccion/transaccion.entity'; 
 import { ActivoService } from '../activo/activo.service';
 import { TipoTransaccion } from '@/transaccion/transaccion.entity';
+import { TransaccionService } from '@/transaccion/transaccion.service';
 
 @Injectable()
 export class SimuladorService implements OnApplicationBootstrap {
@@ -17,8 +18,7 @@ export class SimuladorService implements OnApplicationBootstrap {
   constructor(
     @InjectRepository(Activo)
     private readonly activoRepo: Repository<Activo>,
-    @InjectRepository(Transaccion)
-    private readonly transaccionRepo: Repository<Transaccion>,
+    private readonly transaccionService: TransaccionService,
     private readonly activoService: ActivoService,
   ) {}
 
@@ -100,14 +100,7 @@ export class SimuladorService implements OnApplicationBootstrap {
       if (cantidad <= 0) return;
 
       // 7. Crear la transacción sin portafolio
-      const transaccionSimulada = this.transaccionRepo.create({
-        tipoTransaccion: decision,
-        cantidad: cantidad,
-        precioEjecutado: precioActual * cantidad,
-        portafolio: null,
-        activo: activoAzar,
-      });
-      await this.transaccionRepo.save(transaccionSimulada);
+      await this.transaccionService.create(decision,cantidad,precioActual*cantidad,null,activoAzar);
 
       // 8. Actualizar el precio usando el servicio que creamos antes
       const nuevoPrecio = await this.activoService.actualizarPrecioActivo(activoAzar, cantidad, decision);

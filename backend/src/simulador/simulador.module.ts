@@ -1,12 +1,12 @@
 import { Module, OnModuleInit } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { SimuladorService } from './simulador'; // Ajustá la ruta a tu servicio
+import { SimuladorService } from './simulador';
 import { Activo } from '@/activo/entities/activo.entity';
-import { Transaccion } from '@/transaccion/transaccion.entity';
-import { ActivoModule } from '@/activo/activo.module'; // Importamos para usar ActivoService
+import { ActivoModule } from '@/activo/activo.module';
+import { TransaccionModule } from '@/transaccion/transaccion.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Activo, Transaccion]),ActivoModule],
+  imports: [TypeOrmModule.forFeature([Activo]),ActivoModule,TransaccionModule],
   providers: [SimuladorService],
 })
 export class SimuladorModule implements OnModuleInit {

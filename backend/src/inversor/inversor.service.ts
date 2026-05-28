@@ -4,14 +4,13 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Inversor, InversorRol } from './entities/inversor.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { Roles } from '@/auth/decorators/roles.decorator';
 
 @Injectable()
 export class InversorService {
   constructor(
     @InjectRepository(Inversor)
     private readonly inversorRepo: Repository<Inversor>
-  ) { }
+  ) {}
 
   async onApplicationBootstrap() {
     await this.crearAdmin();
