@@ -13,9 +13,13 @@ export default function ActivosPage() {
 
     useEffect(() => {
         const fetchActivos = async () => {
-            const response = await fetch("http://localhost:3000/activo");
+            const response = await fetch("http://localhost:3000/activo", {
+                credentials: 'include'
+            });
             const data = await response.json();
-            setActivos(data);
+            if(response.ok){
+                setActivos(data);
+            }
         }
 
         fetchActivos();
