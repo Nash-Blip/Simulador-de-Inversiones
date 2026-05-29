@@ -27,6 +27,38 @@ export class Activo {
         }
     })
     precioActual!: number;
+    
+    @Column({type: 'decimal',precision: 12,scale: 2,
+        transformer: {
+        to: (value: number) => value,
+        from: (value: string) => parseFloat(value),
+        }
+    })
+    valorMaximo!: number;
+
+    @Column({type: 'decimal',precision: 12,scale: 2,
+        transformer: {
+        to: (value: number) => value,
+        from: (value: string) => parseFloat(value),
+        }
+    })
+    valorMinimo!: number;
+
+    @Column({type: 'decimal',precision: 12,scale: 2,
+        transformer: {
+        to: (value: number) => value,
+        from: (value: string) => parseFloat(value),
+        }
+    })
+    cantOperaciones!: number;
+
+    @Column({type: 'decimal',precision: 12,scale: 2,
+        transformer: {
+        to: (value: number) => value,
+        from: (value: string) => parseFloat(value),
+        }
+    })
+    totalEjecutado!: number;
 
     @OneToMany(() => Transaccion, (t) => t.activo)
     transacciones!: Transaccion[];

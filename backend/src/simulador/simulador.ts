@@ -3,7 +3,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Interval } from '@nestjs/schedule';
 import { Activo } from '../activo/entities/activo.entity'; 
-import { Transaccion } from '@/transaccion/transaccion.entity'; 
 import { ActivoService } from '../activo/activo.service';
 import { TipoTransaccion } from '@/transaccion/transaccion.entity';
 import { TransaccionService } from '@/transaccion/transaccion.service';
@@ -33,17 +32,13 @@ export class SimuladorService implements OnApplicationBootstrap {
     const cantidad = await this.activoRepo.count();
     
     if (cantidad === 0) {
-    const activosSemilla = [
-        { nombre: 'Apple Inc.', ticker: 'AAPL', precioInicial: 0, precioActual: 0 },
-        { nombre: 'Microsoft Corporation', ticker: 'MSFT', precioInicial: 0, precioActual: 0 },
-        { nombre: 'NVIDIA Corporation', ticker: 'NVDA', precioInicial: 0, precioActual: 0 },
-        { nombre: 'Amazon.com Inc.', ticker: 'AMZN', precioInicial: 0, precioActual: 0 },
-        { nombre: 'Tesla Inc.', ticker: 'TSLA', precioInicial: 0, precioActual: 0 },
-    ];
+      await this.activoService.create({nombre:'Apple Inc.', ticker: 'AAPL', precioInicial: 0});
+      await this.activoService.create({nombre: 'Microsoft Corporation', ticker: 'MSFT', precioInicial: 0});
+      await this.activoService.create({nombre: 'NVIDIA Corporation', ticker: 'NVDA', precioInicial: 0});
+      await this.activoService.create({nombre: 'Amazon.com Inc.', ticker: 'AMZN', precioInicial: 0});
+      await this.activoService.create({nombre: 'Tesla Inc.', ticker: 'TSLA', precioInicial: 0});
 
-      const entidades = this.activoRepo.create(activosSemilla);
-      await this.activoRepo.save(entidades);
-      this.logger.log('¡Activos iniciales cargados con éxito!');
+    this.logger.log('¡Activos iniciales cargados con éxito!');
     }
   }
 
@@ -103,7 +98,7 @@ export class SimuladorService implements OnApplicationBootstrap {
       await this.transaccionService.create(decision,cantidad,precioActual*cantidad,null,activoAzar);
 
       // 8. Actualizar el precio usando el servicio que creamos antes
-      const nuevoPrecio = await this.activoService.actualizarPrecioActivo(activoAzar, cantidad, decision);
+      const nuevoPrecio = await this.activoService.actualizarActivo(activoAzar, cantidad, decision);
 
       this.logger.log(
         `[SIMULACIÓN] Activo: ${activoAzar.nombre} | Acción: ${decision} | Cantidad: ${cantidad} | Precio de ejecución: $${precioActual.toFixed(2)} | Nuevo Precio: $${nuevoPrecio.toFixed(2)}`
