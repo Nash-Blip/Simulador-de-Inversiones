@@ -10,6 +10,7 @@ type Activo = {
 
 export default function ActivosPage() {
     const [activos, setActivos] = useState<Activo[]>([]);
+    const [activoSeleccionado, setActivoSeleccionado] = useState<Activo | null>(null);
 
     useEffect(() => {
         const fetchActivos = async () => {
@@ -17,22 +18,48 @@ export default function ActivosPage() {
                 credentials: 'include'
             });
             const data = await response.json();
-            if(response.ok){
+            if (response.ok) {
                 setActivos(data);
             }
         }
-
         fetchActivos();
     }, []);
 
+    function handleSelect(select: Activo) {
+        setActivoSeleccionado(select);
+    }
+
     return (
-        <div>
-            <h1>Listado de Activos</h1>
-            <ul>
-                {activos.map((activo) => (
-                    <li key={activo.id}> {activo.nombre} - {activo.ticker} - {activo.precioActual}</li>
-                ))}
-            </ul>
+        <div className="min-h-screen bg-gray-800 py-6">
+            <div className="flex gap-6 p-6 min-h-screen bg-gray-800 justify-center">
+                <div className="w-2/5 bg-gray-700 rounded-xl shadow p-6">
+                    <h1 className="text-xl font-bold text-white-800 mb-4">Listado de Activos</h1>
+                    <div className="grid grid-cols-3 font-bold text-white-800 mb-4 gap-x-4">
+                        <p>Nombre</p>
+                        <p>Ticker</p>
+                        <p>Precio</p>
+                    </div>
+                    <ul className="divide-y divide-gray-200">
+                        {activos.map((activo) => (
+                            <li key={activo.id} onClick={() => handleSelect(activo)} className="grid grid-cols-3 py-3 px-2 cursor-pointer">
+                                <span className="font-medium text-white-800">{activo.nombre}</span>
+                                <span className="text-sm text-white-500">{activo.ticker}</span>
+                                <span className="text-green-600 font-semibold">${activo.precioActual}</span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                {activoSeleccionado && (
+                    <div className="w-1/5 bg-gray-700 rounded-xl shadow p-6">
+                        <div className="flex flex-col gap-4">
+                            <h2 className="text-xl font-bold text-white">{activoSeleccionado.nombre}</h2>
+                            <span className="bg-gray-800 text-white px-3 py-1 rounded-full text-sm w-fit">{activoSeleccionado.ticker}</span>
+                            <p className="text-2xl font-bold text-green-600">${activoSeleccionado.precioActual}</p>
+                            <button className="mt-4 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors cursor-pointer">Comprar</button>
+                        </div>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

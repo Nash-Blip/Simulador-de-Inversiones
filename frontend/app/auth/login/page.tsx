@@ -35,15 +35,17 @@ export default function LoginPage() {
         setPassword('');
     }
     return (
-        <div>
+        <div className="flex items-center justify-center min-h-screen bg-gray-800">
             <form onSubmit={handleSubmit} onReset={handleReset}>
-                <label htmlFor="email">email</label>
-                <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                <label htmlFor="password">password</label>
-                <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-                <button type="submit">Enviar</button>
-                <button type="reset">Restablecer</button>
-                <p>{message}</p>
+                <div className="flex flex-col gap-4 shadow p-6 bg-gray-700 rounded-xl">
+                    <label htmlFor="email">Email</label>
+                    <input className="bg-gray-500 rounded-xl shadow p-2" id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                    <label htmlFor="password">Password</label>
+                    <input className="bg-gray-500 rounded-xl shadow p-2" id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                    <button className="bg-green-600 rounded-xl shadow p-2" type="submit">Enviar</button>
+                    <button className="bg-green-600 rounded-xl shadow p-2" type="reset">Restablecer</button>
+                    <p>{message}</p>
+                </div>
             </form>
         </div>
     );
