@@ -42,7 +42,7 @@ export class Sistema {
       // creamos transaccion
       const nuevaTransaccion = await this.transaccionService.create(TipoTransaccion.COMPRA,dto.cantidad,costoTotal,portafolio,activo)
       // actualizamos el precio
-      await this.activoService.actualizarPrecioActivo(activo,dto.cantidad,TipoTransaccion.COMPRA);
+      await this.activoService.actualizarActivo(activo,dto.cantidad,TipoTransaccion.COMPRA);
       // guardamos
       await this.inversorRepo.save(inversor);
       
@@ -71,7 +71,7 @@ export class Sistema {
 
       const nuevaTransaccion = await this.transaccionService.create(TipoTransaccion.VENTA,dto.cantidad,gananciaTotal,portafolio,activo)
 
-      await this.activoService.actualizarPrecioActivo(activo,dto.cantidad,TipoTransaccion.COMPRA);
+      await this.activoService.actualizarActivo(activo,dto.cantidad,TipoTransaccion.COMPRA);
       
       await this.inversorRepo.save(inversor);
       

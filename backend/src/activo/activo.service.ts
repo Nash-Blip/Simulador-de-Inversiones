@@ -21,7 +21,11 @@ export class ActivoService {
       nombre: dto.nombre,
       ticker: dto.ticker,
       precioInicial: dto.precioInicial,
-      precioActual: dto.precioInicial
+      precioActual: dto.precioInicial,
+      valorMaximo: 0,
+      valorMinimo: 0,
+      cantOperaciones: 0,
+      totalEjecutado: 0
     });
     return this.activoRepo.save(activo);
   }
@@ -41,7 +45,30 @@ export class ActivoService {
     return activo;
   }
 
-  async actualizarPrecioActivo(activo: Activo, cantidad: number, tipo: TipoTransaccion) {
+  async actualizarActivo(activo: Activo, cantidad: number, tipo: TipoTransaccion) {
+    const nuevoPrecio = await this.actualizarPrecioActivo(activo,cantidad,tipo);
+
+    let nuevoMax = activo.valorMaximo
+    let nuevoMin = activo.valorMinimo
+
+    if(nuevoPrecio > activo.valorMaximo){
+      nuevoMax = nuevoPrecio;
+    }
+    if(nuevoPrecio < activo.valorMinimo){
+      nuevoMin = nuevoPrecio;
+    }
+    
+    await this.activoRepo.update(activo.id, { 
+      precioActual: nuevoPrecio,
+      valorMaximo: nuevoMax,
+      valorMinimo: nuevoMin,
+      cantOperaciones: activo.cantOperaciones + 1,
+      totalEjecutado: activo.totalEjecutado + activo.precioActual
+    });
+    return nuevoPrecio;
+  }
+
+  private async actualizarPrecioActivo(activo: Activo, cantidad: number, tipo: TipoTransaccion) {
     // Sensibilidad: Qué tanto afecta cada unidad operada al precio.
     // Ej: 0.0001 significa que 100 unidades operadas mueven el precio un 1%.
     const factorSensibilidad = 0.0001; 
@@ -56,7 +83,6 @@ export class ActivoService {
       // La venta aumenta la oferta -> Baja el precio (mínimo 0.01)
       nuevoPrecio = Math.max(0.01, precioBase - impacto);
     }
-    await this.activoRepo.update(activo.id, { precioActual: nuevoPrecio });
     return nuevoPrecio;
   }
 }

@@ -61,6 +61,8 @@ export class FinnhubService implements OnApplicationBootstrap {
       
     activo.precioInicial = precioInicial;
     activo.precioActual = precioInicial;
+    activo.valorMaximo = precioInicial;
+    activo.valorMinimo = precioInicial;
     await this.activoRepo.save(activo);
     this.logger.log(`[UPDATE] ${ticker} actualizado a $${precioInicial}`);          
   }
