@@ -6,6 +6,9 @@ import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '@/auth/guards/roles.guard';
 import { Roles } from '@/auth/decorators/roles.decorator';
 import { InversorRol } from '@/inversor/entities/inversor.entity';
+import { IngresarFondosTarjetaDto } from './dto/ingresar-fondos-tarjeta.dto';
+import { IngresarFondosTransferenciaDto } from './dto/ingresar-fondos-transferencia.dto';
+import { RetirarFondosDto } from './dto/retirar-fondos.dto';
 
 @Controller('inversor')
 export class InversorController {
@@ -43,5 +46,26 @@ export class InversorController {
   @Roles(InversorRol.ADMIN)
   findPortafolio(@Param('id', ParseIntPipe) id: number) {
     return this.inversorService.findPortafolio(id)
+  }
+
+  @Post('ingresar-fondos-tarjeta')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(InversorRol.USER)
+  ingresarFondosTarjeta(@Req() req, @Body() dto: IngresarFondosTarjetaDto) {
+    return this.inversorService.ingresarFondosTarjeta(req.user.id, dto);
+  }
+
+  @Post('ingresar-fondos-transferencia')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(InversorRol.USER)
+  ingresarFondosTransferencia(@Req() req,@Body() dto: IngresarFondosTransferenciaDto) {
+    return this.inversorService.ingresarFondosTransferencia(req.user.id, dto);
+  }
+
+  @Post('retirar-fondos')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(InversorRol.USER)
+  retirarFondos(@Req() req,@Body() dto: RetirarFondosDto) {
+    return this.inversorService.retirarFondos(req.user.id,dto);
   }
 }
