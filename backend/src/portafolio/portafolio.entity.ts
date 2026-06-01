@@ -8,10 +8,11 @@ export class Portafolio {
     @PrimaryGeneratedColumn()
     id!: number;
 
-    @Column({type: 'decimal',precision: 20,scale: 2,
+    @Column({
+        type: 'decimal', precision: 20, scale: 2,
         transformer: {
-        to: (value: number) => value,
-        from: (value: string) => parseFloat(value),
+            to: (value: number) => value,
+            from: (value: string) => parseFloat(value),
         }
     })
     valorPortafolio!: number;
