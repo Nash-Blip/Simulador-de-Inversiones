@@ -20,7 +20,7 @@ export class InversorService {
     const adminEnSistema = await this.inversorRepo.count()
     
     if(adminEnSistema === 0){
-      const passwordHasheada = await bcrypt.hash('pruebas000', 16);
+      const passwordHasheada = await bcrypt.hash('pruebas000', 10);
       const admin = this.inversorRepo.create({
         email: "pruebasAdmin@mail.com",
         nombre: "admin",
