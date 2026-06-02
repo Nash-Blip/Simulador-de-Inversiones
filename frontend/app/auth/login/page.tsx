@@ -37,7 +37,7 @@ export default function LoginPage() {
     return (
         <div className="flex items-center justify-center min-h-screen bg-gray-800">
             <form onSubmit={handleSubmit} onReset={handleReset}>
-                <div className="flex flex-col gap-4 shadow p-6 bg-gray-700 rounded-xl">
+                <div className="flex flex-col gap-4 p-6 bg-gray-700 rounded-xl border border-green-600">
                     <label htmlFor="email">Email</label>
                     <input className="bg-gray-500 rounded-xl shadow p-2" id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                     <label htmlFor="password">Password</label>
