@@ -90,53 +90,44 @@ export class InversorService {
   }
 
   async ingresarFondosTarjeta(id: number, datosTarjeta: IngresarFondosTarjetaDto) {
-    const inversor = await this.inversorRepo.findOne({where: { id }});
-    if (!inversor) {
-      throw new NotFoundException('Inversor no encontrado');
-    }
-    const tarjetaValida = this.validarTarjeta(datosTarjeta);
-    if (!tarjetaValida) {throw new BadRequestException('Tarjeta inválida');
-    }
+    const inversor = await this.findOne(id)
+
+    this.validarTarjeta(datosTarjeta);
+
     inversor.saldoVirtual += datosTarjeta.monto;
     await this.inversorRepo.save(inversor);
+
     return {mensaje:'Fondos ingresados correctamente', saldoActual:inversor.saldoVirtual};
   }
 
-  validarTarjeta(datosTarjeta: IngresarFondosTarjetaDto): boolean {
-    if (datosTarjeta.numeroTarjeta.length !== 16) {
-      return false;
-    }
-    if (datosTarjeta.cvv.length < 3 || datosTarjeta.cvv.length > 4) {
-      return false;
-    }
+  private validarTarjeta(datosTarjeta: IngresarFondosTarjetaDto) {
     const partes = datosTarjeta.vencimiento.split('/');
-    if (partes.length !== 2) {
-      return false;
-    }
     const mes = partes[0];
     const anio = partes[1];
-    if(mes.length !== 2 || anio.length !== 2) {
-      return false;
-    }
     const mesNumero = Number(mes);
-    if (mesNumero < 1 || mesNumero > 12) {
-      return false;
+    
+    if (datosTarjeta.numeroTarjeta.length !== 16 || 
+        datosTarjeta.cvv.length != 3 ||
+        partes.length !== 2 ||
+        mes.length !== 2 || 
+        anio.length !== 2 || 
+        mesNumero < 1 || 
+        mesNumero > 12) {
+      throw new BadRequestException('Tarjeta inválida');
     }
-    return true;
   }
 
   async ingresarFondosTransferencia(id: number, dto: IngresarFondosTransferenciaDto) {
     const inversor = await this.findOne(id);
+
     inversor.saldoVirtual += dto.monto;
     await this.inversorRepo.save(inversor);
+
     return {mensaje: 'Fondos ingresados correctamente', saldoActual: inversor.saldoVirtual};
   }
 
   async retirarFondos(id: number, dto: RetirarFondosDto) {
-    const inversor = await this.inversorRepo.findOne({where: { id }});
-    if (!inversor) {
-      throw new NotFoundException('Inversor no encontrado');
-    }
+    const inversor = await this.findOne(id);
     if (dto.monto > inversor.saldoVirtual) {
       throw new BadRequestException('Fondos insuficientes');
     }
