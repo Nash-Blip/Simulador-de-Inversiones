@@ -1,6 +1,6 @@
 'use client';
 
-import { Portafolio, TenenciaActivo } from '../types/index';
+import { Portafolio } from '../types/index';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -29,13 +29,16 @@ export default function InversorPage() {
             {portafolio ? (
                 <div>
                     <p>Valor del portafolio: {portafolio.valorPortafolio}</p>
-                    <ul>
-                        {portafolio.tenencias.map((tenencia) => (
-                            <li key={tenencia.id}>
-                                {tenencia.activo.nombre} - {tenencia.cantidad}
-                            </li>
-                        ))}
-                    </ul>
+                    <div className="grid grid-cols-2">
+                        <p>Activo</p>
+                        <p>Cantidad</p>
+                    </div>
+                    {portafolio.tenencias.map((tenencia) => (
+                        <div key={tenencia.id} className="grid grid-cols-2">
+                            <span>{tenencia.activo.nombre}</span>
+                            <span>{tenencia.cantidad}</span>
+                        </div>
+                    ))}
                 </div>
             ) : (
                 <p>Cargando...</p>
