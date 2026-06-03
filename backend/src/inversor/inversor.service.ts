@@ -99,14 +99,7 @@ export class InversorService {
   }
 
   async cambiarPassword(id: number, dto: CambioPasswordDto): Promise<{ message: string }> {
-    const inversor = await this.inversorRepo.findOne({
-      where: { id },
-      select: ['id', 'password'], 
-    });
-
-    if (!inversor) {
-      throw new NotFoundException(`Inversor no encontrado.`);
-    }
+    const inversor = await this.findOne(id);
     
     const coincidencia = await bcrypt.compare(dto.passwordActual, inversor.password);
     if (!coincidencia) {
