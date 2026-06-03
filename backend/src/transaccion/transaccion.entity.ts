@@ -3,8 +3,8 @@ import { Portafolio } from "@/portafolio/portafolio.entity";
 import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 
 export enum TipoTransaccion {
-    COMPRA,
-    VENTA,
+    COMPRA = 'COMPRA',
+    VENTA = 'VENTA',
 }
 
 @Entity()
