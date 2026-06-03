@@ -4,6 +4,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Inversor, InversorRol } from './entities/inversor.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import { InversorPerfilDto } from './dto/inversor.perfil.dto';
+import { CambioPasswordDto } from './dto/cambio-password.dto';
 
 @Injectable()
 export class InversorService {
@@ -84,5 +86,29 @@ export class InversorService {
       throw new NotFoundException(`Inversor con id ${id} no encontrado.`);
     }
     return inversor.portafolio;
+  }
+
+  async findPerfil(id: number): Promise<InversorPerfilDto> {
+    const inversor = await this.findOne(id);
+
+    return {
+      nombre: inversor.nombre,
+      email: inversor.email,
+    };
+    
+  }
+
+  async cambiarPassword(id: number, dto: CambioPasswordDto): Promise<{ message: string }> {
+    const inversor = await this.findOne(id);
+    
+    const coincidencia = await bcrypt.compare(dto.passwordActual, inversor.password);
+    if (!coincidencia) {
+      throw new ConflictException('La contraseña actual es incorrecta.'); 
+    }
+
+    inversor.password = await bcrypt.hash(dto.passwordNueva, 10);
+    await this.inversorRepo.save(inversor);
+
+    return { message: 'Contraseña actualizada con éxito.' };
   }
 }
