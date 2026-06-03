@@ -1,12 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-
-type Activo = {
-    id: number;
-    nombre: string;
-    ticker: string;
-    precioActual: number;
-}
+import { Activo } from "../types/index"
 
 export default function ActivosPage() {
     const [activos, setActivos] = useState<Activo[]>([]);
@@ -29,6 +23,7 @@ export default function ActivosPage() {
 
     function handleSelect(select: Activo) {
         setActivoSeleccionado(select);
+        setMostrarCompra(false);
     }
 
     function handleComprar(comprar: Activo, cant: number) {
@@ -37,7 +32,7 @@ export default function ActivosPage() {
                 {
                     method: 'POST',
                     headers: { 'Content-type': 'application/json' },
-                    body: JSON.stringify({ id: comprar.id, cantidad: cant }),
+                    body: JSON.stringify({ activoid: comprar.id, cantidad: cant }),
                     credentials: 'include'
                 });
             if (response.ok) {
