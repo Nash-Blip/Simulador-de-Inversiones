@@ -35,7 +35,6 @@ export class InversorController {
   @Get('perfil')
   @UseGuards(JwtAuthGuard)
   findPerfil(@Req() req: Request) {
-    console.log('Usuario en Request:', (req as any).user);
     return this.inversorService.findPerfil((req as any).user.id)
   }
 

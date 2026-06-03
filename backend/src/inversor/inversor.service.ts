@@ -89,23 +89,13 @@ export class InversorService {
   }
 
   async findPerfil(id: number): Promise<InversorPerfilDto> {
-    const inversor = await this.inversorRepo.findOne({
-      where: { id },
-      select: {
-        id: true,
-        nombre: true,
-        email: true,
-      },
-    });
-
-    if (!inversor) {
-      throw new NotFoundException(`Inversor con id ${id} no encontrado.`);
-    }
+    const inversor = await this.findOne(id);
 
     return {
       nombre: inversor.nombre,
       email: inversor.email,
     };
+    
   }
 
   async cambiarPassword(id: number, dto: CambioPasswordDto): Promise<{ message: string }> {
