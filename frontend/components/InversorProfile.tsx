@@ -1,6 +1,6 @@
 'use client';
 
-import { Portafolio } from '../app/types/index';
+import { Portafolio } from '../types/index';
 import { useState, useEffect } from 'react';
 
 export default function InversorPage() {

@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect } from 'react';
-import { Activo } from "../app/types/index";
+import { Activo } from '../types/index';
 
 export default function ActivosPage() {
     const [activos, setActivos] = useState<Activo[]>([]);
