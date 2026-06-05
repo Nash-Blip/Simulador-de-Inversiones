@@ -1,9 +1,8 @@
-import { IsNumber, IsString, Min } from "class-validator";
+import { IsNumber, IsPositive, IsString } from "class-validator";
 
 export class IngresarFondosTarjetaDto {
-
     @IsNumber()
-    @Min(1)
+    @IsPositive()
     monto!: number;
 
     @IsString()

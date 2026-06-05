@@ -1,9 +1,8 @@
-import { IsNotEmpty, IsNumber, IsString, Min, IsNumberString, Length} from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString, IsNumberString, Length, IsPositive} from 'class-validator';
 
 export class RetirarFondosDto {
-
   @IsNumber()
-  @Min(1)
+  @IsPositive()
   monto!: number;
 
   @IsNumberString()
