@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards, Req, Patch } from '@nestjs/common';
 import type { Request } from 'express';
 import { InversorService } from './inversor.service';
 import { CreateInversorDto } from './dto/create-inversor.dto';
@@ -9,6 +9,8 @@ import { InversorRol } from '@/inversor/entities/inversor.entity';
 import { IngresarFondosTarjetaDto } from './dto/ingresar-fondos-tarjeta.dto';
 import { IngresarFondosTransferenciaDto } from './dto/ingresar-fondos-transferencia.dto';
 import { RetirarFondosDto } from './dto/retirar-fondos.dto';
+import { CambioPasswordDto } from './dto/cambio-password.dto';
+
 
 @Controller('inversor')
 export class InversorController {
@@ -32,6 +34,21 @@ export class InversorController {
   @UseGuards(JwtAuthGuard)
   findMyPortafolio(@Req() req: Request) {
     return this.inversorService.findPortafolio((req as any).user.id);
+  }
+
+  @Get('perfil')
+  @UseGuards(JwtAuthGuard)
+  findPerfil(@Req() req: Request) {
+    return this.inversorService.findPerfil((req as any).user.id)
+  }
+
+  @Patch('cambiar-password')
+  @UseGuards(JwtAuthGuard)
+  async cambiarPassword(
+    @Req() req: Request,
+    @Body() cambiarPasswordDto: CambioPasswordDto,
+  ) {
+    return this.inversorService.cambiarPassword((req as any).user.id, cambiarPasswordDto);
   }
 
   @Get(':id')
