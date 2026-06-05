@@ -60,7 +60,4 @@ export class InversorController {
   findPortafolio(@Param('id', ParseIntPipe) id: number) {
     return this.inversorService.findPortafolio(id)
   }
-
-
-
 }

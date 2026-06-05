@@ -49,7 +49,7 @@ describe('ActivoService', () => {
       precioInicial: 50000,
     };
 
-    it('debería crear y retornar un activo exitosamente', async () => {
+    it('debería crear y retornar un activo exitosamente si no existe', async () => {
       mockActivoRepository.findOneBy.mockResolvedValue(null);
       mockActivoRepository.create.mockReturnValue(createActivoDto);
       mockActivoRepository.save.mockResolvedValue({ id: 1, ...createActivoDto });
@@ -57,16 +57,18 @@ describe('ActivoService', () => {
       const result = await service.create(createActivoDto);
 
       expect(mockActivoRepository.findOneBy).toHaveBeenCalledWith({ nombre: createActivoDto.nombre });
+      
       expect(mockActivoRepository.create).toHaveBeenCalledWith({
         nombre: createActivoDto.nombre,
         ticker: createActivoDto.ticker,
         precioInicial: createActivoDto.precioInicial,
         precioActual: createActivoDto.precioInicial,
-        valorMaximo: 0,
-        valorMinimo: 0,
+        valorMaximo: createActivoDto.precioInicial,
+        valorMinimo: createActivoDto.precioInicial, 
         cantOperaciones: 0,
         totalEjecutado: 0,
       });
+      
       expect(mockActivoRepository.save).toHaveBeenCalled();
       expect(result).toEqual({ id: 1, ...createActivoDto });
     });

@@ -22,8 +22,8 @@ export class ActivoService {
       ticker: dto.ticker,
       precioInicial: dto.precioInicial,
       precioActual: dto.precioInicial,
-      valorMaximo: 0,
-      valorMinimo: 0,
+      valorMaximo: dto.precioInicial,
+      valorMinimo: dto.precioInicial,
       cantOperaciones: 0,
       totalEjecutado: 0
     });
