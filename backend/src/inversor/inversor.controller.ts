@@ -14,7 +14,7 @@ import { CambioPasswordDto } from './dto/cambio-password.dto';
 
 @Controller('inversor')
 export class InversorController {
-  constructor(private readonly inversorService: InversorService) { }
+  constructor(private readonly inversorService: InversorService) {}
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -51,6 +51,24 @@ export class InversorController {
     return this.inversorService.cambiarPassword((req as any).user.id, cambiarPasswordDto);
   }
 
+  @Post('ingresar-fondos-tarjeta')
+  @UseGuards(JwtAuthGuard)
+  ingresarFondosTarjeta(@Req() req, @Body() dto: IngresarFondosTarjetaDto) {
+    return this.inversorService.ingresarFondosTarjeta((req as any).user.id, dto);
+  }
+
+  @Post('ingresar-fondos-transferencia')
+  @UseGuards(JwtAuthGuard)
+  ingresarFondosTransferencia(@Req() req, @Body() dto: IngresarFondosTransferenciaDto) {
+    return this.inversorService.ingresarFondosTransferencia((req as any).user.id, dto);
+  }
+
+  @Post('retirar-fondos')
+  @UseGuards(JwtAuthGuard)
+  retirarFondos(@Req() req, @Body() dto: RetirarFondosDto) {
+    return this.inversorService.retirarFondos((req as any).user.id, dto);
+  }
+
   @Get(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(InversorRol.ADMIN)
@@ -65,24 +83,4 @@ export class InversorController {
     return this.inversorService.findPortafolio(id)
   }
 
-  @Post('ingresar-fondos-tarjeta')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(InversorRol.USER)
-  ingresarFondosTarjeta(@Req() req, @Body() dto: IngresarFondosTarjetaDto) {
-    return this.inversorService.ingresarFondosTarjeta(req.user.id, dto);
-  }
-
-  @Post('ingresar-fondos-transferencia')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(InversorRol.USER)
-  ingresarFondosTransferencia(@Req() req,@Body() dto: IngresarFondosTransferenciaDto) {
-    return this.inversorService.ingresarFondosTransferencia(req.user.id, dto);
-  }
-
-  @Post('retirar-fondos')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(InversorRol.USER)
-  retirarFondos(@Req() req,@Body() dto: RetirarFondosDto) {
-    return this.inversorService.retirarFondos(req.user.id,dto);
-  }
 }
