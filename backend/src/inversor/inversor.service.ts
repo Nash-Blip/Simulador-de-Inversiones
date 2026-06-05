@@ -24,7 +24,7 @@ export class InversorService {
   private async crearAdmin() {
     const adminEnSistema = await this.inversorRepo.count()
 
-    if(adminEnSistema === 0){
+    if (adminEnSistema === 0) {
       const passwordHasheada = await bcrypt.hash('pruebas000', 10);
       const admin = this.inversorRepo.create({
         email: "pruebasAdmin@mail.com",
@@ -36,7 +36,7 @@ export class InversorService {
           valorPortafolio: 0,
         }
       });
-    return this.inversorRepo.save(admin);
+      return this.inversorRepo.save(admin);
     }
   }
 
@@ -88,7 +88,10 @@ export class InversorService {
     if (!inversor?.portafolio) {
       throw new NotFoundException(`Inversor con id ${id} no encontrado.`);
     }
-    return inversor.portafolio;
+    return {
+      saldoVirtual: inversor.saldoVirtual,
+      ...inversor.portafolio,
+    };
   }
 
   async ingresarFondosTarjeta(id: number, datosTarjeta: IngresarFondosTarjetaDto) {
@@ -99,7 +102,7 @@ export class InversorService {
     inversor.saldoVirtual += datosTarjeta.monto;
     await this.inversorRepo.save(inversor);
 
-    return {mensaje:'Fondos ingresados correctamente', saldoActual:inversor.saldoVirtual};
+    return { mensaje: 'Fondos ingresados correctamente', saldoActual: inversor.saldoVirtual };
   }
 
   private validarTarjeta(datosTarjeta: IngresarFondosTarjetaDto) {
@@ -107,14 +110,14 @@ export class InversorService {
     const mes = partes[0];
     const anio = partes[1];
     const mesNumero = Number(mes);
-    
-    if (datosTarjeta.numeroTarjeta.length !== 16 || 
-        datosTarjeta.cvv.length != 3 ||
-        partes.length !== 2 ||
-        mes.length !== 2 || 
-        anio.length !== 2 || 
-        mesNumero < 1 || 
-        mesNumero > 12) {
+
+    if (datosTarjeta.numeroTarjeta.length !== 16 ||
+      datosTarjeta.cvv.length != 3 ||
+      partes.length !== 2 ||
+      mes.length !== 2 ||
+      anio.length !== 2 ||
+      mesNumero < 1 ||
+      mesNumero > 12) {
       throw new BadRequestException('Tarjeta inválida');
     }
   }
@@ -125,7 +128,7 @@ export class InversorService {
     inversor.saldoVirtual += dto.monto;
     await this.inversorRepo.save(inversor);
 
-    return {mensaje: 'Fondos ingresados correctamente', saldoActual: inversor.saldoVirtual};
+    return { mensaje: 'Fondos ingresados correctamente', saldoActual: inversor.saldoVirtual };
   }
 
   async retirarFondos(id: number, dto: RetirarFondosDto) {
@@ -135,7 +138,7 @@ export class InversorService {
     }
     inversor.saldoVirtual -= dto.monto;
     await this.inversorRepo.save(inversor);
-    return {mensaje: 'Fondos retirados correctamente',saldoActual: inversor.saldoVirtual};
+    return { mensaje: 'Fondos retirados correctamente', saldoActual: inversor.saldoVirtual };
   }
   async findPerfil(id: number): Promise<InversorPerfilDto> {
     const inversor = await this.findOne(id);
@@ -144,15 +147,15 @@ export class InversorService {
       nombre: inversor.nombre,
       email: inversor.email,
     };
-    
+
   }
 
   async cambiarPassword(id: number, dto: CambioPasswordDto): Promise<{ message: string }> {
     const inversor = await this.findOne(id);
-    
+
     const coincidencia = await bcrypt.compare(dto.passwordActual, inversor.password);
     if (!coincidencia) {
-      throw new ConflictException('La contraseña actual es incorrecta.'); 
+      throw new ConflictException('La contraseña actual es incorrecta.');
     }
 
     inversor.password = await bcrypt.hash(dto.passwordNueva, 10);
