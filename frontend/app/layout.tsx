@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import LogoutButton from "@/components/LogoutButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,9 +28,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-gray-800 text-white">
         <header className="bg-gray-800 px-6 py-4 flex items-center justify-between border-b border-green-600">
           <span className="text-xl font-bold text-green-400">Simulador de Inversiones</span>
-          <button className="text-white bg-green-600 rounded-xl shadow p-2 cursor-pointer">
-            Cerrar sesión
-          </button>
+          <LogoutButton/>
         </header>
         <main className="flex-1">
           {children}

@@ -43,10 +43,10 @@ export default function LoginPage() {
                     <input className="bg-gray-500 rounded-xl shadow p-2" id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                     <label htmlFor="password">Password</label>
                     <input className="bg-gray-500 rounded-xl shadow p-2" id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-                    <button className="bg-green-600 rounded-xl shadow p-2" type="submit">Enviar</button>
-                    <button className="bg-green-600 rounded-xl shadow p-2" type="reset">Restablecer</button>
+                    <button className="bg-green-600 rounded-xl shadow p-2 text-sm text-white-600 hover:text-black transition-colors cursor-pointer" type="submit">Enviar</button>
+                    <button className="bg-green-600 rounded-xl shadow p-2 text-sm text-white-600 hover:text-black transition-colors cursor-pointer" type="reset">Restablecer</button>
                     <p>{message}</p>
-                    <p>¿No estás registrado? <Link href="/auth/register" className="text-green-400 hover:text-green-300">Registrarse</Link></p>
+                    <p>¿No estás registrado? <Link href="/auth/register" className="text-green-400 hover:text-black">Registrarse</Link></p>
                 </div>
             </form>
         </div>
