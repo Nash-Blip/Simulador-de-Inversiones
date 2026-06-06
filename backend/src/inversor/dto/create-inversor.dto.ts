@@ -11,8 +11,4 @@ export class CreateInversorDto {
     @IsString()
     @MinLength(6)
     password!: string;
-
-    // @IsOptional()
-    // @IsEnum(InversorRol)
-    // rol?: InversorRol;
 }
