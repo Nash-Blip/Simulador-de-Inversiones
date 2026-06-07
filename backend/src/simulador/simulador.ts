@@ -11,8 +11,8 @@ import { TransaccionService } from '@/transaccion/transaccion.service';
 export class SimuladorService implements OnApplicationBootstrap {
   private readonly logger = new Logger(SimuladorService.name);
   
-  // Guardaremos el histórico de precios en memoria para saber "cómo viene fluctuando"
-  private historicoPrecios: Map<number, number[]> = new Map();
+  // Guardaremos el historial de precios en memoria para ver cómo viene fluctuando
+  private historialPrecios: Map<number, number[]> = new Map();
 
   constructor(
     @InjectRepository(Activo)
@@ -21,7 +21,6 @@ export class SimuladorService implements OnApplicationBootstrap {
     private readonly activoService: ActivoService,
   ) {}
 
-  // Este método de NestJS hace que el simulador arranque apenas levanta el servidor
   async onApplicationBootstrap() {
     this.logger.log('Comprobando catálogo de activos...');
     await this.cargarActivosIniciales();
@@ -42,70 +41,73 @@ export class SimuladorService implements OnApplicationBootstrap {
     }
   }
 
-  // Ejecuta la simulación automáticamente cada 5 segundos
   @Interval(5000)
   async simularMercado() {
     try {
-      // 1. Obtener todos los activos disponibles
-      const activos = await this.activoRepo.find();
-      if (activos.length === 0) return;
+      // 1. Obtener un activo al azar
+      const activoAzar = await this.obtenerActivoAlAzar();
+      if (!activoAzar) return;
 
-      // 2. Elegir un activo al azar
-      const activoAzar = activos[Math.floor(Math.random() * activos.length)];
-      const precioActual = Number(activoAzar.precioActual);
+      // 2. Registrar precio y analizar la tendencia del mercado
+      const tendencia = this.actualizarHistorialYCalcularTendencia(activoAzar.id, activoAzar.precioActual);
 
-      // 3. Registrar el precio en el historial para medir la fluctuación
-      if (!this.historicoPrecios.has(activoAzar.id)) {
-        this.historicoPrecios.set(activoAzar.id, []);
-      }
-      const precios = this.historicoPrecios.get(activoAzar.id)!;
-      precios.push(precioActual);
-      if (precios.length > 5) precios.shift(); // Mantenemos solo las últimas 5 variaciones
+      // 3. Tomar decisiones de trading (Acción y Volumen)
+      const decision = this.decidirAcción(tendencia);
+      const cantidad = this.calcularCantidad(activoAzar.precioActual);
 
-      // 4. Analizar cómo viene fluctuando (Tendencia)
-      let tendencia = 0; // Positivo si sube, negativo si baja
-      if (precios.length > 1) {
-        tendencia = precioActual - precios[0]; 
-      }
-
-      // 5. Decidir si COMPRAR o VENDER basándose en la tendencia
-      // Psicología de mercado básica: si el precio viene subiendo (tendencia > 0), el bot tiende a comprar por FOMO. 
-      // Si viene bajando, tiende a vender por pánico. Añadimos un factor aleatorio (Math.random()) para romper la monotonía.
-      let decision: TipoTransaccion;
-      if (tendencia > 0) {
-        decision = Math.random() > 0.3 ? TipoTransaccion.COMPRA : TipoTransaccion.VENTA;
-      } else {
-        decision = Math.random() > 0.4 ? TipoTransaccion.VENTA : TipoTransaccion.COMPRA;
-      }
-
-      // 6. Decidir la cantidad
-      let cantidad = 1;
-
-      if (precioActual > 500) {
-      // Para acciones caras (NVIDIA), opera entre 1 y 5 acciones por vuelta
-      cantidad = Math.floor(Math.random() * 5) + 1; 
-      } else if (precioActual > 200) {
-      // Para acciones medianas (Microsoft), opera entre 2 y 15 acciones
-      cantidad = Math.floor(Math.random() * 14) + 2; 
-      } else {
-      // Para acciones más baratas (Apple, Amazon, Tesla), opera entre 5 y 30 acciones
-      cantidad = Math.floor(Math.random() * 26) + 5; 
-      }
-
-      if (cantidad <= 0) return;
-
-      // 7. Crear la transacción sin portafolio
-      await this.transaccionService.create(decision,cantidad,precioActual*cantidad,null,activoAzar);
-
-      // 8. Actualizar el precio usando el servicio que creamos antes
+      // 4. Ejecutar la operación en la Base de Datos
+      await this.transaccionService.create(decision, cantidad, activoAzar.precioActual * cantidad, null, activoAzar);
       const nuevoPrecio = await this.activoService.actualizarActivo(activoAzar, cantidad, decision);
 
       this.logger.log(
-        `[SIMULACIÓN] Activo: ${activoAzar.nombre} | Acción: ${decision} | Cantidad: ${cantidad} | Precio de ejecución: $${precioActual.toFixed(2)} | Nuevo Precio: $${nuevoPrecio.toFixed(2)}`
+        `[SIMULACIÓN] Activo: ${activoAzar.nombre} | Acción: ${decision} | Cantidad: ${cantidad} | Precio de ejecución: $${activoAzar.precioActual.toFixed(2)} | Nuevo Precio: $${nuevoPrecio.toFixed(2)}`
       );
 
     } catch (error) {
       this.logger.error('Error en el ciclo del simulador:', error);
+    }
+  }
+
+  private async obtenerActivoAlAzar(): Promise<Activo | null> {
+    const activos = await this.activoRepo.find();
+    if (activos.length === 0) return null;
+    return activos[Math.floor(Math.random() * activos.length)];
+  }
+
+  private actualizarHistorialYCalcularTendencia(activoId: number, precioActual: number): number {
+    if (!this.historialPrecios.has(activoId)) {
+      this.historialPrecios.set(activoId, []);
+    }
+    
+    const precios = this.historialPrecios.get(activoId)!;
+    precios.push(precioActual);
+    if (precios.length > 5) {
+      precios.shift(); // Mantenemos solo las últimas 5 variaciones
+    }
+
+    // Calcula la tendencia: positivo si sube, negativo si baja
+    return precios.length > 1 ? precioActual - precios[0] : 0;
+  }
+
+  private decidirAcción(tendencia: number): TipoTransaccion {
+    // Psicología de mercado básica (FOMO vs Pánico) con factor aleatorio para romper monotonía
+    if (tendencia > 0) {
+      return Math.random() > 0.3 ? TipoTransaccion.COMPRA : TipoTransaccion.VENTA;
+    } else {
+      return Math.random() > 0.4 ? TipoTransaccion.VENTA : TipoTransaccion.COMPRA;
+    }
+  }
+  // esta funcion limita al simulador ya que sino compraria acciones de a cientas por operacion. 
+  private calcularCantidad(precioActual: number): number {
+    if (precioActual > 500) {
+      // Para acciones caras (NVIDIA), opera entre 1 y 5 acciones
+      return Math.floor(Math.random() * 5) + 1; 
+    } else if (precioActual > 200) {
+      // Para acciones medianas (Microsoft), opera entre 2 y 15 acciones
+      return Math.floor(Math.random() * 14) + 2; 
+    } else {
+      // Para acciones más baratas (Apple, Amazon, Tesla), opera entre 5 y 30 acciones
+      return Math.floor(Math.random() * 26) + 5; 
     }
   }
 }
