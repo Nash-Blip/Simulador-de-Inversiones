@@ -33,3 +33,12 @@ export type Portafolio = {
     transacciones: Transaccion[];
     tenencias: TenenciaActivo[];
 }
+
+export type TransaccionHistorial = {
+    id: number;
+    tipoTransaccion: TipoTransaccion;
+    cantidad: number;
+    precioEjecutado: number;
+    fecha: Date;
+    ticker: string | null;
+}
