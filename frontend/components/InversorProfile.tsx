@@ -27,7 +27,7 @@ export default function InversorPage() {
         <div>
             {portafolio ? (
                 <div>
-                    <p>Valor del portafolio: {portafolio.valorPortafolio}</p>
+                    <p>Costo del portafolio: {portafolio.costoPortafolio}</p>
                     <div className="grid grid-cols-2">
                         <p>Activo</p>
                         <p>Cantidad</p>
