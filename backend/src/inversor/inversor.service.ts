@@ -9,13 +9,14 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { InversorPerfilDto } from './dto/inversor.perfil.dto';
 import { CambioPasswordDto } from './dto/cambio-password.dto';
+import { TenenciaActivo } from '@/tenenciaActivo/tenenciaActivo.entity';
 
 @Injectable()
 export class InversorService {
   constructor(
     @InjectRepository(Inversor)
     private readonly inversorRepo: Repository<Inversor>
-  ) {}
+  ) { }
 
   async onApplicationBootstrap() {
     await this.crearAdmin();
@@ -33,7 +34,7 @@ export class InversorService {
         rol: InversorRol.ADMIN,
         saldoVirtual: 0,
         portafolio: {
-          valorPortafolio: 0,
+          costoPortafolio: 0,
         }
       });
       return this.inversorRepo.save(admin);
@@ -53,7 +54,7 @@ export class InversorService {
       rol: InversorRol.USER,
       saldoVirtual: 10000,
       portafolio: {
-        valorPortafolio: 0,
+        costoPortafolio: 0,
       }
     });
     return this.inversorRepo.save(inversor);
@@ -88,10 +89,40 @@ export class InversorService {
     if (!inversor?.portafolio) {
       throw new NotFoundException(`Inversor con id ${id} no encontrado.`);
     }
+
+    const tenenciasConRendimiento = inversor.portafolio.tenencias.map(t => ({
+      ...t,
+      rendimiento: this.calcularRendimientoTenencia(t),
+    }));
+
+    const valorPortafolio = this.calcularValorPortafolio(inversor.portafolio.tenencias);
+    const costoPortafolio = Number(inversor.portafolio.costoPortafolio);
+    const rendimientoPortafolio = this.calcularRendimientoPortafolio(valorPortafolio, costoPortafolio);
+
     return {
       saldoVirtual: inversor.saldoVirtual,
       ...inversor.portafolio,
+      valorPortafolio,
+      rendimientoPortafolio,
+      tenencias: tenenciasConRendimiento,
     };
+  }
+
+  private calcularRendimientoTenencia(tenencia: TenenciaActivo): number {
+    const precioCompra = Number(tenencia.precioCompra);
+    if (precioCompra === 0) return 0;
+    return Number((((Number(tenencia.activo.precioActual) - precioCompra) / precioCompra) * 100).toFixed(2));
+  }
+
+  private calcularValorPortafolio(tenencias: TenenciaActivo[]): number {
+    return Number(tenencias
+      .reduce((total, t) => total + (Number(t.cantidad) * Number(t.activo.precioActual)), 0)
+      .toFixed(2));
+  }
+
+  private calcularRendimientoPortafolio(valorPortafolio: number, costoPortafolio: number): number {
+    if (costoPortafolio === 0) return 0;
+    return Number((((valorPortafolio - costoPortafolio) / costoPortafolio) * 100).toFixed(2));
   }
 
   async ingresarFondosTarjeta(id: number, datosTarjeta: IngresarFondosTarjetaDto) {
