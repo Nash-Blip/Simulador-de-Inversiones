@@ -13,6 +13,7 @@ export default function UserMenu() {
             method: 'POST',
             credentials: 'include',
         });
+        setUsuario(null);
         router.push('/auth/login');
     }
 
