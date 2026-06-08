@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import UserMenu from '@/components/UserMenu';
+import NavBar from '@/components/NavBar';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,6 +30,7 @@ export default function RootLayout({
         <header className="bg-gray-800 px-6 py-4 flex items-center justify-between border-b border-green-600">
           <span className="text-xl font-bold text-green-400">Simulador de Inversiones</span>
           <UserMenu/>
+          <NavBar/>
         </header>
         <main className="flex-1">
           {children}
