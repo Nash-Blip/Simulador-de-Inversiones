@@ -1,13 +1,11 @@
 "use client";
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
-    const router = useRouter();
 
     function handleSubmit(e: React.SyntheticEvent) {
         e.preventDefault();
