@@ -17,7 +17,7 @@ export class TenenciaActivo {
   cantidad!: number;
 
   @Column({
-    type: 'decimal', precision: 12, scale: 2,
+    type: 'decimal', precision: 14, scale: 6,
     transformer: {
       to: (value: number) => value,
       from: (value: string) => parseFloat(value),

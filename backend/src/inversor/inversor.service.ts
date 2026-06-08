@@ -122,6 +122,7 @@ export class InversorService {
 
   private calcularRendimientoPortafolio(valorPortafolio: number, costoPortafolio: number): number {
     if (costoPortafolio === 0) return 0;
+    if (Math.abs(costoPortafolio) < 0.01) return 0;
     return Number((((valorPortafolio - costoPortafolio) / costoPortafolio) * 100).toFixed(2));
   }
 

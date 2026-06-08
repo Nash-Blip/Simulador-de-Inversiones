@@ -37,7 +37,7 @@ export class Sistema {
       await this.verificarTenenciaCompra(portafolio!, activo, dto.cantidad);
 
       inversor.saldoVirtual -= costoTotal; // restamos saldo
-      inversor.portafolio.costoPortafolio += costoTotal; // sumamos valor del portafolio
+      inversor.portafolio.costoPortafolio = Number((inversor.portafolio.costoPortafolio + costoTotal).toFixed(2)); // sumamos valor del portafolio
 
       // creamos transaccion
       const nuevaTransaccion = await this.transaccionService.create(TipoTransaccion.COMPRA, dto.cantidad, costoTotal, portafolio, activo)
@@ -73,7 +73,7 @@ export class Sistema {
       const costoVendido = precioCompra * dto.cantidad;
       
       inversor.saldoVirtual += ingresoVenta;
-      inversor.portafolio.costoPortafolio -= costoVendido;
+      inversor.portafolio.costoPortafolio = Number((inversor.portafolio.costoPortafolio - costoVendido).toFixed(2));
 
       const nuevaTransaccion = await this.transaccionService.create(TipoTransaccion.VENTA, dto.cantidad, ingresoVenta, portafolio, activo)
 
