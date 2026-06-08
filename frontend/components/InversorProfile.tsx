@@ -15,7 +15,6 @@ export default function InversorPage() {
                     credentials: "include",
                 });
             const data = await response.json();
-            console.log(data);
             if (response.ok) {
                 setPortafolio(data);
             }

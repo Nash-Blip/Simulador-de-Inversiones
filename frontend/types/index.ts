@@ -42,3 +42,8 @@ export type TransaccionHistorial = {
     fecha: Date;
     ticker: string | null;
 }
+
+export type Perfil = {
+    nombre: string;
+    email: string;
+}
