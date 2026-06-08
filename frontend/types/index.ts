@@ -29,7 +29,7 @@ export type TenenciaActivo = {
 
 export type Portafolio = {
     id: number;
-    valorPortafolio: number;
+    costoPortafolio: number;
     transacciones: Transaccion[];
     tenencias: TenenciaActivo[];
 }

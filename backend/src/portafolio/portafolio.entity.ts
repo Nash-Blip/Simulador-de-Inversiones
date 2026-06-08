@@ -15,7 +15,7 @@ export class Portafolio {
             from: (value: string) => parseFloat(value),
         }
     })
-    valorPortafolio!: number;
+    costoPortafolio!: number;
 
     @OneToMany(() => Transaccion, (transaccion) => transaccion.portafolio, { cascade: true })
     transacciones!: Transaccion[];
