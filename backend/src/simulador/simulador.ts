@@ -1,6 +1,5 @@
 import { Injectable, OnApplicationBootstrap, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Interval } from '@nestjs/schedule';
 import { Activo } from '../activo/entities/activo.entity'; 
 import { ActivoService } from '../activo/activo.service';
@@ -15,8 +14,6 @@ export class SimuladorService implements OnApplicationBootstrap {
   private historialPrecios: Map<number, number[]> = new Map();
 
   constructor(
-    @InjectRepository(Activo)
-    private readonly activoRepo: Repository<Activo>,
     private readonly transaccionService: TransaccionService,
     private readonly activoService: ActivoService,
   ) {}
@@ -28,7 +25,7 @@ export class SimuladorService implements OnApplicationBootstrap {
   }
 
   private async cargarActivosIniciales() {
-    const cantidad = await this.activoRepo.count();
+    const cantidad = (await this.activoService.findAll()).length;
     
     if (cantidad === 0) {
       await this.activoService.create({nombre:'Apple Inc.', ticker: 'AAPL', precioInicial: 0});
@@ -69,7 +66,7 @@ export class SimuladorService implements OnApplicationBootstrap {
   }
 
   private async obtenerActivoAlAzar(): Promise<Activo | null> {
-    const activos = await this.activoRepo.find();
+    const activos = await this.activoService.findAll();
     if (activos.length === 0) return null;
     return activos[Math.floor(Math.random() * activos.length)];
   }
