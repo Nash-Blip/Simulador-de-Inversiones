@@ -1,12 +1,13 @@
 'use client';
 
-import { Activo, Portafolio } from '../types/index';
+import { Activo, Portafolio, TenenciaActivo } from '../types/index';
 import { useState, useEffect } from 'react';
 
 export default function InversorPage() {
     const [portafolio, setPortafolio] = useState<Portafolio | null>(null);
     const [cantidad, setCantidadVenta] = useState(0);
-    
+    const [activoSeleccionado, setActivoSeleccionado] = useState<TenenciaActivo | null>(null);
+
     useEffect(() => {
         const fetchInversor = async () => {
             const response = await fetch("http://localhost:3000/inversor/portafolio",
@@ -32,7 +33,7 @@ export default function InversorPage() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ activoId: vender.id, cantidad: cant })
                 });
-            if(response.ok){
+            if (response.ok) {
                 window.location.reload();
             }
         }
@@ -40,28 +41,62 @@ export default function InversorPage() {
         fetchVenta();
     }
 
+    function handleSelect(select: TenenciaActivo) {
+        setActivoSeleccionado(select);
+    }
+
     return (
-        <div>
-            {portafolio ? (
-                <div>
-                    <p>Costo del portafolio: {portafolio.costoPortafolio}</p>
-                    <div className="grid grid-cols-2">
-                        <p>Activo</p>
-                        <p>Cantidad</p>
-                    </div>
-                    {portafolio.tenencias.map((tenencia) => (
-                        <div key={tenencia.id} className="grid grid-cols-2">
-                            <span>{tenencia.activo.nombre}</span>
-                            <span>{tenencia.cantidad}</span>
-                            <input className="bg-gray-500 rounded-xl shadow p-2" id="cantidad" type="number" value={cantidad === 0 ? '' : cantidad} onChange={(e) => setCantidadVenta(Number(e.target.value))}/>
-                            <label htmlFor="cantidad">Cantidad</label>
-                            <button className="mt-4 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors cursor-pointer" onClick={() => handleVender(tenencia.activo, cantidad)}>vender</button>
+        <div className="min-h-screen bg-gray-800 py-6">
+            <div className="flex gap-6 p-6 min-h-screen bg-gray-800 justify-center">
+                {portafolio ? (
+                    <>
+                        <div className="w-2/5 bg-gray-700 rounded-xl border border-green-500 p-6">
+                            <h1 className="text-xl font-bold text-white mb-4">Costo del portafolio: {portafolio.costoPortafolio}</h1>
+                            <div className="grid grid-cols-3 font-bold text-white mb-4 gap-x-4">
+                                <p>Activo</p>
+                                <p>Cantidad</p>
+                                <p></p>
+                            </div>
+                            <ul className="divide-y divide-gray-200">
+                                {portafolio.tenencias.map((tenencia) => (
+                                    <li key={tenencia.id} className="grid grid-cols-3 py-3 px-2 items-center">
+                                        <span className="font-medium text-white">{tenencia.activo.nombre}</span>
+                                        <span className="font-medium text-white">{tenencia.cantidad}</span>
+                                        <button onClick={() => handleSelect(tenencia)}
+                                            className="bg-green-500 hover:bg-green-600 text-white font-semibold py-1.5 px-4 rounded-lg transition-colors cursor-pointer text-sm">
+                                            Vender
+                                        </button>
+                                    </li>
+                                ))}
+                            </ul>
                         </div>
-                    ))}
-                </div>
-            ) : (
-                <p>Cargando...</p>
-            )}
+
+                        {activoSeleccionado && (
+                            <div className="w-1/5 bg-gray-700 rounded-xl border border-green-500 p-6">
+                                <h2 className="text-xl font-bold text-white mb-4">{activoSeleccionado.activo.nombre}</h2>
+                                <form onSubmit={(e) => { e.preventDefault(); handleVender(activoSeleccionado.activo, cantidad) }}
+                                    className="flex flex-col gap-4">
+                                    <input
+                                        className="bg-gray-500 rounded-xl shadow p-2"
+                                        type="text"
+                                        placeholder="Cantidad"
+                                        value={cantidad === 0 ? '' : cantidad}
+                                        onChange={(e) => {
+                                            const valor = e.target.value.replace(/\D/g, '');
+                                            setCantidadVenta(Number(valor));
+                                        }}
+                                    />
+                                    <button className="bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors cursor-pointer"
+                                        type="submit">Confirmar venta
+                                    </button>
+                                </form>
+                            </div>
+                        )}
+                    </>
+                ) : (
+                    <p className="text-white">Cargando...</p>
+                )}
+            </div>
         </div>
     );
 }

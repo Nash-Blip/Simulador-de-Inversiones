@@ -68,12 +68,25 @@ export default function ActivosPage() {
                             <h2 className="text-xl font-bold text-white">{activoSeleccionado.nombre}</h2>
                             <span className="bg-gray-800 text-white px-3 py-1 rounded-full text-sm w-fit">{activoSeleccionado.ticker}</span>
                             <p className="text-2xl font-bold text-green-600">${activoSeleccionado.precioActual}</p>
-                            <button className="mt-4 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors cursor-pointer" onClick={() => setMostrarCompra(true)}>Comprar</button>
+                            <button className="mt-4 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors cursor-pointer" 
+                            onClick={() => setMostrarCompra(true)}>Comprar
+                            </button>
                             {mostrarCompra ? (
                                 <form onSubmit={(e) => { e.preventDefault(); handleComprar(activoSeleccionado, cantidad) }}>
-                                    <input className="bg-gray-500 rounded-xl shadow p-2" id="cantidad" type="number" value={cantidad === 0 ? '' : cantidad} onChange={(e) => setCantidadCompra(Number(e.target.value))} />
-                                    <label htmlFor="cantidad">Cantidad</label>
-                                    <button className="mt-4 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors cursor-pointer" type="submit">Confirmar</button>
+                                    <input 
+                                    className="bg-gray-500 rounded-xl shadow p-2 appearance-none" 
+                                    id="cantidad" 
+                                    type="text"
+                                    placeholder="Cantidad" 
+                                    value={cantidad === 0 ? '' : cantidad} 
+                                    onChange={(e) => {
+                                        const valor = e.target.value.replace(/\D/g, ''); 
+                                        setCantidadCompra(Number(valor));
+                                    }} 
+                                    />
+                                    <button className="mt-4 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors cursor-pointer" 
+                                    type="submit">Confirmar compra
+                                    </button>
                                 </form>
                             ) : ( null )}
                         </div>
