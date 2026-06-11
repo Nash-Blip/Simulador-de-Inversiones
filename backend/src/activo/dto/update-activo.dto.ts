@@ -1,4 +1,11 @@
-import { PartialType } from '@nestjs/mapped-types'; // o '@nestjs/swagger'
-import { CreateActivoDto } from './create-activo.dto';
+import { IsNotEmpty, IsString } from 'class-validator';
 
-export class UpdateActivoDto extends PartialType(CreateActivoDto) {}
+export class UpdateActivoDto {
+  @IsString()
+  @IsNotEmpty()
+  nombre!: string;
+
+  @IsString()
+  @IsNotEmpty()
+  ticker!: string;
+}
