@@ -2,7 +2,7 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { Repository } from 'typeorm';
 import { Inversor } from '@/inversor/entities/inversor.entity';
 import { Activo } from '@/activo/entities/activo.entity';
-import { TipoTransaccion, Transaccion } from '@/transaccion/transaccion.entity';
+import { TipoTransaccion } from '@/transaccion/transaccion.entity';
 import { CompraActivoDto } from '@/activo/dto/compra-activo.dto';
 import { VentaActivoDto } from '@/activo/dto/venta-activo.dto';
 import { TenenciaActivo } from '@/tenenciaActivo/tenenciaActivo.entity';

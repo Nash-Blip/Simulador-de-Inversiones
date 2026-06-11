@@ -6,7 +6,7 @@ import { Activo } from '../activo/entities/activo.entity';
 import { TipoTransaccion } from '@/transaccion/transaccion.entity';
 import { Logger } from '@nestjs/common';
 
-describe('SimuladorService', () => {
+describe('Simulador', () => {
   let service: SimuladorService;
   let transaccionService: TransaccionService;
   let activoService: ActivoService;
