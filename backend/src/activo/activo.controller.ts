@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards, Req, Patch } from '@nestjs/common';
 import type { Request } from 'express';
 import { ActivoService } from './activo.service';
 import { CreateActivoDto } from './dto/create-activo.dto';
@@ -9,6 +9,7 @@ import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '@/auth/guards/roles.guard';
 import { Roles } from '@/auth/decorators/roles.decorator';
 import { InversorRol } from '@/inversor/entities/inversor.entity';
+import { UpdateActivoDto } from './dto/update-activo.dto';
 
 @Controller('activo')
 export class ActivoController {
@@ -22,6 +23,14 @@ export class ActivoController {
   @Roles(InversorRol.ADMIN)
   create(@Body() createActivoDto: CreateActivoDto) {
     return this.activoService.create(createActivoDto);
+  }
+
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(InversorRol.ADMIN)
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateActivoDto: UpdateActivoDto) {
+    return this.activoService.update(id, updateActivoDto);
   }
 
   @Post('comprar')
