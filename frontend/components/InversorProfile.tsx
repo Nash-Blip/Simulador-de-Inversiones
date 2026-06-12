@@ -1,6 +1,6 @@
 'use client';
 
-import { Activo, Portafolio, TenenciaActivo } from '../types/index';
+import { Activo, Portafolio, TenenciaActivo, Inversor } from '../types/index';
 import { useState, useEffect } from 'react';
 
 export default function InversorPage() {
@@ -52,16 +52,23 @@ export default function InversorPage() {
                     <>
                         <div className="w-2/5 bg-gray-700 rounded-xl border border-green-500 p-6">
                             <h1 className="text-xl font-bold text-white mb-4">Costo del portafolio: {portafolio.costoPortafolio}</h1>
+                            <h1 className="text-xl font-bold text-white mb-4">Rendimiento: {portafolio.rendimientoPortafolio}</h1>
+                            <h1 className="text-xl font-bold text-white mb-4">Valor del Portafolio {portafolio.valorPortafolio}</h1>
                             <div className="grid grid-cols-3 font-bold text-white mb-4 gap-x-4">
                                 <p>Activo</p>
                                 <p>Cantidad</p>
-                                <p></p>
+                                <p>Precio Compra</p>
+                                <p>Precio Actual</p>
+                                <p>Rendimiento</p>
                             </div>
                             <ul className="divide-y divide-gray-200">
                                 {portafolio.tenencias.map((tenencia) => (
                                     <li key={tenencia.id} className="grid grid-cols-3 py-3 px-2 items-center">
                                         <span className="font-medium text-white">{tenencia.activo.nombre}</span>
                                         <span className="font-medium text-white">{tenencia.cantidad}</span>
+                                        <span className="font-medium text-white">{tenencia.precioCompra}</span>
+                                        <span className="font-medium text-white">{tenencia.activo.precioActual}</span>
+                                        <span className="font-medium text-white">{tenencia.rendimiento}</span>
                                         <button onClick={() => handleSelect(tenencia)}
                                             className="bg-green-500 hover:bg-green-600 text-white font-semibold py-1.5 px-4 rounded-lg transition-colors cursor-pointer text-sm">
                                             Vender
