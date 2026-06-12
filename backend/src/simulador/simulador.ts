@@ -8,7 +8,7 @@ import { TipoTransaccion } from '@/transaccion/transaccion.entity';
 import { TransaccionService } from '@/transaccion/transaccion.service';
 
 @Injectable()
-export class SimuladorService implements OnApplicationBootstrap {
+export class SimuladorService {
   private readonly logger = new Logger(SimuladorService.name);
   
   // Guardaremos el historial de precios en memoria para ver cómo viene fluctuando
@@ -20,26 +20,6 @@ export class SimuladorService implements OnApplicationBootstrap {
     private readonly transaccionService: TransaccionService,
     private readonly activoService: ActivoService,
   ) {}
-
-  async onApplicationBootstrap() {
-    this.logger.log('Comprobando catálogo de activos...');
-    await this.cargarActivosIniciales();
-    this.logger.log('Bot Simulador de Mercado inicializado y corriendo.');
-  }
-
-  private async cargarActivosIniciales() {
-    const cantidad = await this.activoRepo.count();
-    
-    if (cantidad === 0) {
-      await this.activoService.create({nombre:'Apple Inc.', ticker: 'AAPL', precioInicial: 0});
-      await this.activoService.create({nombre: 'Microsoft Corporation', ticker: 'MSFT', precioInicial: 0});
-      await this.activoService.create({nombre: 'NVIDIA Corporation', ticker: 'NVDA', precioInicial: 0});
-      await this.activoService.create({nombre: 'Amazon.com Inc.', ticker: 'AMZN', precioInicial: 0});
-      await this.activoService.create({nombre: 'Tesla Inc.', ticker: 'TSLA', precioInicial: 0});
-
-    this.logger.log('¡Activos iniciales cargados con éxito!');
-    }
-  }
 
   @Interval(5000)
   async simularMercado() {
