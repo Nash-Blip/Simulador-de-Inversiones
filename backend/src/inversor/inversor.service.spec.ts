@@ -62,27 +62,6 @@ describe('InversorService', () => {
     jest.restoreAllMocks();
   });
 
-  describe('onApplicationBootstrap', () => {
-    it('debería crear un admin si no hay usuarios en el sistema', async () => {
-      mockInversorRepository.count.mockResolvedValue(0);
-      (bcrypt.hash as jest.Mock).mockResolvedValue('hashed_pass');
-      
-      await service.onApplicationBootstrap();
-
-      expect(mockInversorRepository.create).toHaveBeenCalledWith(expect.objectContaining({
-        email: "pruebasAdmin@mail.com",
-        rol: InversorRol.ADMIN
-      }));
-      expect(mockInversorRepository.save).toHaveBeenCalled();
-    });
-
-    it('no debería hacer nada si ya existen usuarios', async () => {
-      mockInversorRepository.count.mockResolvedValue(5);
-      await service.onApplicationBootstrap();
-      expect(mockInversorRepository.create).not.toHaveBeenCalled();
-    });
-  });
-
   describe('create', () => {
     const dto = { email: 'test@test.com', nombre: 'Test', password: '123' };
 

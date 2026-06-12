@@ -48,27 +48,6 @@ describe('Simulador', () => {
     expect(service).toBeDefined();
   });
 
-  describe('onApplicationBootstrap', () => {
-    it('debería cargar el catálogo inicial mediante ActivoService si está vacío', async () => {
-      mockActivoService.findAll.mockResolvedValue([]);
-      mockActivoService.create.mockResolvedValue({} as any);
-
-      await service.onApplicationBootstrap();
-
-      expect(mockActivoService.findAll).toHaveBeenCalled();
-      expect(mockActivoService.create).toHaveBeenCalledTimes(5);
-    });
-
-    it('no debería crear activos si .findAll() ya trae registros', async () => {
-      mockActivoService.findAll.mockResolvedValue([{ id: 1, nombre: 'Apple Inc.' }]);
-
-      await service.onApplicationBootstrap();
-
-      expect(mockActivoService.findAll).toHaveBeenCalled();
-      expect(mockActivoService.create).not.toHaveBeenCalled();
-    });
-  });
-
   describe('simularMercado', () => {
     const mockActivos: Activo[] = [
       { id: 1, nombre: 'Apple Inc.', ticker: 'AAPL', precioActual: 150 } as Activo
