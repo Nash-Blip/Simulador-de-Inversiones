@@ -1,14 +1,14 @@
 import { ConflictException, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { CreateInversorDto } from './dto/create-inversor.dto';
-import { IngresarFondosTarjetaDto } from './dto/ingresar-fondos-tarjeta.dto';
-import { IngresarFondosTransferenciaDto } from './dto/ingresar-fondos-transferencia.dto';
-import { RetirarFondosDto } from './dto/retirar-fondos.dto';
+import { CreateInversorDto } from './dto/input/create-inversor.dto';
+import { IngresarFondosTarjetaDto } from './dto/input/ingresar-fondos-tarjeta.dto';
+import { IngresarFondosTransferenciaDto } from './dto/input/ingresar-fondos-transferencia.dto';
+import { RetirarFondosDto } from './dto/input/retirar-fondos.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Inversor, InversorRol } from './entities/inversor.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { InversorPerfilDto } from './dto/inversor.perfil.dto';
-import { CambioPasswordDto } from './dto/cambio-password.dto';
+import { InversorPerfilDto } from './dto/input/inversor.perfil.dto';
+import { CambioPasswordDto } from './dto/input/cambio-password.dto';
 import { TenenciaActivo } from '@/tenenciaActivo/tenenciaActivo.entity';
 
 @Injectable()
