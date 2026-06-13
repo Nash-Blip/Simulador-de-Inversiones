@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Activo } from './entities/activo.entity';
 import { Repository } from 'typeorm';
 import { TipoTransaccion } from '@/transaccion/transaccion.entity';
+import { UpdateActivoDto } from './dto/update-activo.dto';
 
 @Injectable()
 export class ActivoService {
@@ -28,6 +29,20 @@ export class ActivoService {
       totalEjecutado: 0
     });
     return this.activoRepo.save(activo);
+  }
+
+  async update(id: number, dto: UpdateActivoDto) {
+    const existeActivo = await this.activoRepo.findOneBy({ id });
+    if (!existeActivo) {
+      throw new NotFoundException(`No se encontró el Activo con ID ${id}`);
+    }
+    const { nombre, ticker } = dto;
+    
+    return await this.activoRepo.save({
+      id,
+      nombre,
+      ticker,
+    });
   }
 
   findAll() {

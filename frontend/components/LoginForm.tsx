@@ -1,13 +1,11 @@
 "use client";
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
-    const router = useRouter();
 
     function handleSubmit(e: React.SyntheticEvent) {
         e.preventDefault();
@@ -22,7 +20,7 @@ export default function LoginPage() {
             const data = await response.json();
 
             if (response.ok) {
-                router.push('/');
+                window.location.href = '/';
             } else {
                 setMessage(data.message);
             }
@@ -43,10 +41,10 @@ export default function LoginPage() {
                     <input className="bg-gray-500 rounded-xl shadow p-2" id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
                     <label htmlFor="password">Password</label>
                     <input className="bg-gray-500 rounded-xl shadow p-2" id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-                    <button className="bg-green-600 rounded-xl shadow p-2" type="submit">Enviar</button>
-                    <button className="bg-green-600 rounded-xl shadow p-2" type="reset">Restablecer</button>
+                    <button className="bg-green-600 rounded-xl shadow p-2 text-sm text-white-600 hover:text-black transition-colors cursor-pointer" type="submit">Enviar</button>
+                    <button className="bg-green-600 rounded-xl shadow p-2 text-sm text-white-600 hover:text-black transition-colors cursor-pointer" type="reset">Restablecer</button>
                     <p>{message}</p>
-                    <p>¿No estás registrado? <Link href="/auth/register" className="text-green-400 hover:text-green-300">Registrarse</Link></p>
+                    <p>¿No estás registrado? <Link href="/auth/register" className="text-green-400 hover:text-black">Registrarse</Link></p>
                 </div>
             </form>
         </div>

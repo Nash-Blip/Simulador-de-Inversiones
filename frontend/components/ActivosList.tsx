@@ -32,7 +32,7 @@ export default function ActivosPage() {
                 {
                     method: 'POST',
                     headers: { 'Content-type': 'application/json' },
-                    body: JSON.stringify({ activoid: comprar.id, cantidad: cant }),
+                    body: JSON.stringify({ activoId: comprar.id, cantidad: cant }),
                     credentials: 'include'
                 });
             if (response.ok) {
