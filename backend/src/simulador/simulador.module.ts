@@ -9,7 +9,4 @@ import { TransaccionModule } from '@/transaccion/transaccion.module';
   imports: [TypeOrmModule.forFeature([Activo]),ActivoModule,TransaccionModule],
   providers: [SimuladorService],
 })
-export class SimuladorModule implements OnModuleInit {
-  constructor(private readonly simuladorService: SimuladorService) {}
-  onModuleInit() {}
-}
+export class SimuladorModule {}

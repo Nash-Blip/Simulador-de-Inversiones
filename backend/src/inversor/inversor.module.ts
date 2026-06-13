@@ -11,7 +11,4 @@ import { Portafolio } from '@/portafolio/portafolio.entity';
   imports: [TypeOrmModule.forFeature([Inversor, Portafolio,])],
   exports: [InversorService, TypeOrmModule],
 })
-export class InversorModule implements OnModuleInit {
-  constructor(private readonly inversorService: InversorService) {}
-  onModuleInit() {}
-}
+export class InversorModule {}
