@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Activo } from "@/activo/entities/activo.entity";
 import { Portafolio } from "@/portafolio/portafolio.entity";
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
@@ -5,6 +6,7 @@ import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 @Entity()
 export class TenenciaActivo {
   @PrimaryGeneratedColumn()
+  @ApiProperty({ example: 1, description: 'ID único de la tenencia' })
   id!: number;
 
   @Column({
@@ -14,6 +16,7 @@ export class TenenciaActivo {
       from: (value: string) => parseFloat(value),
     }
   })
+  @ApiProperty({ example: 15, description: 'Cantidad de unidades del activo' })
   cantidad!: number;
 
   @Column({
@@ -23,11 +26,14 @@ export class TenenciaActivo {
       from: (value: string) => parseFloat(value),
     }
   })
+  @ApiProperty({ example: 150.00, description: 'Precio de compra por unidad' })
   precioCompra!: number;
 
   @ManyToOne(() => Portafolio, (portafolio) => portafolio.tenencias)
+  @ApiProperty({ type: () => Portafolio, description: 'Portafolio al que pertenece' })
   portafolio!: Portafolio;
 
   @ManyToOne(() => Activo)
+  @ApiProperty({ type: () => Activo, description: 'Activo asociado' })
   activo!: Activo;
 }
