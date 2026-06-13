@@ -1,11 +1,14 @@
 'use client';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function FondosTarjeta() {
     const [monto, setMontoIngresado] = useState(0);
     const [numeroTarjeta, setTarjeta] = useState('');
     const [cvv, setCvv] = useState('');
     const [vencimiento, setVencimiento] = useState('');
+    const [message, setMessage] = useState('');
+    const router = useRouter();
 
     function handleSubmit(e: React.SyntheticEvent) {
         e.preventDefault();
@@ -23,12 +26,14 @@ export default function FondosTarjeta() {
                             vencimiento
                         }
                     )
-                });
-            if (response.ok) {
-                setMontoIngresado(0);
-                setTarjeta('');
-                setCvv('');
-                setVencimiento('');
+                }
+            );
+            const data = await response.json();
+
+            if (!response.ok) {
+                setMessage(data.message);
+            } else{
+                router.push('/inversor');
             }
         }
         fetchSaldoTarjeta();
@@ -88,6 +93,7 @@ export default function FondosTarjeta() {
                                 setVencimiento(e.target.value);
                             }}
                         />
+                        <p>{message}</p>
                         <button className="mt-4 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors cursor-pointer"
                             type="submit">Confirmar
                         </button>

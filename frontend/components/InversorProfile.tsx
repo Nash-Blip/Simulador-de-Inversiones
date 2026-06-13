@@ -1,13 +1,13 @@
 'use client';
 
-import { Activo, Portafolio, TenenciaActivo, Inversor } from '../types/index';
+import { Activo, Portafolio, TenenciaActivo } from '../types/index';
 import { useState, useEffect } from 'react';
 
 export default function InversorPage() {
     const [portafolio, setPortafolio] = useState<Portafolio | null>(null);
     const [cantidad, setCantidadVenta] = useState(0);
     const [activoSeleccionado, setActivoSeleccionado] = useState<TenenciaActivo | null>(null);
-
+    
     useEffect(() => {
         const fetchInversor = async () => {
             const response = await fetch("http://localhost:3000/inversor/portafolio",
@@ -54,6 +54,7 @@ export default function InversorPage() {
                             <h1 className="text-xl font-bold text-white mb-4">Costo del portafolio: {portafolio.costoPortafolio}</h1>
                             <h1 className="text-xl font-bold text-white mb-4">Rendimiento: {portafolio.rendimientoPortafolio}</h1>
                             <h1 className="text-xl font-bold text-white mb-4">Valor del Portafolio {portafolio.valorPortafolio}</h1>
+                            <h1 className="text-xl font-bold text-white mb-4">Saldo Virtual {portafolio.saldoVirtual}</h1>
                             <div className="grid grid-cols-3 font-bold text-white mb-4 gap-x-4">
                                 <p>Activo</p>
                                 <p>Cantidad</p>

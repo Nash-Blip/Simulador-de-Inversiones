@@ -1,15 +1,18 @@
 'use client';
+import { useRouter } from 'next/router';
 import { useState } from 'react';
 
 export default function FondosTarjeta() {
     const [monto, setMontoIngresado] = useState(0);
     const [cbu, setCbu] = useState('');
     const [titular, setTitular] = useState('');
+    const [message, setMessage] = useState('');
+    const router = useRouter();
 
     function handleSubmit(e: React.SyntheticEvent) {
         e.preventDefault();
-        const fetchSaldoTarjeta = async () => {
-            const response = await fetch("http://localhost:3000/inversor/ingresar-fondos-tarjeta",
+        const fetchSaldoTransferencia = async () => {
+            const response = await fetch("http://localhost:3000/inversor/ingresar-fondos-transferencia",
                 {
                     method: 'POST',
                     headers: { 'Content-type': 'application/json' },
@@ -21,14 +24,17 @@ export default function FondosTarjeta() {
                             titular
                         }
                     )
-                });
-            if (response.ok) {
-                setMontoIngresado(0);
-                setCbu('');
-                setTitular('');
+                }
+            );
+            const data = await response.json();
+
+            if (!response.ok) {
+                setMessage(data.message);    
+            } else{
+                router.push('/inversor');
             }
         }
-        fetchSaldoTarjeta();
+        fetchSaldoTransferencia();
     }
 
     function handleReset() {
@@ -74,6 +80,7 @@ export default function FondosTarjeta() {
                                 setTitular(e.target.value);
                             }}
                         />
+                        <p>{message}</p>
                         <button className="mt-4 bg-green-500 hover:bg-green-600 text-white font-semibold py-2 px-6 rounded-lg transition-colors cursor-pointer"
                             type="submit">Confirmar
                         </button>
