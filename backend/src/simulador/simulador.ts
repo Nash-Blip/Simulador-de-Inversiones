@@ -21,7 +21,7 @@ export class SimuladorService {
     private readonly activoService: ActivoService,
   ) {}
 
-  @Interval(5000)
+  @Interval(3000)
   async simularMercado() {
     try {
       // 1. Obtener un activo al azar
