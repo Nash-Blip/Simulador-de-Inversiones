@@ -12,8 +12,6 @@ const finnhubClient = new finnhub.DefaultApi(process.env.FINNHUB_API_KEY)
 export class FinnhubService implements OnApplicationBootstrap {
     private readonly logger = new Logger(FinnhubService.name);
 
-  // Los tickers que tu simulador necesita al arrancar
-
   constructor(
     @InjectRepository(Activo)
     private readonly activoRepo: Repository<Activo>,
