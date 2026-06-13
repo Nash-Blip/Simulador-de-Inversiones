@@ -18,29 +18,6 @@ export class InversorService {
     private readonly inversorRepo: Repository<Inversor>
   ) { }
 
-  async onApplicationBootstrap() {
-    await this.crearAdmin();
-  }
-
-  private async crearAdmin() {
-    const adminEnSistema = await this.inversorRepo.count()
-
-    if (adminEnSistema === 0) {
-      const passwordHasheada = await bcrypt.hash('pruebas000', 10);
-      const admin = this.inversorRepo.create({
-        email: "pruebasAdmin@mail.com",
-        nombre: "admin",
-        password: passwordHasheada,
-        rol: InversorRol.ADMIN,
-        saldoVirtual: 0,
-        portafolio: {
-          costoPortafolio: 0,
-        }
-      });
-      return this.inversorRepo.save(admin);
-    }
-  }
-
   async create(dto: CreateInversorDto) {
     const existeInversor = await this.inversorRepo.findOneBy({ email: dto.email });
     if (existeInversor) {

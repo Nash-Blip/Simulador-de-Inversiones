@@ -3,6 +3,8 @@ import { AppModule } from './app.module';
 import { ValidationPipe, ClassSerializerInterceptor } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { DataSource } from 'typeorm';
+import { runSeeders } from 'typeorm-extension';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -29,6 +31,13 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
+
+  const dataSource = app.get(DataSource);
+  try {
+    await runSeeders(dataSource);
+  } catch (error) {
+    console.error(error);
+  }
 
   await app.listen(process.env.PORT ?? 3000);
 }

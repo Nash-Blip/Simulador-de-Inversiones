@@ -8,6 +8,8 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { SimuladorModule } from './simulador/simulador.module';
 import { FinnhubModule } from './api/finnhub.module';
 import { TransaccionModule } from './transaccion/transaccion.module';
+import CrearAdminSeeder from './seeds/crear-admin.seed';
+import InicializarActivosSeeder from './seeds/inicializar-activos.seed';
 
 @Module({
   imports: [
@@ -35,6 +37,7 @@ import { TransaccionModule } from './transaccion/transaccion.module';
         database: configService.get('DB_NAME'),
         autoLoadEntities: true,
         synchronize: true,
+        seeds: [CrearAdminSeeder,InicializarActivosSeeder],
       }),
     }),
   ]
