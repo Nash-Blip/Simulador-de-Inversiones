@@ -1,4 +1,4 @@
-import { ApiTags, ApiOperation, ApiOkResponse, ApiBearerAuth } from "@nestjs/swagger";
+import { ApiTags, ApiOperation, ApiOkResponse, ApiBearerAuth, ApiBadRequestResponse, ApiUnauthorizedResponse, ApiForbiddenResponse, ApiInternalServerErrorResponse } from "@nestjs/swagger";
 import { Controller, Get, UseGuards, Req, Query } from "@nestjs/common";
 import type { Request } from 'express';
 import { TransaccionService } from "./transaccion.service";
@@ -20,6 +20,10 @@ export class TransaccionController {
     @Roles(InversorRol.ADMIN)
     @ApiOperation({ summary: 'Listar todas las transacciones (ADMIN)' })
     @ApiOkResponse({ type: TransaccionPaginadaResponseDto })
+    @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
+    @ApiForbiddenResponse({ description: 'No tenés permisos para acceder a este recurso.' })
+    @ApiBadRequestResponse({ description: 'Parámetros inválidos (page, search, tipoTransaccion, fechaInicio, fechaFin)' })
+    @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
     findAll(@Query() query: GetTransaccionesQueryDto) {
         return this.transaccionService.findAll(query);
     }
@@ -28,6 +32,9 @@ export class TransaccionController {
     @UseGuards(JwtAuthGuard)
     @ApiOperation({ summary: 'Obtener historial de transacciones del inversor autenticado' })
     @ApiOkResponse({ type: TransaccionPaginadaResponseDto })
+    @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
+    @ApiBadRequestResponse({ description: 'Parámetros inválidos (page, search, tipoTransaccion, fechaInicio, fechaFin)' })
+    @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
     findHistorial(@Query() query: GetTransaccionesQueryDto, @Req() req: Request) {
         return this.transaccionService.findHistorialTransacciones((req as any).user.id, query);
     }

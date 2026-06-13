@@ -1,4 +1,4 @@
-import { ApiTags, ApiOperation, ApiCreatedResponse, ApiOkResponse, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiCreatedResponse, ApiOkResponse, ApiBody, ApiBadRequestResponse, ApiUnauthorizedResponse, ApiConflictResponse, ApiInternalServerErrorResponse } from '@nestjs/swagger';
 import { Controller, Post, Body, Res } from '@nestjs/common';
 import type { Response } from 'express';
 import { AuthService } from './auth.service';
@@ -12,6 +12,9 @@ export class AuthController {
     @Post('register')
     @ApiOperation({ summary: 'Registrar un nuevo inversor' })
     @ApiCreatedResponse({ description: 'Inversor registrado exitosamente. Token en cookie.' })
+    @ApiBadRequestResponse({ description: 'Datos inválidos (email, nombre, password)' })
+    @ApiConflictResponse({ description: 'El email ya está registrado.' })
+    @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
     async register(
         @Body() dto: CreateInversorDto,
         @Res({ passthrough: true }) res: Response,
@@ -26,6 +29,9 @@ export class AuthController {
     @Post('login')
     @ApiOperation({ summary: 'Iniciar sesión' })
     @ApiOkResponse({ description: 'Login exitoso. Token en cookie.' })
+    @ApiBadRequestResponse({ description: 'Faltan email o password' })
+    @ApiUnauthorizedResponse({ description: 'Email o contraseña incorrectos.' })
+    @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
     @ApiBody({
         schema: {
             properties: {
@@ -50,6 +56,7 @@ export class AuthController {
     @Post('logout')
     @ApiOperation({ summary: 'Cerrar sesión' })
     @ApiOkResponse({ description: 'Cookie de token eliminada.' })
+    @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
     logout(@Res({ passthrough: true }) res: Response) {
         res.clearCookie('token', { httpOnly: true, sameSite: 'strict' });
         return { message: 'Sesión cerrada exitosamente' };

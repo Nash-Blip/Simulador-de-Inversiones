@@ -1,4 +1,4 @@
-import { ApiTags, ApiOperation, ApiOkResponse, ApiCreatedResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiOkResponse, ApiCreatedResponse, ApiBearerAuth, ApiParam, ApiBadRequestResponse, ApiUnauthorizedResponse, ApiForbiddenResponse, ApiNotFoundResponse, ApiConflictResponse, ApiInternalServerErrorResponse } from '@nestjs/swagger';
 import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards, Req, Patch } from '@nestjs/common';
 import type { Request } from 'express';
 import { InversorService } from './inversor.service';
@@ -26,6 +26,11 @@ export class InversorController {
   @Roles(InversorRol.ADMIN)
   @ApiOperation({ summary: 'Crear un inversor (ADMIN)' })
   @ApiCreatedResponse({ type: InversorListItemDto })
+  @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
+  @ApiForbiddenResponse({ description: 'No tenés permisos para acceder a este recurso.' })
+  @ApiBadRequestResponse({ description: 'Datos inválidos (email, nombre, password)' })
+  @ApiConflictResponse({ description: 'El email {email} ya está registrado.' })
+  @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
   create(@Body() createInversorDto: CreateInversorDto) {
     return this.inversorService.create(createInversorDto);
   }
@@ -35,6 +40,9 @@ export class InversorController {
   @Roles(InversorRol.ADMIN)
   @ApiOperation({ summary: 'Listar todos los inversores (ADMIN)' })
   @ApiOkResponse({ type: InversorListItemDto, isArray: true })
+  @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
+  @ApiForbiddenResponse({ description: 'No tenés permisos para acceder a este recurso.' })
+  @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
   findAll() {
     return this.inversorService.findAll();
   }
@@ -43,6 +51,8 @@ export class InversorController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Obtener portafolio del inversor autenticado' })
   @ApiOkResponse({ type: PortafolioResponseDto })
+  @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
+  @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
   findMyPortafolio(@Req() req: Request) {
     return this.inversorService.findPortafolio((req as any).user.id);
   }
@@ -51,6 +61,8 @@ export class InversorController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Obtener perfil del inversor autenticado' })
   @ApiOkResponse({ type: InversorPerfilDto })
+  @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
+  @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
   findPerfil(@Req() req: Request) {
     return this.inversorService.findPerfil((req as any).user.id)
   }
@@ -65,6 +77,10 @@ export class InversorController {
       },
     },
   })
+  @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
+  @ApiBadRequestResponse({ description: 'Datos inválidos (passwordActual, passwordNueva)' })
+  @ApiConflictResponse({ description: 'La contraseña actual es incorrecta.' })
+  @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
   async cambiarPassword(
     @Req() req: Request,
     @Body() cambiarPasswordDto: CambioPasswordDto,
@@ -83,6 +99,9 @@ export class InversorController {
       },
     },
   })
+  @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
+  @ApiBadRequestResponse({ description: 'Datos inválidos o tarjeta inválida' })
+  @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
   ingresarFondosTarjeta(@Req() req, @Body() dto: IngresarFondosTarjetaDto) {
     return this.inversorService.ingresarFondosTarjeta((req as any).user.id, dto);
   }
@@ -98,6 +117,9 @@ export class InversorController {
       },
     },
   })
+  @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
+  @ApiBadRequestResponse({ description: 'Datos inválidos (monto, cbu, titular)' })
+  @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
   ingresarFondosTransferencia(@Req() req, @Body() dto: IngresarFondosTransferenciaDto) {
     return this.inversorService.ingresarFondosTransferencia((req as any).user.id, dto);
   }
@@ -113,6 +135,9 @@ export class InversorController {
       },
     },
   })
+  @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
+  @ApiBadRequestResponse({ description: 'Datos inválidos o fondos insuficientes' })
+  @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
   retirarFondos(@Req() req, @Body() dto: RetirarFondosDto) {
     return this.inversorService.retirarFondos((req as any).user.id, dto);
   }
@@ -123,6 +148,11 @@ export class InversorController {
   @ApiOperation({ summary: 'Obtener un inversor por ID (ADMIN)' })
   @ApiParam({ name: 'id', type: Number, example: 1 })
   @ApiOkResponse({ type: InversorListItemDto })
+  @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
+  @ApiForbiddenResponse({ description: 'No tenés permisos para acceder a este recurso.' })
+  @ApiBadRequestResponse({ description: 'ID inválido (se espera un número)' })
+  @ApiNotFoundResponse({ description: 'Inversor con id {id} no encontrado.' })
+  @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.inversorService.findOne(id);
   }
@@ -133,6 +163,11 @@ export class InversorController {
   @ApiOperation({ summary: 'Obtener portafolio de un inversor por ID (ADMIN)' })
   @ApiParam({ name: 'id', type: Number, example: 1 })
   @ApiOkResponse({ type: PortafolioResponseDto })
+  @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
+  @ApiForbiddenResponse({ description: 'No tenés permisos para acceder a este recurso.' })
+  @ApiBadRequestResponse({ description: 'ID inválido (se espera un número)' })
+  @ApiNotFoundResponse({ description: 'Inversor con id {id} no encontrado.' })
+  @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
   findPortafolio(@Param('id', ParseIntPipe) id: number) {
     return this.inversorService.findPortafolio(id)
   }

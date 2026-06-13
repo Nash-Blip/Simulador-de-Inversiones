@@ -1,4 +1,4 @@
-import { ApiTags, ApiOperation, ApiOkResponse, ApiCreatedResponse, ApiBearerAuth, ApiParam } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiOkResponse, ApiCreatedResponse, ApiBearerAuth, ApiParam, ApiBadRequestResponse, ApiUnauthorizedResponse, ApiForbiddenResponse, ApiNotFoundResponse, ApiConflictResponse, ApiInternalServerErrorResponse } from '@nestjs/swagger';
 import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards, Req, Patch } from '@nestjs/common';
 import type { Request } from 'express';
 import { ActivoService } from './activo.service';
@@ -28,6 +28,11 @@ export class ActivoController {
   @Roles(InversorRol.ADMIN)
   @ApiOperation({ summary: 'Crear un nuevo activo (ADMIN)' })
   @ApiCreatedResponse({ type: ActivoListItemDto })
+  @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
+  @ApiForbiddenResponse({ description: 'No tenés permisos para acceder a este recurso.' })
+  @ApiBadRequestResponse({ description: 'Datos inválidos (nombre, ticker, precioInicial)' })
+  @ApiConflictResponse({ description: 'El Activo {nombre} ya existe.' })
+  @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
   create(@Body() createActivoDto: CreateActivoDto) {
     return this.activoService.create(createActivoDto);
   }
@@ -38,6 +43,11 @@ export class ActivoController {
   @ApiOperation({ summary: 'Actualizar un activo (ADMIN)' })
   @ApiParam({ name: 'id', type: Number, example: 1 })
   @ApiOkResponse({ type: ActivoListItemDto })
+  @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
+  @ApiForbiddenResponse({ description: 'No tenés permisos para acceder a este recurso.' })
+  @ApiBadRequestResponse({ description: 'ID inválido o datos inválidos' })
+  @ApiNotFoundResponse({ description: 'No se encontró el Activo con ID {id}' })
+  @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
   update(@Param('id', ParseIntPipe) id: number, @Body() updateActivoDto: UpdateActivoDto) {
     return this.activoService.update(id, updateActivoDto);
   }
@@ -55,6 +65,10 @@ export class ActivoController {
       },
     },
   })
+  @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
+  @ApiBadRequestResponse({ description: 'Datos inválidos o saldo insuficiente' })
+  @ApiNotFoundResponse({ description: 'Activo con id {id} no encontrado.' })
+  @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
   comprar(@Body() compraDto: CompraActivoDto, @Req() req: Request) {
     return this.sistema.procesarCompra(compraDto, (req as any).user.id);
   }
@@ -72,6 +86,10 @@ export class ActivoController {
       },
     },
   })
+  @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
+  @ApiBadRequestResponse({ description: 'Datos inválidos, activo no poseído o cantidad insuficiente' })
+  @ApiNotFoundResponse({ description: 'Activo con id {id} no encontrado.' })
+  @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
   vender(@Body() ventaDto: VentaActivoDto, @Req() req: Request) {
     return this.sistema.procesarVenta(ventaDto, (req as any).user.id);
   }
@@ -80,6 +98,8 @@ export class ActivoController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'Listar todos los activos' })
   @ApiOkResponse({ type: ActivoListItemDto, isArray: true })
+  @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
+  @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
   findAll() {
     return this.activoService.findAll();
   }
@@ -89,6 +109,10 @@ export class ActivoController {
   @ApiOperation({ summary: 'Obtener un activo por ID' })
   @ApiParam({ name: 'id', type: Number, example: 1 })
   @ApiOkResponse({ type: ActivoDetailDto })
+  @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
+  @ApiBadRequestResponse({ description: 'ID inválido (se espera un número)' })
+  @ApiNotFoundResponse({ description: 'Activo con id {id} no encontrado.' })
+  @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.activoService.findOne(id);
   }
