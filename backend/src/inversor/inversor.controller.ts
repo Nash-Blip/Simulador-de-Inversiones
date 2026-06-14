@@ -21,20 +21,6 @@ import { InversorPerfilDto } from './dto/input/inversor.perfil.dto';
 export class InversorController {
   constructor(private readonly inversorService: InversorService) {}
 
-  @Post()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(InversorRol.ADMIN)
-  @ApiOperation({ summary: 'Crear un inversor (ADMIN)' })
-  @ApiCreatedResponse({ type: InversorListItemDto })
-  @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
-  @ApiForbiddenResponse({ description: 'No tenés permisos para acceder a este recurso.' })
-  @ApiBadRequestResponse({ description: 'Datos inválidos (email, nombre, password)' })
-  @ApiConflictResponse({ description: 'El email {email} ya está registrado.' })
-  @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
-  create(@Body() createInversorDto: CreateInversorDto) {
-    return this.inversorService.create(createInversorDto);
-  }
-
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(InversorRol.ADMIN)
