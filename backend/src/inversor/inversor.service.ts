@@ -156,7 +156,6 @@ export class InversorService {
       nombre: inversor.nombre,
       email: inversor.email,
     };
-
   }
 
   async cambiarPassword(id: number, dto: CambioPasswordDto): Promise<{ message: string }> {

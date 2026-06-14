@@ -1,6 +1,4 @@
-import { Injectable, OnApplicationBootstrap, Logger } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Injectable, Logger } from '@nestjs/common';
 import { Interval } from '@nestjs/schedule';
 import { Activo } from '../activo/entities/activo.entity'; 
 import { ActivoService } from '../activo/activo.service';
@@ -15,8 +13,6 @@ export class SimuladorService {
   private historialPrecios: Map<number, number[]> = new Map();
 
   constructor(
-    @InjectRepository(Activo)
-    private readonly activoRepo: Repository<Activo>,
     private readonly transaccionService: TransaccionService,
     private readonly activoService: ActivoService,
   ) {}
@@ -49,7 +45,7 @@ export class SimuladorService {
   }
 
   private async obtenerActivoAlAzar(): Promise<Activo | null> {
-    const activos = await this.activoRepo.find();
+    const activos = await this.activoService.findAll();
     if (activos.length === 0) return null;
     return activos[Math.floor(Math.random() * activos.length)];
   }
