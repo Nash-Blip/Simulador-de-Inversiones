@@ -16,13 +16,6 @@ import { CambioPasswordDto } from './dto/cambio-password.dto';
 export class InversorController {
   constructor(private readonly inversorService: InversorService) {}
 
-  @Post()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(InversorRol.ADMIN)
-  create(@Body() createInversorDto: CreateInversorDto) {
-    return this.inversorService.create(createInversorDto);
-  }
-
   @Get()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(InversorRol.ADMIN)
