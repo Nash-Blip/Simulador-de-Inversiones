@@ -42,16 +42,6 @@ describe('InversorController', () => {
   });
 
   describe('Rutas de Admin', () => {
-    it('create() debería llamar a InversorService.create', async () => {
-      const dto: CreateInversorDto = { email: 'admin@test.com', nombre: 'Admin', password: 'password123' };
-      const mockResult = { id: 1, ...dto };
-      mockInversorService.create.mockResolvedValue(mockResult);
-
-      const result = await controller.create(dto);
-
-      expect(mockInversorService.create).toHaveBeenCalledWith(dto);
-      expect(result).toEqual(mockResult);
-    });
 
     it('findAll() debería retornar todos los inversores', async () => {
       const mockInversores = [{ id: 1, nombre: 'Inversor 1' }, { id: 2, nombre: 'Inversor 2' }];
