@@ -1,16 +1,20 @@
+import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
 import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards, Req, Patch } from '@nestjs/common';
 import type { Request } from 'express';
 import { ActivoService } from './activo.service';
-import { CreateActivoDto } from './dto/create-activo.dto';
-import { CompraActivoDto } from './dto/compra-activo.dto';
+import { CreateActivoDto } from './dto/input/create-activo.dto';
+import { CompraActivoDto } from './dto/input/compra-activo.dto';
 import { Sistema } from '@/sistema/sistema';
-import { VentaActivoDto } from './dto/venta-activo.dto';
+import { VentaActivoDto } from './dto/input/venta-activo.dto';
 import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
 import { RolesGuard } from '@/auth/guards/roles.guard';
 import { Roles } from '@/auth/decorators/roles.decorator';
 import { InversorRol } from '@/inversor/entities/inversor.entity';
-import { UpdateActivoDto } from './dto/update-activo.dto';
+import { UpdateActivoDto } from './dto/input/update-activo.dto';
+import { ApiCreateActivo, ApiUpdateActivo, ApiComprarActivo, ApiVenderActivo, ApiFindAllActivos, ApiFindOneActivo } from './decorators/activo-swagger.decorator';
 
+@ApiTags('Activo')
+@ApiBearerAuth()
 @Controller('activo')
 export class ActivoController {
   constructor(
@@ -21,38 +25,43 @@ export class ActivoController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(InversorRol.ADMIN)
+  @ApiCreateActivo()
   create(@Body() createActivoDto: CreateActivoDto) {
     return this.activoService.create(createActivoDto);
   }
 
-
   @Patch(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(InversorRol.ADMIN)
+  @ApiUpdateActivo()
   update(@Param('id', ParseIntPipe) id: number, @Body() updateActivoDto: UpdateActivoDto) {
     return this.activoService.update(id, updateActivoDto);
   }
 
   @Post('comprar')
   @UseGuards(JwtAuthGuard)
+  @ApiComprarActivo()
   comprar(@Body() compraDto: CompraActivoDto, @Req() req: Request) {
     return this.sistema.procesarCompra(compraDto, (req as any).user.id);
   }
 
   @Post('vender')
   @UseGuards(JwtAuthGuard)
+  @ApiVenderActivo()
   vender(@Body() ventaDto: VentaActivoDto, @Req() req: Request) {
-    return this.sistema.procesarVenta(ventaDto, (req as any).user.id,);
+    return this.sistema.procesarVenta(ventaDto, (req as any).user.id);
   }
 
   @Get()
   @UseGuards(JwtAuthGuard)
+  @ApiFindAllActivos()
   findAll() {
     return this.activoService.findAll();
   }
 
   @Get(':id')
   @UseGuards(JwtAuthGuard)
+  @ApiFindOneActivo()
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.activoService.findOne(id);
   }
