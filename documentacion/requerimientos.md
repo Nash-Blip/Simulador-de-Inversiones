@@ -67,7 +67,7 @@ El sistema debe permitir dar de alta a un nuevo inversor siempre y cuando el cor
 | **Estado**    | `En desarrollo`    |
 
 #### Descripción
-> El usuario registrado accederá a la página de inicio de sesión, donde se le presentará un formulario para ingresar sus credenciales (correo electrónico y contraseña). El sistema contará con un botón para ingresar y una opción para recuperar la contraseña. 
+> El usuario registrado accederá a la página de inicio de sesión, donde se le presentará un formulario para ingresar sus credenciales (correo electrónico y contraseña).
 
 ```
 El sistema debe permitir el acceso a la plataforma solo a aquellos usuarios que introduzcan un correo electrónico y una contraseña válidos que coincidan con los registros del sistema. En el caso en que esta operación sea exitosa, se generará una sesión activa (token de autenticación) y se redireccionará al usuario a la pantalla principal o dashboard de activos.
