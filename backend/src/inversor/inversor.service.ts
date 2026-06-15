@@ -129,6 +129,17 @@ export class InversorService {
       mesNumero > 12) {
       throw new BadRequestException('Tarjeta inválida');
     }
+    const fechaActual = new Date();
+    const anioActual = fechaActual.getFullYear();
+    const mesActual = fechaActual.getMonth() + 1;
+
+    const anioTarjetaCompleto = Number(String(anioActual).slice(0, 2) + anio);
+    if (
+      anioTarjetaCompleto < anioActual || 
+      (anioTarjetaCompleto === anioActual && mesNumero < mesActual)
+    ) {
+      throw new BadRequestException('La tarjeta está vencida');
+    }
   }
 
   async ingresarFondosTransferencia(id: number, dto: IngresarFondosTransferenciaDto) {
@@ -156,7 +167,6 @@ export class InversorService {
       nombre: inversor.nombre,
       email: inversor.email,
     };
-
   }
 
   async cambiarPassword(id: number, dto: CambioPasswordDto): Promise<{ message: string }> {

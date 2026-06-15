@@ -158,3 +158,4 @@ export class InversorController {
     return this.inversorService.findPortafolio(id)
   }
 }
+
