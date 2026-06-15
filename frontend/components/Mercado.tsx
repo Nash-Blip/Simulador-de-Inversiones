@@ -1,0 +1,253 @@
+"use client";
+
+import { Activo } from "@/types";
+import { useEffect, useState } from "react";
+
+let timerExito: NodeJS.Timeout;
+let timerError: NodeJS.Timeout;
+
+export default function Mercado() {
+    const [activos, setActivos] = useState<Activo[]>([]);
+    const [activoSeleccionado, setActivoSeleccionado] = useState<Activo | null>(null);
+
+    const [cantidad, setCantidadCompra] = useState<number | "">(1);
+    const [mostrarCompra, setMostrarCompra] = useState(false);
+
+    const [compraExitosa, setCompraExitosa] = useState(false);
+    const [errorSaldo, setErrorSaldo] = useState(false);
+
+    const [activoExitoTicker, setActivoExitoTicker] = useState("");
+    const [activoErrorTicker, setActivoErrorTicker] = useState("");
+
+    useEffect(() => {
+        const fetchActivos = async () => {
+            const response = await fetch("http://localhost:3000/activo", {
+                credentials: 'include'
+            });
+            const data = await response.json();
+            if (response.ok) {
+                const activosOrdenados = data.sort((a: Activo, b: Activo) =>
+                    a.ticker.localeCompare(b.ticker)
+                );
+                setActivos(activosOrdenados);
+            }
+        }
+        fetchActivos();
+    }, []);
+
+    function handleSelect(select: Activo) {
+        setActivoSeleccionado(select);
+        setMostrarCompra(true);
+        setCantidadCompra(1); 
+    }
+
+    function handleComprar(comprar: Activo, cant: number | "") {
+        if (cant === "" || cant < 1) return;
+
+        const fetchComprar = async () => {
+            const response = await fetch("http://localhost:3000/activo/comprar", {
+                method: 'POST',
+                headers: { 'Content-type': 'application/json' },
+                body: JSON.stringify({ activoId: comprar.id, cantidad: cant }),
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                setCantidadCompra(1);
+                setMostrarCompra(false);
+                setActivoSeleccionado(null);
+
+                setActivoExitoTicker(comprar.ticker);
+                setCompraExitosa(true);
+
+                if (timerExito) clearTimeout(timerExito);
+                timerExito = setTimeout(() => {
+                    setCompraExitosa(false);
+                }, 4000);
+
+            } else {
+                setActivoErrorTicker(comprar.ticker);
+                setErrorSaldo(true);
+
+                if (timerError) clearTimeout(timerError);
+                timerError = setTimeout(() => {
+                    setErrorSaldo(false);
+                }, 4000);
+            }
+        }
+        fetchComprar();
+    }
+
+    return (
+        <div className="min-h-screen bg-[#0b0f19] py-6 relative px-4">
+
+            <div className="fixed top-5 left-1/4 -translate-x-1/2 z-50 flex flex-col gap-3 max-w-sm w-full px-4">
+                {compraExitosa && (
+                    <div className="flex w-full overflow-hidden bg-white rounded-lg shadow-md dark:bg-gray-800 animate-bounce-short">
+                        <div className="flex items-center justify-center w-12 shrink-0 bg-status-success">
+                            <svg className="w-6 h-6 text-white fill-current" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 3.33331C10.8 3.33331 3.33337 10.8 3.33337 20C3.33337 29.2 10.8 36.6666 20 36.6666C29.2 36.6666 36.6667 29.2 36.6667 20C36.6667 10.8 29.2 3.33331 20 3.33331ZM16.6667 28.3333L8.33337 20L10.6834 17.65L16.6667 23.6166L29.3167 10.9666L31.6667 13.3333L16.6667 28.3333Z" />
+                            </svg>
+                        </div>
+                        <div className="px-4 py-2 -mx-3">
+                            <div className="mx-3">
+                                <span className="font-semibold text-status-success">Éxito</span>
+                                <p className="text-sm text-gray-600 dark:text-gray-200">
+                                    ¡Tu orden de compra de <span className="font-bold">{activoExitoTicker}</span> fue procesada!
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {errorSaldo && (
+                    <div className="flex w-full overflow-hidden bg-white rounded-lg shadow-md dark:bg-gray-800 animate-bounce-short">
+                        <div className="flex items-center justify-center w-12 shrink-0 bg-status-error">
+                            <svg className="w-6 h-6 text-white fill-current" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 3.36667C10.8167 3.36667 3.3667 10.8167 3.3667 20C3.3667 29.1833 10.8167 36.6333 20 36.6333C29.1834 36.6333 36.6334 29.1833 36.6334 20C36.6334 10.8167 29.1834 3.36667 20 3.36667ZM19.1334 33.3333V22.9H13.3334L21.6667 6.66667V17.1H27.25L19.1334 33.3333Z" />
+                            </svg>
+                        </div>
+                        <div className="px-4 py-2 -mx-3">
+                            <div className="mx-3">
+                                <span className="font-semibold text-status-error">Error</span>
+                                <p className="text-sm text-gray-600 dark:text-gray-200">
+                                    No tenés saldo suficiente para comprar <span className="font-bold">{activoErrorTicker}</span>.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400 text-center mb-6">Mercado</h1>
+
+            <div className="flex flex-col lg:flex-row gap-6 w-full max-w-7xl mx-auto items-start justify-center">
+
+                <div className="w-full lg:flex-1 bg-[#0b0f19] rounded-xl border-2 p-4 md:p-6 overflow-x-auto">
+                    <table className="w-full text-center border-collapse min-w-[175]">
+                        <thead>
+                            <tr className="font-bold text-white border-b border-gray-800">
+                                <th className="pb-4 px-2 text-left">Ticker / Nombre</th>
+                                <th className="pb-4 px-2">Precio</th>
+                                <th className="pb-4 px-2">Anterior</th>
+                                <th className="pb-4 px-2">P. Max</th>
+                                <th className="pb-4 px-2">P. Min</th>
+                                <th className="pb-4 px-2">Rendimiento</th>
+                                <th className="pb-4 px-2">Operaciones</th>
+                                <th className="pb-4 px-2">Total Ej.</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-800">
+                            {activos.map((activo) => {
+                                const esMayor = activo.precioActual > activo.precioInicial;
+                                const esMenor = activo.precioActual < activo.precioInicial;
+
+                                const colorPrecio = esMayor ? "text-status-success" : esMenor ? "text-status-error" : "text-gray-300";
+                                const colorRendimiento = esMayor ? "text-status-success" : esMenor ? "text-status-error" : "text-gray-300";
+                                const rendimiento = ((activo.precioActual / activo.precioInicial - 1) * 100).toFixed(2);
+
+                                return (
+                                    <tr key={activo.id} className="hover:bg-gray-900/50 transition-colors">
+                                        <td className="py-4 px-2 text-left">
+                                            <span
+                                                className="font-medium text-white hover:underline cursor-pointer block"
+                                                onClick={() => handleSelect(activo)}
+                                            >
+                                                <strong className="text-blue-400">{activo.ticker}</strong>
+                                                <span className="text-xs text-gray-400 block mt-0.5">{activo.nombre}</span>
+                                            </span>
+                                        </td>
+                                        <td className={`py-4 px-2 font-semibold ${colorPrecio}`}>
+                                            ${activo.precioActual.toFixed(2)}
+                                        </td>
+                                        <td className="py-4 px-2 text-bg-light">${activo.precioInicial.toFixed(2)}</td>
+                                        <td className="py-4 px-2 text-bg-light">${activo.valorMaximo.toFixed(2)}</td>
+                                        <td className="py-4 px-2 text-bg-light">${activo.valorMinimo.toFixed(2)}</td>
+                                        <td className={`py-4 px-2 font-semibold ${colorRendimiento}`}>
+                                            {esMayor ? "+" : ""}{rendimiento}%
+                                        </td>
+                                        <td className="py-4 px-2 text-bg-light">{activo.cantOperaciones}</td>
+                                        <td className="py-4 px-2 text-bg-light">${activo.totalEjecutado.toFixed(2)}</td>
+                                    </tr>
+                                );
+                            })}
+                        </tbody>
+                    </table>
+                </div>
+
+                {activoSeleccionado && (
+                    <div className="w-full lg:w-96 bg-gray-800 rounded-xl border border-white p-6 relative shrink-0">
+                        <button
+                            onClick={() => setActivoSeleccionado(null)}
+                            className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl font-semibold transition-colors cursor-pointer p-1 rounded-lg hover:bg-gray-600 w-8 h-8 flex items-center justify-center"
+                            aria-label="Cerrar ventana"
+                        >
+                            ✕
+                        </button>
+
+                        <div className="flex flex-col gap-4">
+                            <h2 className="text-xl font-bold text-white pr-6">{activoSeleccionado.nombre}</h2>
+                            <span className="bg-gray-900 text-white px-3 py-1 rounded-full text-sm w-fit font-bold border border-gray-700">
+                                {activoSeleccionado.ticker}
+                            </span>
+
+                            <div className="grid grid-cols-2 gap-4 text-center my-2">
+                                <div className="bg-gray-900/50 p-3 rounded-lg border border-gray-700">
+                                    <p className="text-xs text-gray-400 uppercase tracking-wider">Precio Actual</p>
+                                    <p className="text-xl font-bold text-status-success">${activoSeleccionado.precioActual}</p>
+                                </div>
+                                <div className="bg-gray-900/50 p-3 rounded-lg border border-gray-700">
+                                    <p className="text-xs text-gray-400 uppercase tracking-wider">Total Compra</p>
+                                    <p className="text-xl font-bold text-status-success mt-1">
+                                        ${((activoSeleccionado.precioActual * (cantidad || 0))).toFixed(2)}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {mostrarCompra && (
+                                <form onSubmit={(e) => { e.preventDefault(); handleComprar(activoSeleccionado, cantidad) }}>
+                                    <div className="flex flex-col gap-3 mt-2 items-center">
+                                        <label htmlFor="cantidad" className="text-white text-sm font-medium">Cantidad a comprar</label>
+                                        <input
+                                            className="w-32 text-center bg-gray-700 border-2 border-gray-600 rounded-xl shadow p-2 text-white text-lg font-bold focus:outline-none focus:border-green-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                            id="cantidad"
+                                            type="number"
+                                            min="1"
+                                            step="1"
+                                            value={cantidad} 
+                                            onChange={(e) => {
+                                                const inputValue = e.target.value;
+                                                
+                                                if (inputValue === '') {
+                                                    setCantidadCompra('');
+                                                    return;
+                                                }
+
+                                                const val = Math.floor(Number(inputValue));
+                                                if (val >= 1) {
+                                                    setCantidadCompra(val);
+                                                }
+                                            }}
+                                            onKeyDown={(e) => {
+                                                if (['e', 'E', '.', ',', '-', '+'].includes(e.key)) {
+                                                    e.preventDefault();
+                                                }
+                                            }}
+                                        />
+                                        <button
+                                            className="mt-2 w-full bg-status-success hover:bg-blue-400 text-white font-bold py-3 px-6 rounded-lg transition-colors cursor-pointer text-center shadow-lg shadow-green-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                            type="submit"
+                                            disabled={cantidad === '' || cantidad < 1} 
+                                        >
+                                            Confirmar Compra
+                                        </button>
+                                    </div>
+                                </form>
+                            )}
+                        </div>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
+}
