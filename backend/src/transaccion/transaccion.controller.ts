@@ -1,4 +1,4 @@
-import { ApiTags, ApiOperation, ApiOkResponse, ApiBearerAuth, ApiBadRequestResponse, ApiUnauthorizedResponse, ApiForbiddenResponse, ApiInternalServerErrorResponse } from "@nestjs/swagger";
+import { ApiTags, ApiBearerAuth } from "@nestjs/swagger";
 import { Controller, Get, UseGuards, Req, Query } from "@nestjs/common";
 import type { Request } from 'express';
 import { TransaccionService } from "./transaccion.service";
@@ -7,7 +7,7 @@ import { RolesGuard } from '@/auth/guards/roles.guard';
 import { Roles } from '@/auth/decorators/roles.decorator';
 import { InversorRol } from '@/inversor/entities/inversor.entity';
 import { GetTransaccionesQueryDto } from "./dto/input/get-transaccion-query.dto";
-import { TransaccionPaginadaResponseDto } from "./dto/output/transaccion-paginada-response.dto";
+import { ApiFindAllTransacciones, ApiFindHistorial } from "./decorators/transaccion-swagger.decorator";
 
 @ApiTags('Transaccion')
 @ApiBearerAuth()
@@ -18,23 +18,14 @@ export class TransaccionController {
     @Get()
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(InversorRol.ADMIN)
-    @ApiOperation({ summary: 'Listar todas las transacciones (ADMIN)' })
-    @ApiOkResponse({ type: TransaccionPaginadaResponseDto })
-    @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
-    @ApiForbiddenResponse({ description: 'No tenés permisos para acceder a este recurso.' })
-    @ApiBadRequestResponse({ description: 'Parámetros inválidos (page, search, tipoTransaccion, fechaInicio, fechaFin)' })
-    @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
+    @ApiFindAllTransacciones()
     findAll(@Query() query: GetTransaccionesQueryDto) {
         return this.transaccionService.findAll(query);
     }
 
     @Get('historial')
     @UseGuards(JwtAuthGuard)
-    @ApiOperation({ summary: 'Obtener historial de transacciones del inversor autenticado' })
-    @ApiOkResponse({ type: TransaccionPaginadaResponseDto })
-    @ApiUnauthorizedResponse({ description: 'Token ausente o inválido' })
-    @ApiBadRequestResponse({ description: 'Parámetros inválidos (page, search, tipoTransaccion, fechaInicio, fechaFin)' })
-    @ApiInternalServerErrorResponse({ description: 'Error interno del servidor' })
+    @ApiFindHistorial()
     findHistorial(@Query() query: GetTransaccionesQueryDto, @Req() req: Request) {
         return this.transaccionService.findHistorialTransacciones((req as any).user.id, query);
     }
