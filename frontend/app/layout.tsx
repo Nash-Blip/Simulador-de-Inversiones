@@ -1,16 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Montserrat, Roboto } from "next/font/google";
 import "./globals.css";
-import UserMenu from '@/components/UserMenu';
 import NavBar from '@/components/NavBar';
+import Footer from "@/components/Footer";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const montserrat = Montserrat({
+  variable: "--font-montserrat",
   subsets: ["latin"],
 });
 
@@ -25,15 +20,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
+    <html lang="es" className={`${montserrat.variable} ${montserrat.variable} h-full antialiased`}>
       <body className="min-h-full flex flex-col bg-gray-800 text-white">
-          <NavBar/>
+          {/* <NavBar/> */}
         <main className="flex-1">
           {children}
         </main>
-        <footer className="bg-gray-800 px-6 py-4 text-center text-sm text-green-600 border-t border-green-600">
-          Simulador de Inversiones — Programación III
-        </footer>
+        {/* <Footer/>  */}
       </body>
     </html>
   );
