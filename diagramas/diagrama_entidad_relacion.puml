@@ -1,0 +1,67 @@
+@startuml DER_Proyecto
+
+skinparam linetype ortho
+hide circle
+
+entity "activo" as activo {
+    *id : serial <<PK>>
+    --
+    nombre : character varying
+    ticker : character varying
+    precioInicial : numeric(12,2)
+    precioActual : numeric(12,2)
+    valorMaximo : numeric(12,2)
+    valorMinimo : numeric(12,2)
+    cantOperaciones : numeric(12,2)
+    totalEjecutado : numeric(12,2)
+}
+
+entity "portafolio" as portafolio {
+    *id : serial <<PK>>
+    --
+    costoPortafolio : numeric(20,2)
+}
+
+entity "tenencia_activo" as tenencia_activo {
+    *id : serial <<PK>>
+    --
+    cantidad : numeric(12,2)
+    precioCompra : numeric(14,6)
+    portafolioId : integer <<FK>>
+    activoId : integer <<FK>>
+}
+
+entity "transaccion" as transaccion {
+    *id : serial <<PK>>
+    --
+    tipoTransaccion : transaccion_tipotransaccion_enum
+    cantidad : numeric(20,2)
+    precioEjecutado : numeric(12,2)
+    fecha : timestamp without time zone
+    portafolioId : integer <<FK>>
+    activoId : integer <<FK>>
+}
+
+entity "inversor" as inversor {
+    *id : serial <<PK>>
+    --
+    email : character varying
+    nombre : character varying
+    password : character varying
+    rol : inversor_rol_enum
+    saldoVirtual : numeric(12,2)
+    portafolioId : integer <<FK>>
+}
+
+activo ||--o{
+    tenencia_activo
+    portafolio ||--o{
+        tenencia_activo
+        portafolio ||--o{
+            transaccion
+            activo ||--o{
+                transaccion
+                portafolio ||--o{
+                    inversor
+
+                    @enduml

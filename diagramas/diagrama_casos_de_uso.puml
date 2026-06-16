@@ -1,0 +1,94 @@
+@startuml Diagrama de Casos de Uso
+
+left to right direction
+
+actor "Visitante" as visitante
+actor "Inversor" as inversor
+actor "Administrador" as admin
+actor "Sistema" as sistema <<background>>
+actor "API Finnhub" as finnhub <<external>>
+
+rectangle "Autenticación" {
+  usecase "Registrarse" as UC01
+  usecase "Iniciar sesión" as UC02
+  usecase "Cerrar sesión" as UC03
+}
+
+rectangle "Gestión de Perfil" {
+  usecase "Ver perfil personal" as UC04
+  usecase "Cambiar contraseña" as UC05
+}
+
+rectangle "Gestión de Fondos" {
+  usecase "Ingresar fondos\npor transferencia" as UC06
+  usecase "Ingresar fondos\npor tarjeta" as UC07
+  usecase "Retirar fondos" as UC08
+}
+
+rectangle "Mercado y Portafolio" {
+  usecase "Listar activos\ndisponibles" as UC09
+  usecase "Ver detalle\nde activo" as UC10
+  usecase "Comprar activo" as UC11
+  usecase "Vender activo" as UC12
+  usecase "Consultar portafolio\ncon rendimiento" as UC13
+  usecase "Consultar historial\nde transacciones" as UC14
+}
+
+rectangle "Administración" {
+  usecase "Crear activo" as UC15
+  usecase "Modificar activo" as UC16
+  usecase "Listar inversores" as UC17
+  usecase "Listar todas\nlas transacciones" as UC20
+}
+
+rectangle "Simulación" {
+  usecase "Simular operaciones\nde mercado" as UC21
+  usecase "Obtener precios\nreales de mercado" as UC22
+}
+
+' --- Relaciones de actores ---
+
+visitante --> UC01
+visitante --> UC02
+
+inversor --> UC03
+inversor --> UC04
+inversor --> UC05
+inversor --> UC06
+inversor --> UC07
+inversor --> UC08
+inversor --> UC09
+inversor --> UC10
+inversor --> UC11
+inversor --> UC12
+inversor --> UC13
+inversor --> UC14
+
+admin --> UC15
+admin --> UC16
+admin --> UC17
+admin --> UC20
+
+sistema --> UC21
+finnhub --> UC22
+
+' --- Include / Extend ---
+
+UC01 .> UC02 : <<include>>\nauto-login
+UC11 ..> UC13 : <<include>>\nactualiza portafolio
+UC12 ..> UC13 : <<include>>\nactualiza portafolio
+UC11 ..> UC14 : <<include>>\nregistra transacción
+UC12 ..> UC14 : <<include>>\nregistra transacción
+UC06 ..> UC13 : <<include>>\nactualiza saldo
+UC07 ..> UC13 : <<include>>\nactualiza saldo
+UC08 ..> UC13 : <<include>>\nactualiza saldo
+UC21 ..> UC11 : <<extend>>\nsimula compra
+UC21 ..> UC12 : <<extend>>\nsimula venta
+UC22 ..> UC09 : <<extend>>\nactualiza precios
+
+' --- Generalización de actores ---
+
+inversor --|> visitante
+admin --|> inversor
+
+@enduml
