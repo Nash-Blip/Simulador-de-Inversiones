@@ -5,7 +5,7 @@ export default function HeroSecundario() {
                 <div className="container px-6 py-10 mx-auto">
                     <div className="lg:flex lg:-mx-6">
                         <div className="lg:w-3/4 lg:px-6">
-                            <img className="object-cover object-center w-full h-80 xl:h-[112] rounded-xl" src="https://images.unsplash.com/photo-1624996379697-f01d168b1a52?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80" alt="" />
+                            <img className="object-cover object-center w-full h-80 xl:h-[420px] rounded-xl" src="https://images.unsplash.com/photo-1624996379697-f01d168b1a52?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80" alt="" />
                         </div>
                         <div className="mt-8 lg:w-1/4 lg:mt-0 lg:px-6">
                             <div>

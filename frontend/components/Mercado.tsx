@@ -1,7 +1,7 @@
 "use client";
 
-import { Activo } from "@/types";
-import { useEffect, useState } from "react";
+import { Activo, Inversor } from "@/types";
+import { useEffect, useState, useCallback } from "react";
 
 let timerExito: NodeJS.Timeout;
 let timerError: NodeJS.Timeout;
@@ -19,8 +19,10 @@ export default function Mercado() {
     const [activoExitoTicker, setActivoExitoTicker] = useState("");
     const [activoErrorTicker, setActivoErrorTicker] = useState("");
 
-    useEffect(() => {
-        const fetchActivos = async () => {
+    const [inversor, setInversor] = useState<Inversor | null>(null);
+
+    const fetchActivos = useCallback(async () => {
+        try {
             const response = await fetch("http://localhost:3000/activo", {
                 credentials: 'include'
             });
@@ -29,16 +31,46 @@ export default function Mercado() {
                 const activosOrdenados = data.sort((a: Activo, b: Activo) =>
                     a.ticker.localeCompare(b.ticker)
                 );
+
                 setActivos(activosOrdenados);
+
+                setActivoSeleccionado((prev) => {
+                    if (!prev) return null;
+                    const actualizado = activosOrdenados.find((a: Activo) => a.id === prev.id);
+                    return actualizado ? actualizado : prev;
+                });
             }
+        } catch (error) {
+            console.error("Error fetching activos:", error);
         }
-        fetchActivos();
     }, []);
+
+    const fetchInversor = async () => {
+        const response = await fetch("http://localhost:3000/inversor/perfil", {
+            method: 'GET',
+            credentials: 'include'
+        });
+        const data = await response.json();
+        if (response.ok) {
+            setInversor(data);
+        }
+    };
+
+    useEffect(() => {
+        fetchActivos();
+        fetchInversor();
+
+        const interval = setInterval(() => {
+            fetchActivos();
+        }, 3000);
+
+        return () => clearInterval(interval);
+    }, [fetchActivos]);
 
     function handleSelect(select: Activo) {
         setActivoSeleccionado(select);
         setMostrarCompra(true);
-        setCantidadCompra(1); 
+        setCantidadCompra(1);
     }
 
     function handleComprar(comprar: Activo, cant: number | "") {
@@ -60,6 +92,8 @@ export default function Mercado() {
                 setActivoExitoTicker(comprar.ticker);
                 setCompraExitosa(true);
 
+                await fetchInversor();
+
                 if (timerExito) clearTimeout(timerExito);
                 timerExito = setTimeout(() => {
                     setCompraExitosa(false);
@@ -79,8 +113,9 @@ export default function Mercado() {
     }
 
     return (
-        <div className="min-h-screen bg-[#0b0f19] py-6 relative px-4">
+        <div className="min-h-screen bg-[#0b0f19] py-6 px-4">
 
+            {/* Toasts / Notificaciones */}
             <div className="fixed top-5 left-1/4 -translate-x-1/2 z-50 flex flex-col gap-3 max-w-sm w-full px-4">
                 {compraExitosa && (
                     <div className="flex w-full overflow-hidden bg-white rounded-lg shadow-md dark:bg-gray-800 animate-bounce-short">
@@ -121,10 +156,11 @@ export default function Mercado() {
 
             <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400 text-center mb-6">Mercado</h1>
 
-            <div className="flex flex-col lg:flex-row gap-6 w-full max-w-7xl mx-auto items-start justify-center">
+            <div className={`w-full max-w-7xl mx-auto grid grid-cols-1 gap-6 transition-all duration-300 ${activoSeleccionado ? "lg:grid-cols-[1fr_384px]" : "lg:grid-cols-1"}`}>
 
-                <div className="w-full lg:flex-1 bg-[#0b0f19] rounded-xl border-2 p-4 md:p-6 overflow-x-auto">
-                    <table className="w-full text-center border-collapse min-w-[175]">
+                {/* Tabla de Activos */}
+                <div className="w-full bg-[#0b0f19] rounded-xl border-2 p-4 md:p-6 overflow-x-auto h-fit">
+                    <table className="w-full text-center border-collapse min-w-[175px]">
                         <thead>
                             <tr className="font-bold text-white border-b border-gray-800">
                                 <th className="pb-4 px-2 text-left">Ticker / Nombre</th>
@@ -175,75 +211,80 @@ export default function Mercado() {
                     </table>
                 </div>
 
+                {/* Panel Lateral de Compra */}
                 {activoSeleccionado && (
-                    <div className="w-full lg:w-96 bg-gray-800 rounded-xl border border-white p-6 relative shrink-0">
-                        <button
-                            onClick={() => setActivoSeleccionado(null)}
-                            className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl font-semibold transition-colors cursor-pointer p-1 rounded-lg hover:bg-gray-600 w-8 h-8 flex items-center justify-center"
-                            aria-label="Cerrar ventana"
-                        >
-                            ✕
-                        </button>
+                    <div className="w-full h-full min-h-[400px] relative">
+                        <div className="w-full bg-gray-800 rounded-xl border border-white p-6 z-40 lg:fixed lg:w-[420px] lg:top-[110px] max-h-[calc(100vh-180px)] overflow-y-auto shadow-2xl ml-16">
+                            <button
+                                onClick={() => setActivoSeleccionado(null)}
+                                className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl font-semibold transition-colors cursor-pointer p-1 rounded-lg hover:bg-gray-600 w-8 h-8 flex items-center justify-center"
+                                aria-label="Cerrar ventana"
+                            >
+                                ✕
+                            </button>
 
-                        <div className="flex flex-col gap-4">
-                            <h2 className="text-xl font-bold text-white pr-6">{activoSeleccionado.nombre}</h2>
-                            <span className="bg-gray-900 text-white px-3 py-1 rounded-full text-sm w-fit font-bold border border-gray-700">
-                                {activoSeleccionado.ticker}
-                            </span>
+                            <div className="flex flex-col gap-4">
+                                <h2 className="text-xl font-bold text-white pr-6">{activoSeleccionado.nombre}</h2>
+                                <span className="bg-gray-900 text-white px-3 py-1 rounded-full text-sm w-fit font-bold border border-gray-700">
+                                    {activoSeleccionado.ticker}
+                                </span>
 
-                            <div className="grid grid-cols-2 gap-4 text-center my-2">
-                                <div className="bg-gray-900/50 p-3 rounded-lg border border-gray-700">
-                                    <p className="text-xs text-gray-400 uppercase tracking-wider">Precio Actual</p>
-                                    <p className="text-xl font-bold text-status-success">${activoSeleccionado.precioActual}</p>
+                                <div className="text-gray-300 text-sm">
+                                    Saldo disponible: <span className="font-bold text-white">${inversor?.saldo.toFixed(2) ?? '0.00'}</span>
                                 </div>
-                                <div className="bg-gray-900/50 p-3 rounded-lg border border-gray-700">
-                                    <p className="text-xs text-gray-400 uppercase tracking-wider">Total Compra</p>
-                                    <p className="text-xl font-bold text-status-success mt-1">
-                                        ${((activoSeleccionado.precioActual * (cantidad || 0))).toFixed(2)}
-                                    </p>
-                                </div>
-                            </div>
 
-                            {mostrarCompra && (
-                                <form onSubmit={(e) => { e.preventDefault(); handleComprar(activoSeleccionado, cantidad) }}>
-                                    <div className="flex flex-col gap-3 mt-2 items-center">
-                                        <label htmlFor="cantidad" className="text-white text-sm font-medium">Cantidad a comprar</label>
-                                        <input
-                                            className="w-32 text-center bg-gray-700 border-2 border-gray-600 rounded-xl shadow p-2 text-white text-lg font-bold focus:outline-none focus:border-green-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                                            id="cantidad"
-                                            type="number"
-                                            min="1"
-                                            step="1"
-                                            value={cantidad} 
-                                            onChange={(e) => {
-                                                const inputValue = e.target.value;
-                                                
-                                                if (inputValue === '') {
-                                                    setCantidadCompra('');
-                                                    return;
-                                                }
-
-                                                const val = Math.floor(Number(inputValue));
-                                                if (val >= 1) {
-                                                    setCantidadCompra(val);
-                                                }
-                                            }}
-                                            onKeyDown={(e) => {
-                                                if (['e', 'E', '.', ',', '-', '+'].includes(e.key)) {
-                                                    e.preventDefault();
-                                                }
-                                            }}
-                                        />
-                                        <button
-                                            className="mt-2 w-full bg-status-success hover:bg-blue-400 text-white font-bold py-3 px-6 rounded-lg transition-colors cursor-pointer text-center shadow-lg shadow-green-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
-                                            type="submit"
-                                            disabled={cantidad === '' || cantidad < 1} 
-                                        >
-                                            Confirmar Compra
-                                        </button>
+                                <div className="grid grid-cols-2 gap-4 text-center my-2">
+                                    <div className="bg-gray-900/50 p-3 rounded-lg border border-gray-700">
+                                        <p className="text-xs text-gray-400 uppercase tracking-wider">Precio Actual</p>
+                                        <p className="text-xl font-bold text-status-success mt-1">${activoSeleccionado.precioActual.toFixed(2)}</p>
                                     </div>
-                                </form>
-                            )}
+                                    <div className="bg-gray-900/50 p-3 rounded-lg border border-gray-700">
+                                        <p className="text-xs text-gray-400 uppercase tracking-wider">Total Compra</p>
+                                        <p className="text-xl font-bold text-status-success mt-1">
+                                            ${(activoSeleccionado.precioActual * (cantidad || 0)).toFixed(2)}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {mostrarCompra && (
+                                    <form onSubmit={(e) => { e.preventDefault(); handleComprar(activoSeleccionado, cantidad) }}>
+                                        <div className="flex flex-col gap-3 mt-2 items-center">
+                                            <label htmlFor="cantidad" className="text-white text-sm font-medium">Cantidad a comprar</label>
+                                            <input
+                                                className="w-32 text-center bg-gray-700 border-2 border-gray-600 rounded-xl shadow p-2 text-white text-lg font-bold focus:outline-none focus:border-green-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                                id="cantidad"
+                                                type="number"
+                                                min="1"
+                                                step="1"
+                                                value={cantidad}
+                                                onChange={(e) => {
+                                                    const inputValue = e.target.value;
+                                                    if (inputValue === '') {
+                                                        setCantidadCompra('');
+                                                        return;
+                                                    }
+                                                    const val = Math.floor(Number(inputValue));
+                                                    if (val >= 1) {
+                                                        setCantidadCompra(val);
+                                                    }
+                                                }}
+                                                onKeyDown={(e) => {
+                                                    if (['e', 'E', '.', ',', '-', '+'].includes(e.key)) {
+                                                        e.preventDefault();
+                                                    }
+                                                }}
+                                            />
+                                            <button
+                                                className="mt-2 w-full bg-status-success hover:bg-blue-400 text-white font-bold py-3 px-6 rounded-lg transition-colors cursor-pointer text-center shadow-lg shadow-green-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                                                type="submit"
+                                                disabled={cantidad === '' || cantidad < 1}
+                                            >
+                                                Confirmar Compra
+                                            </button>
+                                        </div>
+                                    </form>
+                                )}
+                            </div>
                         </div>
                     </div>
                 )}
