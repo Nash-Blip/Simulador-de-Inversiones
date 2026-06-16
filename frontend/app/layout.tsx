@@ -1,17 +1,15 @@
 import type { Metadata } from "next";
-import { Montserrat, Roboto } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import "./globals.css";
-import NavBar from '@/components/NavBar';
-import Footer from "@/components/Footer";
 
 const montserrat = Montserrat({
-  variable: "--font-montserrat",
   subsets: ["latin"],
+  variable: "--font-montserrat", 
 });
 
 export const metadata: Metadata = {
   title: "Simulador de Inversiones",
-  description: "Simulador de inversiones presentado como trabajo practico para la materia programacion 3.",
+  description: "Simulador de inversiones presentado como trabajo práctico para la materia programación 3.",
 };
 
 export default function RootLayout({
@@ -20,13 +18,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${montserrat.variable} ${montserrat.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-gray-800 text-white">
-          {/* <NavBar/> */}
-        <main className="flex-1">
-          {children}
-        </main>
-        {/* <Footer/>  */}
+    <html lang="es" className={`${montserrat.variable} min-h-screen antialiased`}>
+      <body className="min-h-screen flex flex-col bg-[#0b0f19] text-white">
+          {children}        
       </body>
     </html>
   );
