@@ -219,14 +219,14 @@ en toda la plataforma, incluyendo el portafolio de los usuarios que ya posean di
 ```
 El sistema debe proveer un endpoint que retorne las transacciones asociadas al inversor actual, 
 ordenadas por fecha de creación en orden descendente. Los resultados deben estar paginados en bloques 
-de 15 elementos. El endpoint debe permitir opcionalmente filtrar por activo. 
+de 10 elementos. El endpoint debe permitir opcionalmente filtrar por activo. 
 Cada transacción debe incluir: identificador, tipo de operación, activo involucrado, cantidad,
 monto y fecha. La información debe persistirse en la base de datos y recuperarse de forma consistente.
 ```
 
 #### Criterios de Aceptación
 - [x] El servidor debe retornar únicamente las transacciones asociadas al inversor autenticado.
-- [x] El servidor debe paginar los resultados en bloques de 15 transacciones por página.
+- [x] El servidor debe paginar los resultados en bloques de 10 transacciones por página.
 - [x] El servidor debe ordenar las transacciones por fecha de creación en orden descendente (más recientes primero).
 - [x] El servidor debe permitir filtrar las transacciones por activo mediante un parámetro opcional.
 - [x] El servidor debe garantizar que los datos retornados correspondan a transacciones persistidas en la base de datos.
