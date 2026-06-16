@@ -87,11 +87,12 @@
       "**/*.(t|j)s"
     ],
     "coveragePathIgnorePatterns": [
-    "node_modules",
-    "test",
-    ".module.ts$",
-    ".dto.ts$",
-    ".entity.ts$"
+      "node_modules",
+      "test",
+      ".module.ts$",
+      ".dto.ts$",
+      ".entity.ts$",
+      ".seed.ts$"
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node",

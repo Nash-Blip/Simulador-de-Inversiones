@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { CreateInversorDto } from '@/inversor/dto/create-inversor.dto';
+import { CreateInversorDto } from '@/inversor/dto/input/create-inversor.dto';
 import type { Response } from 'express';
 
 describe('AuthController', () => {

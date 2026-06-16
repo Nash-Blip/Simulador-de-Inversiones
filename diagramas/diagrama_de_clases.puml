@@ -11,16 +11,15 @@ class Inversor{
     - contraseña: string
     - saldoVirtual: number
     - portafolio: Portafolio
-    - saldoCaucionado: number
 
     - validarTarjeta(tarjeta: number, fechaVencimiento: Date, cvc: number): void
     + consultarPortafolio(): Portafolio
-    + ingresarFondos(monto: number, tarjeta: number, fechaVencimiento: Date, cvc: number): void
-    + colocarCaucion(monto: number, dias: number): void
-    + listarActivos(): activo[]
+    + ingresarFondosTarjeta()
+    + ingresarFondosTransferencia()
+    + retirarFondos()
 }
 
-class Administrador extends Inversor{
+class Admin extends Inversor{
     + crearActivo(nombre: string, precio: number): Activo
     + listarUsuarios(): Inversor[]
 }
@@ -34,10 +33,10 @@ class Portafolio{
 class TenenciaActivo{
     - cantidad: number
     - activo: Activo
+    - precioCompra: number
 }
 
 class Transaccion{
-    - id: number
     - ticker: string
     - tipo: tipoTransaccion
     - cantidad: number
@@ -46,16 +45,18 @@ class Transaccion{
 }
 
 class Activo{
-    - id: number
     - nombre: string
     - ticker: string
-    - precio: number
     - precioInicial: number
+    - precioActual: number
+    - valorMaximo: number
+    - valorMinimo: number
+    - cantOperaciones: number
+    - totalEjecutado: number
     - transacciones: Transaccion[]
 }
 
 class Simulador{
-    + cargarActivosInicailes()
     + simularMercado()
 }
 
@@ -75,11 +76,6 @@ note right of Simulador
 end note
 
 note left of Inversor 
-    colocarCaucion(){
-        ... logica de rebote si excede a saldo Virtual
-        ... modificacion a saldo virtual
-        ... incrementacion de saldo caucionado
-    }
     ingresarFondos(){
         this.validarTarjeta()
         ... modificar saldoVirtual
@@ -89,7 +85,7 @@ end note
 Inversor o-- Portafolio 
 Portafolio *-- Transaccion
 Transaccion .r.> tipoTransaccion
-Administrador ..> Activo
+Admin ..> Activo
 Portafolio o-- TenenciaActivo
 TenenciaActivo --> Activo
 Simulador *-l- Activo
