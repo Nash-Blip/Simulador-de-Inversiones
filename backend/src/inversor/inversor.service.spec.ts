@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { InversorService } from './inversor.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Inversor, InversorRol } from './entities/inversor.entity';
+import { Inversor } from './entities/inversor.entity';
 import { Repository } from 'typeorm';
 import { BadRequestException, ConflictException, NotFoundException } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
@@ -154,7 +154,7 @@ describe('InversorService', () => {
     const tarjetaValida = {
       numeroTarjeta: '1234567812345678',
       cvv: '123',
-      vencimiento: '12/25',
+      vencimiento: '12/30',
       monto: 5000
     };
 
