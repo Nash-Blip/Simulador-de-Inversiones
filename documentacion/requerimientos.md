@@ -67,7 +67,7 @@ El sistema debe permitir dar de alta a un nuevo inversor siempre y cuando el cor
 | **Estado**    | `En desarrollo`    |
 
 #### Descripción
-> El usuario registrado accederá a la página de inicio de sesión, donde se le presentará un formulario para ingresar sus credenciales (correo electrónico y contraseña). El sistema contará con un botón para ingresar y una opción para recuperar la contraseña. 
+> El usuario registrado accederá a la página de inicio de sesión, donde se le presentará un formulario para ingresar sus credenciales (correo electrónico y contraseña).
 
 ```
 El sistema debe permitir el acceso a la plataforma solo a aquellos usuarios que introduzcan un correo electrónico y una contraseña válidos que coincidan con los registros del sistema. En el caso en que esta operación sea exitosa, se generará una sesión activa (token de autenticación) y se redireccionará al usuario a la pantalla principal o dashboard de activos.
@@ -219,14 +219,14 @@ en toda la plataforma, incluyendo el portafolio de los usuarios que ya posean di
 ```
 El sistema debe proveer un endpoint que retorne las transacciones asociadas al inversor actual, 
 ordenadas por fecha de creación en orden descendente. Los resultados deben estar paginados en bloques 
-de 15 elementos. El endpoint debe permitir opcionalmente filtrar por activo. 
+de 10 elementos. El endpoint debe permitir opcionalmente filtrar por activo. 
 Cada transacción debe incluir: identificador, tipo de operación, activo involucrado, cantidad,
 monto y fecha. La información debe persistirse en la base de datos y recuperarse de forma consistente.
 ```
 
 #### Criterios de Aceptación
 - [x] El servidor debe retornar únicamente las transacciones asociadas al inversor autenticado.
-- [x] El servidor debe paginar los resultados en bloques de 15 transacciones por página.
+- [x] El servidor debe paginar los resultados en bloques de 10 transacciones por página.
 - [x] El servidor debe ordenar las transacciones por fecha de creación en orden descendente (más recientes primero).
 - [x] El servidor debe permitir filtrar las transacciones por activo mediante un parámetro opcional.
 - [x] El servidor debe garantizar que los datos retornados correspondan a transacciones persistidas en la base de datos.
@@ -282,11 +282,11 @@ quedar registrada en una base de datos centralizada.
 > Para garantizar una experiencia de usuario realista, el sistema debe contar con un motor de simulación que genere operaciones de compra y venta de forma autónoma y continua.
 
 ```
-Este componente debe actuar "por debajo" (background), inyectando órdenes en el sistema para que los activos siempre tengan volumen y movimiento de precio. Esto evita que el simulador quede estático cuando no hay suficientes usuarios reales operando, permitiendo que las estrategias de los inversores se ejecuten contra una liquidez simulada.
+Este componente debe actuar "en segundo plano" (background), inyectando órdenes en el sistema para que los activos siempre tengan volumen y movimiento de precio. Esto evita que el simulador quede estático cuando no hay suficientes usuarios reales operando, permitiendo que las estrategias de los inversores se ejecuten contra una liquidez simulada.
 ```
 
 #### Criterios de Aceptación
-- [x] El script debe generar al menos una operación de mercado cada 10 segundos para los activos de mayor volumen.
+- [x] El script debe generar al menos una operación de mercado cada 3 segundos para los activos de mayor volumen.
 - [x] La fluctuación de precios generada por el script no debe exceder un +/- 5% para evitar volatilidad irreal.
 
 ---

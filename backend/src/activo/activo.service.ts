@@ -1,9 +1,10 @@
 import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
-import { CreateActivoDto } from './dto/create-activo.dto';
+import { CreateActivoDto } from './dto/input/create-activo.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Activo } from './entities/activo.entity';
 import { Repository } from 'typeorm';
 import { TipoTransaccion } from '@/transaccion/transaccion.entity';
+import { UpdateActivoDto } from './dto/input/update-activo.dto';
 
 @Injectable()
 export class ActivoService {
@@ -22,12 +23,26 @@ export class ActivoService {
       ticker: dto.ticker,
       precioInicial: dto.precioInicial,
       precioActual: dto.precioInicial,
-      valorMaximo: 0,
-      valorMinimo: 0,
+      valorMaximo: dto.precioInicial,
+      valorMinimo: dto.precioInicial,
       cantOperaciones: 0,
       totalEjecutado: 0
     });
     return this.activoRepo.save(activo);
+  }
+
+  async update(id: number, dto: UpdateActivoDto) {
+    const existeActivo = await this.activoRepo.findOneBy({ id });
+    if (!existeActivo) {
+      throw new NotFoundException(`No se encontró el Activo con ID ${id}`);
+    }
+    const { nombre, ticker } = dto;
+    
+    return await this.activoRepo.save({
+      id,
+      nombre,
+      ticker,
+    });
   }
 
   findAll() {

@@ -12,25 +12,25 @@ const finnhubClient = new finnhub.DefaultApi(process.env.FINNHUB_API_KEY)
 export class FinnhubService implements OnApplicationBootstrap {
     private readonly logger = new Logger(FinnhubService.name);
 
-  // Los tickers que tu simulador necesita al arrancar
-  private readonly tickersIniciales = ['AAPL', 'MSFT', 'NVDA', 'AMZN', 'TSLA'];
-
   constructor(
     @InjectRepository(Activo)
     private readonly activoRepo: Repository<Activo>,
   ) {}
 
   async onApplicationBootstrap() {
-    for (const ticker of this.tickersIniciales) {
+    let tickers : string[] = []; 
+    let activos = await this.activoRepo.find();
+    activos.forEach((activo) => { 
+      tickers.push(activo.ticker);
+    })
+    for (const ticker of tickers) {
       try {
         const precioInicial = await this.obtenerPrecioInicial(ticker);
         await this.updateActivo(ticker, precioInicial);
-      } catch (error) {
-        // 💡 Modificado: imprimimos el error real que viene del reject para saber exactamente qué pasa
+      } catch (error) {        
         this.logger.error(`Error con ${ticker}. No se pudo obtener el valor inicial.`);
       }
     }
-
     this.logger.log('Sincronización finalizada.');
   }
 

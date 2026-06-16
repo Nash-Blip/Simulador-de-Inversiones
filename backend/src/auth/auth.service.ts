@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { InversorService } from '@/inversor/inversor.service';
-import { CreateInversorDto } from '@/inversor/dto/create-inversor.dto';
+import { CreateInversorDto } from '@/inversor/dto/input/create-inversor.dto';
 
 @Injectable()
 export class AuthService {

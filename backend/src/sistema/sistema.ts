@@ -2,9 +2,9 @@ import { Injectable, BadRequestException, NotFoundException } from '@nestjs/comm
 import { Repository } from 'typeorm';
 import { Inversor } from '@/inversor/entities/inversor.entity';
 import { Activo } from '@/activo/entities/activo.entity';
-import { TipoTransaccion, Transaccion } from '@/transaccion/transaccion.entity';
-import { CompraActivoDto } from '@/activo/dto/compra-activo.dto';
-import { VentaActivoDto } from '@/activo/dto/venta-activo.dto';
+import { TipoTransaccion } from '@/transaccion/transaccion.entity';
+import { CompraActivoDto } from '@/activo/dto/input/compra-activo.dto';
+import { VentaActivoDto } from '@/activo/dto/input/venta-activo.dto';
 import { TenenciaActivo } from '@/tenenciaActivo/tenenciaActivo.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { InversorService } from '@/inversor/inversor.service';
@@ -71,7 +71,7 @@ export class Sistema {
 
       const ingresoVenta = activo.precioActual * dto.cantidad;
       const costoVendido = precioCompra * dto.cantidad;
-      
+
       inversor.saldoVirtual += ingresoVenta;
       inversor.portafolio.costoPortafolio = Number((inversor.portafolio.costoPortafolio - costoVendido).toFixed(2));
 

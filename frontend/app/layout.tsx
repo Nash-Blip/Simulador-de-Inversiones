@@ -1,20 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Montserrat } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const montserrat = Montserrat({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: "--font-montserrat", 
 });
 
 export const metadata: Metadata = {
   title: "Simulador de Inversiones",
-  description: "Simulador de inversiones presentado como trabajo practico para la materia programacion 3.",
+  description: "Simulador de inversiones presentado como trabajo práctico para la materia programación 3.",
 };
 
 export default function RootLayout({
@@ -23,9 +18,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}>
-      <body className="min-h-full flex flex-col bg-gray-800 text-white">
-        {children}
+    <html lang="es" className={`${montserrat.variable} min-h-screen antialiased`}>
+      <body className="min-h-screen flex flex-col bg-[#0b0f19] text-white">
+          {children}        
       </body>
     </html>
   );

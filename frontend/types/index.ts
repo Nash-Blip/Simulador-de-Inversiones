@@ -4,8 +4,8 @@ export enum TipoTransaccion {
 }
 
 export enum InversorRol {
-    USER = 'user',
-    ADMIN = 'admin',
+    USER = "user",
+    ADMIN = 'admin'    
 }
 
 export type Transaccion = {
@@ -22,21 +22,28 @@ export type Activo = {
     id: number;
     nombre: string;
     ticker: string;
+    precioInicial: number;
     precioActual: number;
+    valorMaximo: number;
+    valorMinimo: number;
+    cantOperaciones: number;
+    totalEjecutado: number;
 }
 
 export type TenenciaActivo = {
     rendimiento: number;
     id: number;
+    rendimiento: number;
     cantidad: number;
     precioCompra: number;
     portafolio: Portafolio;
     activo: Activo;
+
 }
 
 export type Portafolio = {
     id: number;
-    valorPortafolio: number;
+    valorPortafolio: number;    
     costoPortafolio: number;
     rendimientoPortafolio: number;
     saldoVirtual: number;
@@ -47,11 +54,13 @@ export type Portafolio = {
 
 export type Inversor = {
     id: number;
+    nombre: string;
     email: string;
-    nombre:string;
     rol: InversorRol;
-    saldoVirtual: number;
+    saldo: number;
 }
+
+
 
 export type TransaccionHistorial = {
     id: number;

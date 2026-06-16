@@ -1,14 +1,14 @@
 import { ConflictException, Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { CreateInversorDto } from './dto/create-inversor.dto';
-import { IngresarFondosTarjetaDto } from './dto/ingresar-fondos-tarjeta.dto';
-import { IngresarFondosTransferenciaDto } from './dto/ingresar-fondos-transferencia.dto';
-import { RetirarFondosDto } from './dto/retirar-fondos.dto';
+import { CreateInversorDto } from './dto/input/create-inversor.dto';
+import { IngresarFondosTarjetaDto } from './dto/input/ingresar-fondos-tarjeta.dto';
+import { IngresarFondosTransferenciaDto } from './dto/input/ingresar-fondos-transferencia.dto';
+import { RetirarFondosDto } from './dto/input/retirar-fondos.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Inversor, InversorRol } from './entities/inversor.entity';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
-import { InversorPerfilDto } from './dto/inversor.perfil.dto';
-import { CambioPasswordDto } from './dto/cambio-password.dto';
+import { InversorPerfilDto } from './dto/input/inversor.perfil.dto';
+import { CambioPasswordDto } from './dto/input/cambio-password.dto';
 import { TenenciaActivo } from '@/tenenciaActivo/tenenciaActivo.entity';
 
 @Injectable()
@@ -17,29 +17,6 @@ export class InversorService {
     @InjectRepository(Inversor)
     private readonly inversorRepo: Repository<Inversor>
   ) { }
-
-  async onApplicationBootstrap() {
-    await this.crearAdmin();
-  }
-
-  private async crearAdmin() {
-    const adminEnSistema = await this.inversorRepo.count()
-
-    if (adminEnSistema === 0) {
-      const passwordHasheada = await bcrypt.hash('pruebas000', 10);
-      const admin = this.inversorRepo.create({
-        email: "pruebasAdmin@mail.com",
-        nombre: "admin",
-        password: passwordHasheada,
-        rol: InversorRol.ADMIN,
-        saldoVirtual: 0,
-        portafolio: {
-          costoPortafolio: 0,
-        }
-      });
-      return this.inversorRepo.save(admin);
-    }
-  }
 
   async create(dto: CreateInversorDto) {
     const existeInversor = await this.inversorRepo.findOneBy({ email: dto.email });
@@ -95,9 +72,16 @@ export class InversorService {
       rendimiento: this.calcularRendimientoTenencia(t),
     }));
 
-    const valorPortafolio = this.calcularValorPortafolio(inversor.portafolio.tenencias);
-    const costoPortafolio = Number(inversor.portafolio.costoPortafolio);
-    const rendimientoPortafolio = this.calcularRendimientoPortafolio(valorPortafolio, costoPortafolio);
+    let valorPortafolio = this.calcularValorPortafolio(inversor.portafolio.tenencias);
+    let costoPortafolio = Number(inversor.portafolio.costoPortafolio);
+    let rendimientoPortafolio = this.calcularRendimientoPortafolio(valorPortafolio, costoPortafolio);
+
+    const tieneActivos = inversor.portafolio.tenencias.some(t => t.cantidad > 0);
+    if (!tieneActivos) {
+      costoPortafolio = 0;
+      valorPortafolio = 0
+      rendimientoPortafolio = 0;
+    }
 
     return {
       saldoVirtual: inversor.saldoVirtual,
@@ -152,6 +136,17 @@ export class InversorService {
       mesNumero > 12) {
       throw new BadRequestException('Tarjeta inválida');
     }
+    const fechaActual = new Date();
+    const anioActual = fechaActual.getFullYear();
+    const mesActual = fechaActual.getMonth() + 1;
+
+    const anioTarjetaCompleto = Number(String(anioActual).slice(0, 2) + anio);
+    if (
+      anioTarjetaCompleto < anioActual || 
+      (anioTarjetaCompleto === anioActual && mesNumero < mesActual)
+    ) {
+      throw new BadRequestException('La tarjeta está vencida');
+    }
   }
 
   async ingresarFondosTransferencia(id: number, dto: IngresarFondosTransferenciaDto) {
@@ -172,14 +167,15 @@ export class InversorService {
     await this.inversorRepo.save(inversor);
     return { mensaje: 'Fondos retirados correctamente', saldoActual: inversor.saldoVirtual };
   }
+
   async findPerfil(id: number): Promise<InversorPerfilDto> {
     const inversor = await this.findOne(id);
 
     return {
       nombre: inversor.nombre,
       email: inversor.email,
+      saldo: inversor.saldoVirtual
     };
-
   }
 
   async cambiarPassword(id: number, dto: CambioPasswordDto): Promise<{ message: string }> {
