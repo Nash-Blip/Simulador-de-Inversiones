@@ -1,12 +1,12 @@
 > **Proyecto:** Simulador de Inversiones
 
-> **Versión del documento:** 1.3
+> **Versión del documento:** 1.4
 
-> **Fecha:** 2026-05-04
+> **Fecha:** 2026-06-16
 
 > **Autor(es):** Alejo Suarez / Matias Fernandez / Pablo Duval / Ramiro Gomez Rivelli / Agustin Begue
 
-> **Estado:** `Borrador`
+> **Estado:** `En revisión`
 
 ---
 
@@ -26,6 +26,7 @@
 | 1.1     | 2026-05-05 | [Agustin Begue - Matias Fernandez] | Actualización del documento   |
 | 1.2     | 2026-05-20 | [Agustin Begue - Matias Fernandez - Alejo Suarez] | Revision y actualizacion del documento   |
 | 1.3     | 2026-05-21 | [Agustin Begue]| Ajuste en criterios de autorizacion RF-003 al RF-006 |    
+| 1.4     | 2026-06-16 | [Agustin Begue]| Correcciones del docente + Nuevos requerimientos funcionales del sistema |
 
 ---
 
@@ -39,20 +40,20 @@
 | **Nombre**    | Registro de Inversor |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Alta`         |
-| **Estado**    | `En desarrollo`    |
+| **Estado**    | `Completado`    |
 
 #### Descripción
 > El usuario interesado en operar en la plataforma accederá a la página de registro, donde se le presentará un formulario para ingresar sus datos personales (nombre completo, correo electrónico, contraseña). El sistema contará con un botón para confirmar el registro. 
 
 ```
-El sistema debe permitir dar de alta a un nuevo inversor siempre y cuando el correo electrónico ingresado no se encuentre registrado previamente y la contraseña cumpla con las políticas de seguridad. En el caso en que esta operación sea exitosa, se creará el perfil del usuario, se le asignará una billetera digital con un saldo inicial de $10000.
+El sistema debe permitir dar de alta a un nuevo inversor siempre y cuando el correo electrónico ingresado no se encuentre registrado previamente y la contraseña cumpla con las políticas de seguridad. En el caso en que esta operación sea exitosa, se creará el perfil del usuario, se le asignará una billetera digital con un saldo inicial de $10000, e iniciará sesión automaticamente al sistema.
 ```
 
 #### Criterios de Aceptación
 - [x] El sistema debe mostrar un mensaje de error claro si alguno de los campos obligatorios del formulario queda vacío.
 - [x] El servidor debe validar en tiempo real que el formato del correo electrónico sea válido y que las contraseñas coincidan.
 - [x] El servidor retorna el código HTTP `201 Created` en caso de que la operación de registro sea exitosa.
-- [x] El servidor retorna el código HTTP `400 Bad Request` en caso de que el correo electrónico ya exista en el sistema o los datos enviados no cumplan con las validaciones de negocio.
+- [x] El servidor retorna el código HTTP `409 Conflict` en caso de que el correo electrónico ya exista en el sistema o los datos enviados no cumplan con las validaciones de negocio.
 
 ---
 
@@ -64,7 +65,7 @@ El sistema debe permitir dar de alta a un nuevo inversor siempre y cuando el cor
 | **Nombre**    | Inicio de Sesion |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Alta`         |
-| **Estado**    | `En desarrollo`    |
+| **Estado**    | `Completado`   |
 
 #### Descripción
 > El usuario registrado accederá a la página de inicio de sesión, donde se le presentará un formulario para ingresar sus credenciales (correo electrónico y contraseña).
@@ -89,13 +90,13 @@ El sistema debe permitir el acceso a la plataforma solo a aquellos usuarios que 
 | **Nombre**    | Compra de Activos |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Alta`         |
-| **Estado**    | `En desarrollo`    |
+| **Estado**    | `Completado`   |
 
 #### Descripción
 > En el caso de una compra el inversor accedera a la pagina de mercado, seleccionara el activo a comprar, se mostrara una seccion con informacion al detalle donde se le permitira ingresar el monto y tendra un boton para confirmar. 
 
 ```
-El sistema debe permitir comprar activos cuando el inversor, con una sesion iniciada, tenga el saldo suficiente 
+El sistema debe permitir comprar activos a un inversor autenticado y con saldo suficiente 
 para adquirirlo. En el caso en que esta operacion sea exitosa, se descontara el dinero de la transaccion de
 su saldo digital y se asignara el activo a su portafolio como parte de sus tenencias.
 ```
@@ -104,7 +105,7 @@ su saldo digital y se asignara el activo a su portafolio como parte de sus tenen
 - [x] El sistema debe mostrar el saldo disponible del inversor en la pantalla de confirmación de compra.
 - [x] El servidor debe validar en tiempo real que el monto de la compra no exceda el saldo digital del usuario.
 - [x] El servidor retorna el codigo HTTP `401 Unauthorized` si el usuario no ha iniciado sesion.
-- [x] El servidor retorna el codigo HTTP `200 OK` en caso de que la operacion sea exitosa.
+- [x] El servidor retorna el codigo HTTP `201 Created` en caso de que la operacion sea exitosa.
 - [x] El servidor retorna el codigo HTTP `400 Bad Request` en caso de que el saldo del inversor sea insuficiente para la opeacion que intenta realizar.
 
 ---
@@ -117,14 +118,14 @@ su saldo digital y se asignara el activo a su portafolio como parte de sus tenen
 | **Nombre**    | Venta de Activos |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Alta`         |
-| **Estado**    | `En desarrollo`    |
+| **Estado**    | `Completado`    |
 
 #### Descripción
-En caso de una venta el usuario inversor deberá acceder a su portafolio, donde el sistema muestra únicamente los activos con tenencia disponible y muestra la cantidad existente de cada uno de ellos. Se seleccionará el activo, su cantidad y visualizará un boton para proseguir a la venta.
+El sistema debe permitir vender activos a un inversor autenticado desde la sección de su portafolio, donde el sistema muestra únicamente los activos con tenencia disponible y muestra la cantidad existente de cada uno de ellos. Debe permitir seleccionar el activo, la cantidad a vender y visualizar un boton para ejecutar la venta.
 
 ```
-Para ejecutar una venta de activos el sistema revisará que exista la tenencia del activo, modificará 
-la tenencia segun sea acorde (borrando o modificandola) y agregara dinero al saldo. Las ventas 
+Para ejecutar una venta de activos el sistema debe revisar que exista la tenencia del activo, modificar 
+la tenencia segun sea acorde (borrando o modificandola) y agregar el ingreso por la venta al saldo del inversor. Las ventas 
 se realizaran desde el portafolio lo que imposibilitará al usuario a vender un activo que no posee.
 
 ```
@@ -135,9 +136,9 @@ se realizaran desde el portafolio lo que imposibilitará al usuario a vender un 
 - [x] El servidor debe eliminar el registro de la tenencia en el portafolio si la cantidad resultante es igual a 0.
 - [x] El servidor debe acreditar en el saldo del usuario el monto correspondiente a la venta del activo.
 - [x] El servidor retorna el codigo HTTP `401 Unauthorized` si el usuario no ha iniciado sesion.
-- [x] El servidor retorna el código HTTP `200 OK` en caso de que la operación de venta sea exitosa.
+- [x] El servidor retorna el código HTTP `201 Created` en caso de que la operación de venta sea exitosa.
 - [x] El servidor retorna el código HTTP `400 Bad Request` si la cantidad ingresada es inválida (menor o igual a 0).
-- [x] El servidor retorna el código HTTP `409 Conflict` si la cantidad a vender es mayor a la tenencia disponible.
+- [x] El servidor retorna el código HTTP `400 Bad Request` si la cantidad a vender es mayor a la tenencia disponible.
 
 
 ---
@@ -179,7 +180,7 @@ el activo debe integrarse y mostrarse dinámicamente en el listado principal de 
 | **Nombre**    | Modificación de Activos |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Baja`         |
-| **Estado**    | `Pendiente`    |
+| **Estado**    | `En desarrollo`    |
 ---
 
 #### Descripción
@@ -210,7 +211,7 @@ en toda la plataforma, incluyendo el portafolio de los usuarios que ya posean di
 | **Nombre**    | Registro de Transacciones del inversor |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Media`         |
-| **Estado**    | `Pendiente`    |
+| **Estado**    | `En desarrollo`    |
 ---
 
 #### Descripción
@@ -238,6 +239,125 @@ monto y fecha. La información debe persistirse en la base de datos y recuperars
 
 ---
 
+### RF-008 — Gestión de Fondos
+
+| Campo         | Detalle        |
+|---------------|----------------|
+| **ID**        | RF-008         |
+| **Nombre**    | Gestión de Fondos |
+| **Tipo**      | Funcional      |
+| **Prioridad** | `Alta`         |
+| **Estado**    | `Completado`    |
+
+#### Descripción
+> El inversor debe poder ingresar y retirar fondos de su billetera virtual desde la sección de fondos de la plataforma.
+
+```
+El sistema debe permitir al inversor autenticado realizar tres operaciones financieras sobre su saldo virtual:
+1. Ingreso por transferencia bancaria: el inversor ingresa un monto, un CBU de 22 dígitos y un titular; el sistema acredita el monto en su saldo virtual.
+2. Ingreso por tarjeta de crédito: el inversor ingresa un monto, número de tarjeta (16 dígitos), CVV (3 dígitos) y vencimiento (formato MM/AA); el sistema valida que la tarjeta no esté vencida y acredita el monto.
+3. Retiro de fondos: el inversor ingresa un monto, CBU y titular; el sistema verifica que el saldo sea suficiente y descuenta el monto.
+```
+
+#### Criterios de Aceptación
+- [x] El servidor debe validar que el número de tarjeta tenga exactamente 16 dígitos numéricos.
+- [x] El servidor debe validar que el CVV tenga exactamente 3 dígitos.
+- [x] El servidor debe validar que la fecha de vencimiento no sea anterior al mes/año actual.
+- [x] El servidor debe validar que el CBU tenga exactamente 22 dígitos numéricos.
+- [x] El servidor debe validar que el monto a retirar no supere el saldo virtual disponible del inversor.
+- [x] El servidor retorna el código HTTP `200 OK` en caso de que la operación sea exitosa.
+- [x] El servidor retorna el código HTTP `401 Unauthorized` si el usuario no ha iniciado sesión.
+- [x] El servidor retorna el código HTTP `400 Bad Request` si los datos de la tarjeta son inválidos o el saldo es insuficiente para el retiro.
+
+---
+
+### RF-009 — Visualización de Portafolio
+
+| Campo         | Detalle        |
+|---------------|----------------|
+| **ID**        | RF-009         |
+| **Nombre**    | Visualización de Portafolio |
+| **Tipo**      | Funcional      |
+| **Prioridad** | `Alta`         |
+| **Estado**    | `Completado`    |
+
+#### Descripción
+> El inversor debe poder consultar el estado actual de su portafolio con métricas de rendimiento y tenencias.
+
+```
+El sistema debe exponer un endpoint que retorne el portafolio completo del inversor autenticado,
+incluyendo: saldo virtual disponible, costo total del portafolio, valor actual del portafolio,
+y rendimiento porcentual general.
+Para cada activo en tenencia debe incluir: cantidad, precio de compra promedio ponderado,
+precio actual de mercado y rendimiento porcentual individual.
+```
+
+#### Criterios de Aceptación
+- [x] El endpoint debe retornar el saldo virtual, costo, valor y rendimiento del portafolio.
+- [x] El endpoint debe listar todas las tenencias del inversor con su rendimiento individual.
+- [x] El precio de compra debe calcularse como promedio ponderado cuando se adquieren múltiples lotes del mismo activo.
+- [x] Las tenencias con cantidad 0 deben eliminarse del portafolio (no listarse).
+- [x] El servidor retorna el código HTTP `200 OK` en caso de éxito.
+- [x] El servidor retorna el código HTTP `401 Unauthorized` si el usuario no ha iniciado sesión.
+
+---
+
+### RF-010 — Perfil y Cambio de Contraseña
+
+| Campo         | Detalle        |
+|---------------|----------------|
+| **ID**        | RF-010         |
+| **Nombre**    | Perfil y Cambio de Contraseña |
+| **Tipo**      | Funcional      |
+| **Prioridad** | `Media`        |
+| **Estado**    | `Completado`    |
+
+#### Descripción
+> El inversor debe poder consultar su perfil y modificar su contraseña desde la plataforma.
+
+```
+El sistema debe permitir al inversor autenticado consultar sus datos personales (nombre, email, saldo)
+a través de un endpoint específico. Además, debe permitir el cambio de contraseña requiriendo la
+contraseña actual para verificación y aplicando hashing con bcrypt a la nueva contraseña.
+```
+
+#### Criterios de Aceptación
+- [x] El endpoint de perfil debe retornar nombre, email y saldo del inversor autenticado.
+- [x] El cambio de contraseña debe requerir la contraseña actual y verificar que coincida con el hash almacenado.
+- [x] La nueva contraseña debe tener al menos 6 caracteres.
+- [x] El servidor retorna el código HTTP `200 OK` en caso de éxito.
+- [x] El servidor retorna el código HTTP `401 Unauthorized` si el usuario no ha iniciado sesión.
+- [x] El servidor retorna el código HTTP `409 Conflict` si la contraseña actual no es correcta.
+
+---
+
+### RF-011 — Inicialización de Datos de Demostración
+
+| Campo         | Detalle        |
+|---------------|----------------|
+| **ID**        | RF-011         |
+| **Nombre**    | Inicialización de Datos de Demostración |
+| **Tipo**      | Funcional      |
+| **Prioridad** | `Baja`         |
+| **Estado**    | `Completado`    |
+
+#### Descripción
+> El sistema debe inicializar datos de demostración al primer inicio para permitir la evaluación de la plataforma.
+
+```
+Al iniciar la aplicación por primera vez (base de datos vacía), el sistema debe:
+1. Crear un usuario administrador por defecto con credenciales predefinidas.
+2. Crear un conjunto inicial de 20 activos financieros (blue-chip stocks) con tickers y nombres reales.
+3. Obtener los precios de mercado actuales de estos activos a través de una API externa (Finnhub).
+Los seeders deben ejecutarse una sola vez y no sobrescribir datos existentes.
+```
+
+#### Criterios de Aceptación
+- [x] Si la base de datos ya contiene registros, los seeders deben omitir la inicialización.
+- [x] El usuario administrador por defecto debe tener credenciales funcionales para iniciar sesión.
+- [x] Si la API externa falla para un ticker, el sistema debe continuar con los demás sin interrumpir el inicio.
+
+---
 
 ## Requerimientos No Funcionales
 
@@ -250,7 +370,7 @@ monto y fecha. La información debe persistirse en la base de datos y recuperars
 | **Tipo**       | No Funcional    |
 | **Categoría**  | `Seguridad`    |
 | **Prioridad**  | `Alta`          |
-| **Estado**     | `En desarrollo`     |
+| **Estado**     | `Completado`     |
 
 #### Descripción
 > El sistema debe garantizar la integridad y confidencialidad de la información financiera y personal de los usuarios.
@@ -276,7 +396,7 @@ quedar registrada en una base de datos centralizada.
 | **Tipo**       | No Funcional    |
 | **Categoría**  | `Simulacion`    |
 | **Prioridad**  | `Alta`          |
-| **Estado**     | `Pendiente`     |
+| **Estado**     | `Completado`     |
 
 #### Descripción
 > Para garantizar una experiencia de usuario realista, el sistema debe contar con un motor de simulación que genere operaciones de compra y venta de forma autónoma y continua.
@@ -286,7 +406,7 @@ Este componente debe actuar "en segundo plano" (background), inyectando órdenes
 ```
 
 #### Criterios de Aceptación
-- [x] El script debe generar al menos una operación de mercado cada 3 segundos para los activos de mayor volumen.
+- [x] El script debe generar al menos una operación de mercado cada 3 segundos.
 - [x] La fluctuación de precios generada por el script no debe exceder un +/- 5% para evitar volatilidad irreal.
 
 ---
@@ -298,12 +418,12 @@ Este componente debe actuar "en segundo plano" (background), inyectando órdenes
 | **ID**         | RNF-003         |
 | **Nombre**     | Usabilidad y Experiencia de Usuario (UX) |
 | **Tipo**       | No Funcional    |
-| **Categoría**  | `Simulacion`    |
+| **Categoría**  | `UX`    |
 | **Prioridad**  | `Alta`          |
-| **Estado**     | `Pendiente`     |
+| **Estado**     | `Completado`     |
 
 #### Descripción
-> El sistema debe ser intuitivo para que un inversor novato pueda operar sin necesidad de un manual de usuario externo.
+> La interfaz debe guiar al usuario mediante señales visuales explícitas en cada paso, sin requerir documentación externa para completar los flujos principales.
 
 ```
 La interfaz del simulador debe ser diseñada bajo un enfoque User-Centric, garantizando que la curva de aprendizaje sea mínima para inversores principiantes. Dado que la información financiera puede ser abrumadora, el sistema debe priorizar la jerarquía visual: los saldos y botones de acción (Compra/Venta) deben ser los elementos más destacados.
@@ -324,12 +444,12 @@ El sistema debe implementar un diseño Responsive fluido que asegure que las tab
 | **ID**         | RNF-004         |
 | **Nombre**     | Mantenibilidad y Calidad de Código |
 | **Tipo**       | No Funcional    |
-| **Categoría**  | `Simulacion`    |
+| **Categoría**  | `Mantenibilidad`    |
 | **Prioridad**  | `Alta`          |
 | **Estado**     | `Pendiente`     |
 
 #### Descripción
-> El código fuente debe estar estructurado de forma que sea fácil de entender, testear y extender por otros desarrolladores.
+> El código debe cumplir con umbrales de mantenibilidad verificables mediante las herramientas ya integradas en el proyecto.
 
 ```
 El software debe desarrollarse siguiendo patrones de diseño en caso de ser necesario, que desacoplen la lógica de negocio (el motor de inversiones). Esto es vital para que, en el futuro, si se decide cambiar el proveedor de precios en tiempo real, el impacto en el código sea mínimo.
