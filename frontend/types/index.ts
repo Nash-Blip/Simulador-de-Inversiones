@@ -55,7 +55,8 @@ export type Inversor = {
     id: number;
     nombre: string;
     email: string;
-    rol: InversorRol;    
+    rol: InversorRol;
+    saldo: number;
 }
 
 
