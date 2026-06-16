@@ -282,11 +282,11 @@ quedar registrada en una base de datos centralizada.
 > Para garantizar una experiencia de usuario realista, el sistema debe contar con un motor de simulación que genere operaciones de compra y venta de forma autónoma y continua.
 
 ```
-Este componente debe actuar "por debajo" (background), inyectando órdenes en el sistema para que los activos siempre tengan volumen y movimiento de precio. Esto evita que el simulador quede estático cuando no hay suficientes usuarios reales operando, permitiendo que las estrategias de los inversores se ejecuten contra una liquidez simulada.
+Este componente debe actuar "en segundo plano" (background), inyectando órdenes en el sistema para que los activos siempre tengan volumen y movimiento de precio. Esto evita que el simulador quede estático cuando no hay suficientes usuarios reales operando, permitiendo que las estrategias de los inversores se ejecuten contra una liquidez simulada.
 ```
 
 #### Criterios de Aceptación
-- [x] El script debe generar al menos una operación de mercado cada 10 segundos para los activos de mayor volumen.
+- [x] El script debe generar al menos una operación de mercado cada 3 segundos para los activos de mayor volumen.
 - [x] La fluctuación de precios generada por el script no debe exceder un +/- 5% para evitar volatilidad irreal.
 
 ---
