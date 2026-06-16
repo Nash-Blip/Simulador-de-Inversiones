@@ -72,9 +72,16 @@ export class InversorService {
       rendimiento: this.calcularRendimientoTenencia(t),
     }));
 
-    const valorPortafolio = this.calcularValorPortafolio(inversor.portafolio.tenencias);
-    const costoPortafolio = Number(inversor.portafolio.costoPortafolio);
-    const rendimientoPortafolio = this.calcularRendimientoPortafolio(valorPortafolio, costoPortafolio);
+    let valorPortafolio = this.calcularValorPortafolio(inversor.portafolio.tenencias);
+    let costoPortafolio = Number(inversor.portafolio.costoPortafolio);
+    let rendimientoPortafolio = this.calcularRendimientoPortafolio(valorPortafolio, costoPortafolio);
+
+    const tieneActivos = inversor.portafolio.tenencias.some(t => t.cantidad > 0);
+    if (!tieneActivos) {
+      costoPortafolio = 0;
+      valorPortafolio = 0
+      rendimientoPortafolio = 0;
+    }
 
     return {
       saldoVirtual: inversor.saldoVirtual,
@@ -160,12 +167,14 @@ export class InversorService {
     await this.inversorRepo.save(inversor);
     return { mensaje: 'Fondos retirados correctamente', saldoActual: inversor.saldoVirtual };
   }
+
   async findPerfil(id: number): Promise<InversorPerfilDto> {
     const inversor = await this.findOne(id);
 
     return {
       nombre: inversor.nombre,
       email: inversor.email,
+      saldo: inversor.saldoVirtual
     };
   }
 
