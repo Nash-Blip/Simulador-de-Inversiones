@@ -2,3 +2,5 @@
 cd frontend/
 
 npm run dev
+# Y accedemos al cliente por esta URL:
+http://localhost:3001
