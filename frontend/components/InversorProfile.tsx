@@ -100,6 +100,10 @@ export default function InversorProfile() {
         );
     }
 
+    function handleSelect(select: TenenciaActivo) {
+        setActivoSeleccionado(select);
+    }
+
     return (
         <div className="max-w-4xl mx-auto space-y-6">
 

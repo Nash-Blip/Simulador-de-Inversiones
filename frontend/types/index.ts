@@ -31,6 +31,7 @@ export type Activo = {
 }
 
 export type TenenciaActivo = {
+    rendimiento: number;
     id: number;
     rendimiento: number;
     cantidad: number;
