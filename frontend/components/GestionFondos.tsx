@@ -51,6 +51,21 @@ export default function GestionFondos() {
         setFormTarjeta(prev => ({ ...prev, [name]: value }));
     };
 
+    const handleVencimientoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        let value = e.target.value;
+        value = value.replace(/[^0-9/]/g, "");
+
+        if (value.length === 2 && !value.includes("/")) {
+            value = `${value}/`;
+        } else if (value.length === 3 && value.endsWith("/")) {
+            value = value.slice(0, 2);
+        }
+
+        if (value.length > 5) return;
+
+        setFormTarjeta(prev => ({ ...prev, vencimiento: value }));
+    };
+
     const validarFormulario = (): boolean => {
         const montoNum = tabActual === "ingreso_tarjeta" ? Number(formTarjeta.monto) : Number(formTransf.monto);
 
@@ -274,19 +289,20 @@ export default function GestionFondos() {
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
-                            <div>
-                                <label className="block text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">Vencimiento</label>
-                                <input
-                                    required
-                                    name="vencimiento"
-                                    type="text"
-                                    placeholder="MM/AA"
-                                    maxLength={5}
-                                    value={formTarjeta.vencimiento}
-                                    onChange={(e) => setFormTarjeta(prev => ({ ...prev, vencimiento: e.target.value }))}
-                                    className="w-full bg-gray-900 border-2 border-gray-800 rounded-xl p-3 text-white text-center focus:outline-none focus:border-blue-500 transition-colors"
-                                />
-                            </div>
+                                <div>
+                                    <label className="block text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">
+                                        Vencimiento
+                                    </label>
+                                    <input
+                                        required
+                                        name="vencimiento"
+                                        type="text"
+                                        placeholder="MM/AA"
+                                        value={formTarjeta.vencimiento}
+                                        onChange={handleVencimientoChange} 
+                                        className="w-full bg-gray-900 border-2 border-gray-800 rounded-xl p-3 text-white text-center focus:outline-none focus:border-blue-500 transition-colors"
+                                    />
+                                </div>
                             <div>
                                 <label className="block text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">CVV</label>
                                 <input

@@ -92,8 +92,8 @@ export default function PortafolioComp() {
                             <thead>
                                 <tr className="bg-gray-100 dark:bg-zinc-800 text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700 text-center">
                                     <th className="px-6 py-3">Saldo Virtual</th>
-                                    <th className="px-6 py-3">Costo Portafolio</th>
                                     <th className="px-6 py-3">Valor Portafolio</th>
+                                    <th className="px-6 py-3">Costo Portafolio</th>
                                     <th className="px-6 py-3">Rendimiento</th>
                                 </tr>
                             </thead>
@@ -103,10 +103,10 @@ export default function PortafolioComp() {
                                         ${portafolio.saldoVirtual.toFixed(2)}
                                     </td>
                                     <td className="px-6 py-4">
-                                        ${(portafolio.costoPortafolio).toFixed(2)}
+                                        ${(portafolio.valorPortafolio).toFixed(2)}
                                     </td>
                                     <td className="px-6 py-4">
-                                        ${(portafolio.valorPortafolio).toFixed(2)}
+                                        ${(portafolio.costoPortafolio).toFixed(2)}
                                     </td>
                                     <td className={`px-6 py-4 font-bold ${portafolio.rendimientoPortafolio >= 0
                                         ? "text-status-success"
