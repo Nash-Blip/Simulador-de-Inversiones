@@ -99,11 +99,7 @@ export default function InversorProfile() {
             </div>
         );
     }
-
-    function handleSelect(select: TenenciaActivo) {
-        setActivoSeleccionado(select);
-    }
-
+    
     return (
         <div className="max-w-4xl mx-auto space-y-6">
 
