@@ -10,6 +10,7 @@ import {
 import { ApiAdmin, ApiAuth, ApiIdParam } from '@/common/decorators/swagger.decorator';
 import { ActivoListItemDto } from '../dto/output/activo-list-item.dto';
 import { ActivoDetailDto } from '../dto/output/activo-detail.dto';
+import { ActivosPaginadaResponseDto } from '../dto/output/activo-paginada-response.dto';
 
 export function ApiCreateActivo() {
   return applyDecorators(
@@ -73,8 +74,9 @@ export function ApiVenderActivo() {
 export function ApiFindAllActivos() {
   return applyDecorators(
     ApiOperation({ summary: 'Listar todos los activos' }),
-    ApiOkResponse({ type: ActivoListItemDto, isArray: true }),
+    ApiOkResponse({ type: ActivosPaginadaResponseDto }),
     ApiAuth(),
+    ApiBadRequestResponse({ description: 'Parámetros inválidos (page, search)' }),
   );
 }
 
