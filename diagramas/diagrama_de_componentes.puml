@@ -1,0 +1,68 @@
+@startuml Simulador_Inversiones_Componentes
+
+<style>
+component {
+    BackgroundColor #f1f8ff
+    BorderColor #0366d6
+}
+database {
+    BackgroundColor #fff5ed
+    BorderColor #d15700
+}
+</style>
+
+skinparam Style strictuml
+left to right direction
+
+package "Frontend Application (App Web)" {
+    component [Auth Component] as FE_Auth
+    component [Mercado Component] as FE_Mercado
+    component [Portafolio Component] as FE_Portafolio
+    component [Fondos Component] as FE_Fondos
+    component [Transacciones Component] as FE_Transacciones
+    
+    note bottom of FE_Fondos
+        Valida en front y back:
+        - Formato de tarjeta
+        - Formato de CBU
+    end note
+}
+
+package "Backend API (Server)" {
+    component [Auth Controller / Service] as BE_Auth
+    component [Activos Controller / Service] as BE_Activos
+    component [Inversor Controller / Service] as BE_Inversor
+    component [Transaccion Controller / Service] as BE_Transaccion
+}
+
+database "Base de Datos" {
+    [Inversores / Usuarios] as DB_Users
+    [Activos / Mercado] as DB_Assets
+    [Portafolios / Tenencias] as DB_Portfolios
+    [Historial Transacciones] as DB_Tx
+}
+
+' ---- Conexiones Frontend a Backend (Basado en tus Endpoints) ----
+FE_Auth --> BE_Auth : POST /auth/register\nPOST /auth/login\nPOST /auth/logout
+
+FE_Mercado --> BE_Activos : GET /activo\nPOST /activo/comprar
+
+FE_Portafolio --> BE_Inversor : GET /inversor/portafolio
+FE_Portafolio --> BE_Activos : POST /activo/vender
+
+FE_Fondos --> BE_Inversor : POST /inversor/ingresar-fondos-tarjeta\nPOST /inversor/ingresar-fondos-transferencia\nPOST /inversor/retirar-fondos
+
+FE_Transacciones --> BE_Transaccion : GET /transaccion/historial?page=X&tipoTransaccion=Y
+
+' ---- Conexiones Backend a Base de Datos (Basado en tu Lógica) ----
+BE_Auth --> DB_Users : Guardar / Verificar credenciales
+
+BE_Activos --> DB_Assets : Consultar activos actuales
+BE_Activos --> DB_Portfolios : Consultar saldo, agregar/actualizar/eliminar tenencia
+BE_Activos --> DB_Tx : Registrar transacción (COMPRA / VENTA)
+
+BE_Inversor --> DB_Portfolios : Consultar tenencias, incrementar/restar saldoVirtual
+
+BE_Transaccion --> DB_Tx : Buscar y filtrar transacciones paginadas
+
+@enduml
