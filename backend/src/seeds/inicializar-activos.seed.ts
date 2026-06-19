@@ -34,7 +34,11 @@ export default class InicializarActivosSeeder implements Seeder {
       {nombre: 'Walmart Inc.', ticker: 'WMT', precioInicial: 0, precioActual: 0, valorMaximo: 0, valorMinimo: 0, cantOperaciones: 0, totalEjecutado: 0},
       {nombre: 'Pfizer Inc.', ticker: 'PFE', precioInicial: 0, precioActual: 0, valorMaximo: 0, valorMinimo: 0, cantOperaciones: 0, totalEjecutado: 0},
       {nombre: 'Chevron Corporation', ticker: 'CVX', precioInicial: 0, precioActual: 0, valorMaximo: 0, valorMinimo: 0, cantOperaciones: 0, totalEjecutado: 0},
-      {nombre: 'Exxon Mobil Corporation', ticker: 'XOM', precioInicial: 0, precioActual: 0, valorMaximo: 0, valorMinimo: 0, cantOperaciones: 0, totalEjecutado: 0}
+      {nombre: 'Exxon Mobil Corporation', ticker: 'XOM', precioInicial: 0, precioActual: 0, valorMaximo: 0, valorMinimo: 0, cantOperaciones: 0, totalEjecutado: 0},
+      {nombre: 'JPMorgan Chase & Co.', ticker: 'JPM', precioInicial: 0, precioActual: 0, valorMaximo: 0, valorMinimo: 0, cantOperaciones: 0, totalEjecutado: 0},
+      {nombre: 'Mastercard Incorporated', ticker: 'MA', precioInicial: 0, precioActual: 0, valorMaximo: 0, valorMinimo: 0, cantOperaciones: 0, totalEjecutado: 0},
+      {nombre: 'Johnson & Johnson', ticker: 'JNJ', precioInicial: 0, precioActual: 0, valorMaximo: 0, valorMinimo: 0, cantOperaciones: 0, totalEjecutado: 0},
+      {nombre: 'Procter & Gamble Co.', ticker: 'PG', precioActual: 0, valorMaximo: 0, valorMinimo: 0, cantOperaciones: 0, totalEjecutado: 0}
     ]);
     console.log('Seed de activos ejecutado con éxito.');
   }
