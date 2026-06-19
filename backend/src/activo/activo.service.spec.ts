@@ -93,6 +93,36 @@ describe('ActivoService', () => {
     });
   });
 
+  describe('findAllPaginado', () => {
+    it('debería retornar activos paginados aplicando filtro search', async () => {
+      const mockQueryBuilder = {
+        andWhere: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        take: jest.fn().mockReturnThis(),
+        getManyAndCount: jest.fn().mockResolvedValue([
+          [{ id: 1, nombre: 'Bitcoin', ticker: 'BTC' }],
+          1,
+        ]),
+      };
+      mockActivoRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder);
+
+      const result = await service.findAllPaginado({ page: 1, search: 'BTC' });
+
+      expect(mockActivoRepository.createQueryBuilder).toHaveBeenCalledWith('activo');
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        '(activo.nombre ILIKE :search OR activo.ticker ILIKE :search)',
+        { search: '%BTC%' },
+      );
+      expect(mockQueryBuilder.skip).toHaveBeenCalledWith(0);
+      expect(mockQueryBuilder.take).toHaveBeenCalledWith(8);
+      expect(result).toEqual({
+        data: [{ id: 1, nombre: 'Bitcoin', ticker: 'BTC' }],
+        meta: { totalItems: 1, itemCount: 1, itemsPerPage: 8, totalPages: 1, currentPage: 1 },
+      });
+    });
+  });
+
   describe('findOne', () => {
     it('debería retornar un activo si lo encuentra', async () => {
       const mockActivo = { id: 1, nombre: 'Bitcoin', transacciones: [] };

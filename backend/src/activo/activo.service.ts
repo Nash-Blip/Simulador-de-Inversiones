@@ -5,17 +5,19 @@ import { Activo } from './entities/activo.entity';
 import { Repository } from 'typeorm';
 import { TipoTransaccion } from '@/transaccion/transaccion.entity';
 import { UpdateActivoDto } from './dto/input/update-activo.dto';
+import { formatearRespuestaPaginada } from '@/common/utils/pagination.util';
+import { GetActivosQueryDto } from './dto/input/get-activo-query.dto';
 
 @Injectable()
 export class ActivoService {
   constructor(
     @InjectRepository(Activo)
     private readonly activoRepo: Repository<Activo>
-  ) {}
+  ) { }
 
   async create(dto: CreateActivoDto) {
-    const existeActivo = await this.activoRepo.findOneBy({nombre: dto.nombre});
-    if(existeActivo){
+    const existeActivo = await this.activoRepo.findOneBy({ nombre: dto.nombre });
+    if (existeActivo) {
       throw new ConflictException(`El Activo ${dto.nombre} ya existe.`);
     }
     const activo = this.activoRepo.create({
@@ -37,7 +39,7 @@ export class ActivoService {
       throw new NotFoundException(`No se encontró el Activo con ID ${id}`);
     }
     const { nombre, ticker } = dto;
-    
+
     return await this.activoRepo.save({
       id,
       nombre,
@@ -45,8 +47,28 @@ export class ActivoService {
     });
   }
 
-  findAll() {
+  async findAll() {
     return this.activoRepo.find();
+  }
+
+  async findAllPaginado(query: GetActivosQueryDto) {
+    const page = query.page ?? 1;
+    const LIMIT_FIJO = 8;
+    const skip = (page - 1) * LIMIT_FIJO;
+
+    const queryBuilder = this.activoRepo.createQueryBuilder('activo');
+
+    if (query.search) {
+      queryBuilder.andWhere(
+        '(activo.nombre ILIKE :search OR activo.ticker ILIKE :search)',
+        { search: `%${query.search}%` },
+      );
+    }
+
+    queryBuilder.orderBy('activo.nombre', 'ASC').skip(skip).take(LIMIT_FIJO);
+
+    const [activos, totalItems] = await queryBuilder.getManyAndCount();
+    return formatearRespuestaPaginada(activos, totalItems, page, LIMIT_FIJO);
   }
 
   async findOne(id: number) {
@@ -54,26 +76,26 @@ export class ActivoService {
       where: { id },
       relations: ['transacciones']
     });
-    if(!activo){
+    if (!activo) {
       throw new NotFoundException(`Activo con id ${id} no encontrado.`);
     }
     return activo;
   }
 
   async actualizarActivo(activo: Activo, cantidad: number, tipo: TipoTransaccion) {
-    const nuevoPrecio = await this.actualizarPrecioActivo(activo,cantidad,tipo);
+    const nuevoPrecio = await this.actualizarPrecioActivo(activo, cantidad, tipo);
 
     let nuevoMax = activo.valorMaximo
     let nuevoMin = activo.valorMinimo
 
-    if(nuevoPrecio > activo.valorMaximo){
+    if (nuevoPrecio > activo.valorMaximo) {
       nuevoMax = nuevoPrecio;
     }
-    if(nuevoPrecio < activo.valorMinimo){
+    if (nuevoPrecio < activo.valorMinimo) {
       nuevoMin = nuevoPrecio;
     }
-    
-    await this.activoRepo.update(activo.id, { 
+
+    await this.activoRepo.update(activo.id, {
       precioActual: nuevoPrecio,
       valorMaximo: nuevoMax,
       valorMinimo: nuevoMin,
@@ -86,7 +108,7 @@ export class ActivoService {
   private async actualizarPrecioActivo(activo: Activo, cantidad: number, tipo: TipoTransaccion) {
     // Sensibilidad: Qué tanto afecta cada unidad operada al precio.
     // Ej: 0.0001 significa que 100 unidades operadas mueven el precio un 1%.
-    const factorSensibilidad = 0.0001; 
+    const factorSensibilidad = 0.0001;
     const impacto = activo.precioActual * (cantidad * factorSensibilidad);
     const precioBase = activo.precioActual;
     let nuevoPrecio = 0;
