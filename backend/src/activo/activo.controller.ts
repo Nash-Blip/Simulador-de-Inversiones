@@ -1,5 +1,5 @@
 import { ApiTags, ApiBearerAuth } from '@nestjs/swagger';
-import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards, Req, Patch } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, ParseIntPipe, UseGuards, Req, Patch, Query } from '@nestjs/common';
 import type { Request } from 'express';
 import { ActivoService } from './activo.service';
 import { CreateActivoDto } from './dto/input/create-activo.dto';
@@ -12,6 +12,7 @@ import { Roles } from '@/auth/decorators/roles.decorator';
 import { InversorRol } from '@/inversor/entities/inversor.entity';
 import { UpdateActivoDto } from './dto/input/update-activo.dto';
 import { ApiCreateActivo, ApiUpdateActivo, ApiComprarActivo, ApiVenderActivo, ApiFindAllActivos, ApiFindOneActivo } from './decorators/activo-swagger.decorator';
+import { GetActivosQueryDto } from './dto/input/get-activo-query.dto';
 
 @ApiTags('Activo')
 @ApiBearerAuth()
@@ -20,7 +21,7 @@ export class ActivoController {
   constructor(
     private readonly activoService: ActivoService,
     private readonly sistema: Sistema,
-  ) {}
+  ) { }
 
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -55,8 +56,8 @@ export class ActivoController {
   @Get()
   @UseGuards(JwtAuthGuard)
   @ApiFindAllActivos()
-  findAll() {
-    return this.activoService.findAll();
+  findAllPaginado(@Query() query: GetActivosQueryDto) {
+    return this.activoService.findAllPaginado(query);
   }
 
   @Get(':id')
