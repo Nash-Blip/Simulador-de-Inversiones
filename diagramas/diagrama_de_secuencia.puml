@@ -1,0 +1,189 @@
+@startuml Simulador_Inversiones_Secuencia
+
+<style>
+sequenceDiagram {
+    participant {
+        Padding 15
+    }
+    box {
+        Padding 10
+    }
+}
+</style>
+
+skinparam Style strictuml
+skinparam BackgroundColor #fafafa
+
+actor Inversor as "Inversor\n(Usuario)"
+participant Frontend as "Frontend\n(App Web)"
+participant Backend as "Backend\n(API)"
+database DB as "Base de Datos"
+
+== 1. Acceso (Registro / Login) ==
+
+alt El inversor es nuevo
+    Inversor -> Frontend: Completa formulario de Registro
+    Frontend -> Backend: POST /auth/register (datos)
+    Backend -> DB: Guardar nuevo inversor
+    DB --> Backend: Confirmación
+    Backend --> Frontend: Registro exitoso (201 Created)
+    Frontend --> Inversor: Muestra pantalla de Login
+else El inversor ya tiene cuenta
+    Inversor -> Frontend: Ingresa credenciales (Email/Password)
+    Frontend -> Backend: POST /auth/login (credenciales)
+    Backend -> DB: Verificar credenciales
+    DB --> Backend: Datos del usuario (o Hash)
+    Backend -> Backend: Validar password y generar Token/Sesión
+    Backend --> Frontend: Login exitoso + Token (200 OK)
+    Frontend --> Inversor: Redirige a la Dashboard Principal
+end
+
+== 2. Mercado (Compra de Activos) ==
+
+group Comprar Activo
+    Inversor -> Frontend: Navega a la pantalla de Mercado
+    Frontend -> Backend: GET /activo 
+    Backend -> DB: Consultar activos actuales
+    DB --> Backend: Lista de activos
+    Backend --> Frontend: Muestra activos en pantalla
+    
+    Inversor -> Frontend: Selecciona activo y cantidad, clic en "Comprar"
+    Frontend -> Backend: POST /activo/comprar (activoId, cantidad)
+    
+    Backend -> DB: Consultar saldoVirtual del inversor
+    DB --> Backend: saldoVirtual actual
+    
+    alt Saldo suficiente
+        Backend -> Backend: Calcular costoTotal\n(cantidad * precioActivo)
+        Backend -> DB: Restar costoTotal de saldoVirtual
+        Backend -> DB: Agregar/Actualizar activo en Portafolio del inversor
+        Backend -> DB: Registrar transacción (Tipo: COMPRA)
+        DB --> Backend: Confirmación de actualización
+        Backend --> Frontend: Compra exitosa (200 OK)
+        Frontend --> Inversor: Muestra mensaje de éxito y saldo actualizado
+    else Saldo insuficiente
+        Backend --> Frontend: Error: Fondos insuficientes (400 Bad Request)
+        Frontend --> Inversor: Muestra alerta "Saldo virtual insuficiente"
+    end
+end
+
+== 3. Portafolio (Ver Tenencias y Venta) ==
+
+group Ver y Vender Activos
+    Inversor -> Frontend: Navega a la página de Portafolio
+    Frontend -> Backend: GET /inversor/portafolio
+    Backend -> DB: Consultar tenencias del inversor
+    DB --> Backend: Lista de activos propios
+    Backend --> Frontend: Muestra tabla de tenencias
+    
+    Inversor -> Frontend: Selecciona una tenencia, ingresa cantidad y clic en "Vender"
+    Frontend -> Backend: POST /activo/vender (activoId, cantidad)
+    
+    Backend -> DB: Consultar cantidad de tenencia actual
+    DB --> Backend: cantidadActual
+    
+    Backend -> Backend: Calcular ingresoTotal\n(cantidadAVender * precioActivo)
+    Backend -> DB: Sumar ingresoTotal al saldoVirtual
+    
+    alt cantidadAVender < cantidadActual
+        Backend -> DB: Disminuir cantidad de la tenencia elegida
+    end
+    alt cantidadAVender == cantidadActual
+        Backend -> DB: Eliminar activo del portafolio (Llega a cero)
+    end
+
+    Backend -> DB: Registrar transacción (Tipo: VENTA)
+    DB --> Backend: Confirmación
+    Backend --> Frontend: Venta procesada con éxito
+    Frontend --> Inversor: Actualiza la vista del portafolio y saldo
+
+    alt cantidadAVender > cantidadActual
+        Backend --> Frontend: Error: tenencias insuficientes (400 Bad Request)
+        Frontend --> Inversor: Muestra alerta "tenencias insuficientes"
+    end
+end
+
+== 4. Fondos (Ingreso y Retiro Ficticio) ==
+
+group Ingresar Fondos Tarjeta
+    Inversor -> Frontend: Va a Fondos, elige "Tarjeta"
+    Inversor -> Frontend: Ingresa monto, tarjeta, cvv y vencimiento 
+    Frontend -> Frontend: Validar formato de tarjeta 
+    
+    alt Formato Válido
+        Frontend -> Backend: POST /inversor/ingresar-fondos-tarjeta
+        Backend -> DB: Incrementar saldoVirtual del inversor
+        DB --> Backend: Confirmación
+        Backend --> Frontend: Depósito Valido (200 OK)
+        Frontend --> Inversor: Muestra "Fondos ingresados correctamente"
+    else Formato Inválido
+        Frontend --> Inversor: Muestra error "Formato de tarjeta no válido"
+    end
+end
+
+group Ingresar Fondos Tranferencia
+    Inversor -> Frontend: Va a Fondos, elige "Transferencia"
+    Inversor -> Frontend: Ingresa monto, cbu y titular
+    Frontend -> Frontend: Validar formato cbu
+    
+    alt Formato Válido
+        Frontend -> Backend: POST /inversor/ingresar-fondos-transferencia
+        Backend -> DB: Incrementar saldoVirtual del inversor
+        DB --> Backend: Confirmación
+        Backend --> Frontend: Depósito Valido (200 OK)
+        Frontend --> Inversor: Muestra "Fondos ingresados correctamente"
+    else Formato Inválido
+        Frontend --> Inversor: Muestra error "Formato de cbu no válido"
+    end
+end
+
+group Retirar Fondos
+    Inversor -> Frontend: Va a Fondos, elige "Retirar"
+    Inversor -> Frontend: Ingresa monto, cbu y titular
+    Frontend -> Backend: POST /inversor/retirar-fondos
+    Backend -> DB: Consultar saldoVirtual
+    DB --> Backend: saldoVirtual actual
+    
+    alt Saldo suficiente para retiro
+        Backend -> DB: Restar monto de saldoVirtual
+        DB --> Backend: Confirmación
+        Backend --> Frontend: Retiro procesado (200 OK)
+        Frontend --> Inversor: Muestra "Retiro exitoso"
+    else Saldo insuficiente
+        Backend --> Frontend: Error: Fondos insuficientes (400)
+        Frontend --> Inversor: Muestra error "No tienes saldo suficiente"
+    end
+end
+
+== 5. Transacciones (Historial con Paginación y Filtros) ==
+
+group Ver Transacciones Paginadas
+    Inversor -> Frontend: Navega a la página de Transacciones
+    Frontend -> Backend: GET /transaccion/historial?page=1
+    Backend -> DB: Buscar transacciones (paginadas)
+    DB --> Backend: Datos de página 1
+    Backend --> Frontend: Renderiza historial y botones de navegación
+    
+    Inversor -> Frontend: Selecciona filtro por tipo (ej: "Compra")
+    Frontend -> Backend: GET /transaccion/historial?page=1&tipoTransaccion=COMPRA
+    Backend -> DB: Filtrar transacciones donde tipo = 'COMPRA'
+    DB --> Backend: Registros filtrados paginados
+    Backend --> Frontend: Actualiza la tabla con las compras
+    
+    Inversor -> Frontend: Clic en botón "Siguiente Página"
+    Frontend -> Backend: GET /transaccion/historial?page=2&tipo=COMPRA
+    Backend -> DB: Buscar registros de la página 2
+    DB --> Backend: Registros de página 2
+    Backend --> Frontend: Muestra los resultados de la página 2
+end
+
+== 6. Desconexión (Logout) ==
+
+group Cerrar Sesión
+    Inversor -> Frontend: Clic en botón "Logout"
+    Frontend -> Backend: POST /auth/logout
+    Backend --> Frontend: Sesión cerrada en servidor (200 OK)
+    Frontend --> Inversor: Redirige automáticamente a la Landing Page
+end
+
+@enduml
