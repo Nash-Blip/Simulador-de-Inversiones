@@ -14,7 +14,7 @@ describe('ActivoController', () => {
 
   const mockActivoService = {
     create: jest.fn(),
-    findAll: jest.fn(),
+    findAllPaginado: jest.fn(),
     findOne: jest.fn(),
   };
 
@@ -100,14 +100,18 @@ describe('ActivoController', () => {
     });
   });
 
-  describe('findAll', () => {
-    it('debería retornar la lista de activos provista por el servicio', async () => {
-      const expectedResult = [{ id: 1, nombre: 'Bitcoin' }];
-      mockActivoService.findAll.mockResolvedValue(expectedResult);
+  describe('findAllPaginado', () => {
+    it('debería retornar la lista paginada de activos provista por el servicio', async () => {
+      const expectedResult = {
+        data: [{ id: 1, nombre: 'Bitcoin' }],
+        meta: { totalItems: 1, itemCount: 1, itemsPerPage: 8, totalPages: 1, currentPage: 1 },
+      };
+      mockActivoService.findAllPaginado.mockResolvedValue(expectedResult);
 
-      const result = await controller.findAll();
+      const query = { page: 1, search: '' };
+      const result = await controller.findAllPaginado(query);
 
-      expect(mockActivoService.findAll).toHaveBeenCalled();
+      expect(mockActivoService.findAllPaginado).toHaveBeenCalledWith(query);
       expect(result).toEqual(expectedResult);
     });
   });
