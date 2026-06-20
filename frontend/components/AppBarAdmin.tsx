@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { getPerfil } from '@/service/inversor.service';
 import { Perfil } from '@/types/index';
+import { getPerfil } from "@/service/Inversor.service";
 
 export default function AppBarAdmin() {
     const pathname = usePathname();
@@ -49,7 +49,7 @@ export default function AppBarAdmin() {
             }
         };
         obtenerPerfil();
-    }, []);
+    }, [router]);
 
     useEffect(() => {
         setIsOpen(false);
