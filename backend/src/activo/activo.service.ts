@@ -16,10 +16,8 @@ export class ActivoService {
   ) { }
 
   async create(dto: CreateActivoDto) {
-    const existeActivo = await this.activoRepo.findOneBy({ nombre: dto.nombre });
-    if (existeActivo) {
-      throw new ConflictException(`El Activo ${dto.nombre} ya existe.`);
-    }
+    await this.validarActivoDuplicado(dto.nombre,dto.ticker);
+
     const activo = this.activoRepo.create({
       nombre: dto.nombre,
       ticker: dto.ticker,
@@ -30,7 +28,7 @@ export class ActivoService {
       cantOperaciones: 0,
       totalEjecutado: 0
     });
-    return this.activoRepo.save(activo);
+    return await this.activoRepo.save(activo);
   }
 
   async update(id: number, dto: UpdateActivoDto) {
@@ -38,8 +36,10 @@ export class ActivoService {
     if (!existeActivo) {
       throw new NotFoundException(`No se encontró el Activo con ID ${id}`);
     }
-    const { nombre, ticker } = dto;
 
+    await this.validarActivoDuplicado(dto.nombre,dto.ticker);
+
+    const { nombre, ticker } = dto;
     return await this.activoRepo.save({
       id,
       nombre,
@@ -121,5 +121,16 @@ export class ActivoService {
       nuevoPrecio = Math.max(0.01, precioBase - impacto);
     }
     return nuevoPrecio;
+  }
+
+  private async validarActivoDuplicado(nombre: string, ticker: string){
+    const existeNombre = await this.activoRepo.findOneBy({ nombre: nombre });
+    if (existeNombre) {
+      throw new ConflictException(`El Activo ${nombre} ya existe.`);
+    }
+    const existeTicker = await this.activoRepo.findOneBy({ ticker: ticker });
+    if (existeTicker) {
+      throw new ConflictException(`El activo con el ticker ${ticker} ya existe.`)
+    }
   }
 }
