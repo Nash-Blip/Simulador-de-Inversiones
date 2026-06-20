@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Perfil } from '@/types/index';
 import { getPerfil } from "@/service/Inversor.service";
+import { logout } from '@/service/Auth.service';
 
 export default function AppBarAdmin() {
     const pathname = usePathname();
@@ -22,7 +23,7 @@ export default function AppBarAdmin() {
             )
         },
         {
-            name: "Crear Activo", href: "/admin/activos/nuevo", icon: (
+            name: "Crear Activo", href: "/admin/activos", icon: (
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
                     <path fillRule="evenodd" d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z" clipRule="evenodd" />
                 </svg>
@@ -40,10 +41,10 @@ export default function AppBarAdmin() {
     useEffect(() => {
         const obtenerPerfil = async () => {
             try {
-                const data = await getPerfil();
-                setPerfil(data);
-            } catch (error) {
-                console.error(error);
+                const perfil = await getPerfil();
+                setPerfil(perfil);
+            } catch {
+                router.push('/auth/login');
             } finally {
                 setLoading(false);
             }
@@ -56,11 +57,12 @@ export default function AppBarAdmin() {
     }, [pathname]);
 
     const handleLogout = async () => {
-        await fetch("http://localhost:3000/auth/logout", {
-            method: "POST",
-            credentials: "include",
-        });
-        router.push('/auth/login');
+        try{
+            await logout();
+            router.push('/');    
+        }catch(err){
+            console.log(err);
+        }
     };
 
     return (

@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { TransaccionHistorial } from '@/types/index';
 import { getTransacciones } from '@/service/ListTransacciones.service';
 
@@ -10,22 +10,28 @@ export default function ListTransaccionesAdmin() {
     const [cargando, setCargando] = useState<boolean>(true);
     const [totalPaginas, setTotalPaginas] = useState<number>(1);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            setCargando(true);
-            try {
-                const data = await getTransacciones(pagina, tipoFiltro);
-                setTransacciones(Array.isArray(data.data) ? data.data : []);
-                if (data.meta) setTotalPaginas(data.meta.totalPages || 1);
-            } catch (err) {
-                console.log(err);
-            } finally {
-                setCargando(false);
-            }
-        };
-        fetchData();
+    const fetchData = useCallback(async () => {
+        setCargando(true);
+        try {
+            const data = await getTransacciones(pagina, tipoFiltro);
+            setTransacciones(Array.isArray(data.data) ? data.data : []);
+            if (data.meta) setTotalPaginas(data.meta.totalPages || 1);
+        } catch (err) {
+            console.log(err);
+        } finally {
+            setCargando(false);
+        }
     }, [pagina, tipoFiltro]);
 
+    useEffect(() => {
+        fetchData();
+
+        const interval = setInterval(() => {
+            fetchData();
+        }, 5000);
+
+        return () => clearInterval(interval);
+    }, [fetchData]);
     const handleFiltroChange = (nuevoFiltro: string) => {
         setTipoFiltro(nuevoFiltro);
         setPagina(1);

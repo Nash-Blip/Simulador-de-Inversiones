@@ -8,12 +8,9 @@ export async function proxy(request: NextRequest) {
     const token = request.cookies.get('token')?.value;
     const isAuthPage = request.nextUrl.pathname.startsWith('/auth');
     const isAdminPage = request.nextUrl.pathname.startsWith('/admin');
-    const isMainPage = request.nextUrl.pathname.startsWith('/mercado') || request.nextUrl.pathname.startsWith('/portafolio') ||
-    request.nextUrl.pathname.startsWith('/transacciones') ||
-    request.nextUrl.pathname.startsWith('/fondos') ||
-    request.nextUrl.pathname.startsWith('/ajustes');
+    const isHomePage = request.nextUrl.pathname === '/';
 
-    if (!token && !isAuthPage) {
+    if (!token && !isAuthPage && !isHomePage) {
         return NextResponse.redirect(new URL('/auth/login', request.url));
     }
 
@@ -21,23 +18,18 @@ export async function proxy(request: NextRequest) {
         return NextResponse.redirect(new URL('/', request.url));
     }
 
-    if (token && isAdminPage) {
+    if (token && !isAuthPage && !isHomePage) {
         try {
             const { payload } = await jwtVerify(token, JWT_SECRET);
-            if (payload.rol !== 'admin') {
-                return NextResponse.redirect(new URL('/', request.url));
-            }
-        } catch {
-            return NextResponse.redirect(new URL('/auth/login', request.url));
-        }
-    }
 
-    if (token && isMainPage) {
-        try {
-            const { payload } = await jwtVerify(token, JWT_SECRET);
-            if (payload.rol === 'admin') {
-                return NextResponse.redirect(new URL('/admin', request.url));
+            if (payload.rol === 'admin' && !isAdminPage) {
+                return NextResponse.redirect(new URL('/admin/transacciones', request.url));
             }
+
+            if (payload.rol !== 'admin' && isAdminPage) {
+                return NextResponse.redirect(new URL('/mercado', request.url));
+            }
+
         } catch {
             return NextResponse.redirect(new URL('/auth/login', request.url));
         }
@@ -47,5 +39,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-    matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+    matcher: ['/((?!_next/static|_next/image|favicon.ico|logo-simulador.png).*)'],
 };
