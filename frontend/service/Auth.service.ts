@@ -8,8 +8,7 @@ export async function login(email: string, password: string) {
         body: JSON.stringify({ email, password })
     });
     if (!response.ok){
-        const data = await response.json();
-        throw new Error(data.message || 'Credenciales incorrectas');
+        throw new Error('Error al logearse. Verifique los datos ingresados');
     } 
     return response.json();
 }
