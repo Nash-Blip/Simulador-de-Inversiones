@@ -7,7 +7,10 @@ export async function login(email: string, password: string) {
         credentials: 'include',
         body: JSON.stringify({ email, password })
     });
-    if (!response.ok) throw new Error('Credenciales incorrectas');
+    if (!response.ok){
+        const data = await response.json();
+        throw new Error(data.message || 'Credenciales incorrectas');
+    } 
     return response.json();
 }
 
@@ -17,7 +20,9 @@ export async function register(nombre: string, email: string, password: string) 
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ nombre, email, password })
     });
-    if (!response.ok) throw new Error('Error al registrarse');
+    if (!response.ok){
+        throw new Error('Error al registrarse. Verifique los datos ingresados');
+    } 
     return response.json();
 }
 

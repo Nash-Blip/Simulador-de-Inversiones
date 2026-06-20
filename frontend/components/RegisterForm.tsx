@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { register, login } from '@/service/Auth.service';
 
 export default function RegisterPage() {
     const [email, setEmail] = useState('');
@@ -18,48 +19,15 @@ export default function RegisterPage() {
             setMessage(''); 
 
             try {
-                
-                const registerResponse = await fetch("http://localhost:3000/auth/register", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nombre, email, password })
-                });
-
-                const registerData = await registerResponse.json();
-
-                if (!registerResponse.ok) {
-                    
-                    setMessage(registerData.message || "Error al registrar el usuario");
-                    return;
-                }
-
-                
+                await register(nombre, email, password);
                 setIsRedirecting(true); 
                 setMessage("¡Registro exitoso! Iniciando sesión automáticamente...");
 
-                const loginResponse = await fetch("http://localhost:3000/auth/login", {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: "include", 
-                    body: JSON.stringify({ email, password }) 
-                });
-
-                const loginData = await loginResponse.json();
-
-                if (loginResponse.ok) {
-                    
-                    router.push('/mercado');
-                } else {
-                    
-                    setIsRedirecting(false);
-                    setMessage(`Registrado con éxito, pero falló el login automático: ${loginData.message}. Por favor, ingresá manualmente.`);
-                    router.push('/auth/login');
-                }
-
+                await login(email, password);
+                router.push('/mercado');
             } catch (error) {
-                console.error("Error en el flujo de autenticación:", error);
                 setIsRedirecting(false);
-                setMessage("Error de conexión con el servidor.");
+                setMessage((error as Error).message || "Error de conexión con el servidor.");
             }
         };
 
