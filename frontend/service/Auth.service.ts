@@ -27,4 +27,4 @@ export async function logout() {
         credentials: 'include',
     });
     if (!response.ok) throw new Error('Error al cerrar sesión');
-}
+}   
