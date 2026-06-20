@@ -1,6 +1,7 @@
 'use client';
 import { SyntheticEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { CreateActivo } from '@/service/AdminActivo.service';
 
 export default function CreateActivos() {
     const [nombre, setNombre] = useState('');
@@ -13,24 +14,13 @@ export default function CreateActivos() {
         e.preventDefault();
 
         const fetchCreateActivo = async () => {
-            const response = await fetch("http://localhost:3000/activo",
-                {
-                    method: 'POST',
-                    headers: { 'Content-type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify(
-                        {
-                            nombre,
-                            ticker,
-                            precioInicial
-                        }
-                    )
-                }
-            );
+            try{
+                await CreateActivo(nombre, ticker, precioInicial);
 
-            if (response.ok) {
                 setMessage("Activo creado con exito.");
                 router.push('/activos');
+            }catch(err){
+                console.log(err);
             }
         }
         fetchCreateActivo();
