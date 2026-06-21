@@ -4,7 +4,7 @@ import { jwtVerify } from 'jose';
 
 const JWT_SECRET = new TextEncoder().encode('s3cr3t_k3y');
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
     const token = request.cookies.get('token')?.value;
     const isAuthPage = request.nextUrl.pathname.startsWith('/auth');
     const isAdminPage = request.nextUrl.pathname.startsWith('/admin');
@@ -31,7 +31,9 @@ export async function proxy(request: NextRequest) {
             }
 
         } catch {
-            return NextResponse.redirect(new URL('/auth/login', request.url));
+            const response = NextResponse.redirect(new URL('/auth/login', request.url));
+            response.cookies.delete('token');
+            return response;
         }
     }
 
