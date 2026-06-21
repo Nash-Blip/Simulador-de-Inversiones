@@ -20,12 +20,12 @@ export default function PublicLayout({
     children: React.ReactNode;
 }>) {
     return (
-            <body className="min-h-screen flex flex-col bg-[#0b0f19] text-white">
-                <NavBar />
-                <main className="flex-1 flex flex-col">
-                    {children}
-                </main>
-                <Footer />
-            </body>
+        <div>
+            <NavBar />
+            <main className="flex-1 flex flex-col">
+                {children}
+            </main>
+            <Footer />
+        </div>
     );
 }
