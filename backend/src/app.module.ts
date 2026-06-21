@@ -6,7 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from './auth/auth.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { SimuladorModule } from './simulador/simulador.module';
-import { FinnhubModule } from './api/finnhub.module';
+import { FinnhubModule } from './api/sincronizacion-precios.module';
 import { TransaccionModule } from './transaccion/transaccion.module';
 import CrearAdminSeeder from './seeds/crear-admin.seed';
 import InicializarActivosSeeder from './seeds/inicializar-activos.seed';
