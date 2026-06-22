@@ -1,12 +1,19 @@
 'use client';
 
 import PortafolioComp from "@/components/Portafolio";
-import { Activo, Portafolio } from "@/types/index";
-import { useEffect, useState, useCallback } from "react";
+import { useAuth } from "@/app/auth/AuthContext";
+import { useEffect} from "react";
 
-// ==========================================
-// COMPONENTE PRINCIPAL (PADRE)
-// ==========================================
 export default function PortafolioPage() {
+    const { verificarSesion, loading } = useAuth();
+
+    useEffect(() => {
+        verificarSesion();
+    }, [verificarSesion]);
+
+    if (loading) {
+        return <p className="text-center mt-10 text-gray-400 animate-pulse">Cargando...</p>;
+    }
+
     return <PortafolioComp />
 }
