@@ -28,10 +28,10 @@ export type Activo = {
     valorMinimo: number;
     cantOperaciones: number;
     totalEjecutado: number;
+    transacciones: Transaccion[];
 }
 
 export type TenenciaActivo = {
-    rendimiento: number;
     id: number;
     rendimiento: number;
     cantidad: number;
