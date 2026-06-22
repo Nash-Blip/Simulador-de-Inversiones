@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { TransaccionHistorial } from '@/types';
+import { getTransacciones, getUserTransacciones } from '@/service/ListTransacciones.service';
 
 export default function TransaccionList() {
     const [transacciones, setTransacciones] = useState<TransaccionHistorial[]>([]);
@@ -16,24 +17,12 @@ export default function TransaccionList() {
         const fetchTransacciones = async () => {
             setCargando(true);
             try {
-                let url = `http://localhost:3000/transaccion/historial?page=${pagina}`;
+                const data = await getUserTransacciones(pagina, tipoFiltro);
 
-                if (tipoFiltro !== "TODOS") {
-                    url += `&tipoTransaccion=${tipoFiltro}`;
-                }
+                setTransacciones(Array.isArray(data.data) ? data.data : []);
 
-                const response = await fetch(url, {
-                    credentials: 'include'
-                });
-                const data = await response.json();
-
-                if (response.ok) {
-                    const lista = data.data;
-                    setTransacciones(Array.isArray(lista) ? lista : []);
-
-                    if (data.meta) {
-                        setTotalPaginas(data.meta.totalPages || 1);
-                    }
+                if(data.meta){
+                    setTotalPaginas(data.meta.totalPages || 1);
                 }
             } catch (error) {
                 console.error("Error al buscar transacciones:", error);

@@ -56,7 +56,8 @@ export async function getListActivos(): Promise<Activo[]> {
         const data = await response.json();
         throw new Error(data.message || 'Error al obtener los activos existentes.');
     }
-    return response.json();
+    const json = await response.json();
+    return json.data;
 }
 
 export async function getActivo(): Promise<Activo> {
@@ -95,10 +96,23 @@ export async function comprarActivo(id: number, cantidad: number) {
             credentials: 'include'
         }
     );
-    if(!response.ok){
+    if (!response.ok) {
         const data = await response.json();
         throw new Error(data.message || "No se pudo comprar el Activo seleccionado.");
     }
+    return response.json();
+}
 
+export async function venderActivo(vender: Activo, cantidad: number) {
+    const response = await fetch(`${API_URL}/activo/vender`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ activoId: vender.id, cantidad })
+    });
+    if(!response.ok){
+        const data = await response.json();
+        throw new Error(data.message || "No se pudo vender el activo seleccionado.");
+    }
     return response.json();
 }
