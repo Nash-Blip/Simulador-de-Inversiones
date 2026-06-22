@@ -1,7 +1,13 @@
 "use client";
 
-import { Activo, Inversor } from "@/types";
 import { useEffect, useState, useCallback } from "react";
+import dynamic from "next/dynamic";
+import { Activo, Inversor } from "@/types";
+
+const GraficoActivo = dynamic(() => import("./GraficoActivo"), {
+    ssr: false,
+    loading: () => <div className="h-44 bg-gray-900/60 animate-pulse rounded-xl mt-1 border border-gray-700" />
+});
 
 let timerExito: NodeJS.Timeout;
 let timerError: NodeJS.Timeout;
@@ -20,6 +26,7 @@ export default function Mercado() {
     const [activoErrorTicker, setActivoErrorTicker] = useState("");
 
     const [inversor, setInversor] = useState<Inversor | null>(null);
+    const [maximoCompra, setMaximoCompra] = useState(0);
 
     const fetchActivos = useCallback(async () => {
         try {
@@ -108,7 +115,7 @@ export default function Mercado() {
                     setErrorSaldo(false);
                 }, 4000);
             }
-        }
+        };
         fetchComprar();
     }
 
@@ -116,7 +123,7 @@ export default function Mercado() {
         <div className="min-h-screen bg-[#0b0f19] py-6 px-4">
 
             {/* Toasts / Notificaciones */}
-            <div className="fixed top-5 left-1/4 -translate-x-1/2 z-50 flex flex-col gap-3 max-w-sm w-full px-4">
+            <div className="fixed left-1/2 -translate-x-1/2 md:left-72 md:translate-x-0 z-50 flex flex-col gap-3 max-w-sm w-full px-4">
                 {compraExitosa && (
                     <div className="flex w-full overflow-hidden bg-white rounded-lg shadow-md dark:bg-gray-800 animate-bounce-short">
                         <div className="flex items-center justify-center w-12 shrink-0 bg-status-success">
@@ -213,8 +220,8 @@ export default function Mercado() {
 
                 {/* Panel Lateral de Compra */}
                 {activoSeleccionado && (
-                    <div className="w-full h-full min-h-[400px] relative">
-                        <div className="w-full bg-gray-800 rounded-xl border border-white p-6 z-40 lg:fixed lg:w-[420px] lg:top-[110px] max-h-[calc(100vh-180px)] overflow-y-auto shadow-2xl ml-16">
+                    <div className="w-full lg:h-full lg:min-h-[400px] lg:relative">
+                        <div className="w-full max-w-md mx-auto bg-gray-800 rounded-xl border border-white p-6 shadow-2xl mt-6 lg:mt-0 lg:fixed lg:w-[420px] lg:top-[110px]  max-h-[calc(100vh-140px)] overflow-y-auto z-40">
                             <button
                                 onClick={() => setActivoSeleccionado(null)}
                                 className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl font-semibold transition-colors cursor-pointer p-1 rounded-lg hover:bg-gray-600 w-8 h-8 flex items-center justify-center"
@@ -233,7 +240,16 @@ export default function Mercado() {
                                     Saldo disponible: <span className="font-bold text-white">${inversor?.saldo.toFixed(2) ?? '0.00'}</span>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4 text-center my-2">
+                                <div className="flex flex-col gap-1 my-1">
+                                    <p className="text-xs text-gray-400 uppercase tracking-wider pl-1">Evolución del Activo</p>
+                                    <GraficoActivo
+                                        id={activoSeleccionado.id}
+                                        ticker={activoSeleccionado.ticker}
+                                        precioActual={activoSeleccionado.precioActual}
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 text-center my-1">
                                     <div className="bg-gray-900/50 p-3 rounded-lg border border-gray-700">
                                         <p className="text-xs text-gray-400 uppercase tracking-wider">Precio Actual</p>
                                         <p className="text-xl font-bold text-status-success mt-1">${activoSeleccionado.precioActual.toFixed(2)}</p>
@@ -248,13 +264,14 @@ export default function Mercado() {
 
                                 {mostrarCompra && (
                                     <form onSubmit={(e) => { e.preventDefault(); handleComprar(activoSeleccionado, cantidad) }}>
-                                        <div className="flex flex-col gap-3 mt-2 items-center">
+                                        <div className="flex flex-col gap-3 mt-1 items-center">
                                             <label htmlFor="cantidad" className="text-white text-sm font-medium">Cantidad a comprar</label>
                                             <input
                                                 className="w-32 text-center bg-gray-700 border-2 border-gray-600 rounded-xl shadow p-2 text-white text-lg font-bold focus:outline-none focus:border-green-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                 id="cantidad"
                                                 type="number"
                                                 min="1"
+                                                max="1000"
                                                 step="1"
                                                 value={cantidad}
                                                 onChange={(e) => {
@@ -274,10 +291,15 @@ export default function Mercado() {
                                                     }
                                                 }}
                                             />
+                                            {Number(cantidad) > 1000 && (
+                                                <p className="text-xs text-red-500 font-semibold mt-1 animate-fade-in">
+                                                    * Supera el máximo permitido por operación (1000 unidades).
+                                                </p>
+                                            )}
                                             <button
                                                 className="mt-2 w-full bg-status-success hover:bg-blue-400 text-white font-bold py-3 px-6 rounded-lg transition-colors cursor-pointer text-center shadow-lg shadow-green-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
                                                 type="submit"
-                                                disabled={cantidad === '' || cantidad < 1}
+                                                disabled={cantidad === '' || cantidad < 1 || cantidad > 1000}
                                             >
                                                 Confirmar Compra
                                             </button>
