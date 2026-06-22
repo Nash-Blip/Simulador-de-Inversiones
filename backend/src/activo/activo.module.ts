@@ -4,18 +4,15 @@ import { ActivoController } from './activo.controller';
 import { Sistema } from '@/sistema/sistema';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Activo } from './entities/activo.entity';
-import { Inversor } from '@/inversor/entities/inversor.entity';
-import { TenenciaActivo } from '@/tenenciaActivo/tenenciaActivo.entity';
-import { Transaccion } from '@/transaccion/transaccion.entity';
-import { Portafolio } from '@/portafolio/portafolio.entity';
 import { InversorModule } from '@/inversor/inversor.module';
 import { TransaccionModule } from '@/transaccion/transaccion.module';
+import { TenenciaModule } from '@/tenenciaActivo/tenencia.module';
 
 
 @Module({
   controllers: [ActivoController],
   providers: [ActivoService, Sistema],
-  imports: [TypeOrmModule.forFeature([Activo,Inversor,TenenciaActivo,Transaccion,Portafolio,]),InversorModule,TransaccionModule],
+  imports: [TypeOrmModule.forFeature([Activo]),InversorModule,TransaccionModule,TenenciaModule],
   exports: [ActivoService],
 })
 export class ActivoModule {}
