@@ -25,7 +25,7 @@ export default function InversorProfile() {
             try {
                 const data = await getPerfil();
                 setPerfil(data);
-            } catch (err) {
+            } catch{
                 setError("Error de conexión con el servidor.");
             } finally {
                 setCargando(false);
@@ -64,7 +64,7 @@ export default function InversorProfile() {
             setPasswordActual("");
             setPasswordNueva("");
             setConfirmarPassword("");
-        } catch (err) {
+        } catch{
             setError("Ocurrió un error al intentar cambiar la contraseña.");
         } finally {
             setEnviando(false);

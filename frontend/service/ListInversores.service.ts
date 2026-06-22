@@ -9,6 +9,9 @@ export async function getInversores(): Promise<Inversor[]> {
             credentials: 'include'
         }
     );
-    if (!response.ok) throw new Error('Error al obtener inversores');
+    if (!response.ok){
+        const data = await response.json();
+        throw new Error(data.message || "Error al obtener inversores");
+    }
     return response.json();
 }

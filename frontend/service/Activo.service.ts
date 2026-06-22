@@ -37,36 +37,68 @@ export async function ModificarActivo(id: number, nombre: string, ticker: string
             )
         }
     );
-    if(!response.ok){
+    if (!response.ok) {
         const data = await response.json();
         throw new Error(data.message || 'Error al modificar el activo.')
     }
     return response.json();
 }
 
-export async function GetActivo(): Promise<Activo[]> {
-    const response = await fetch(`${API_URL}/activo`, 
+export async function getListActivos(): Promise<Activo[]> {
+    const response = await fetch(`${API_URL}/activo`,
         {
             method: 'GET',
             credentials: 'include'
         }
     );
 
-    if(!response.ok){
+    if (!response.ok) {
         const data = await response.json();
         throw new Error(data.message || 'Error al obtener los activos existentes.');
     }
     return response.json();
 }
 
-export async function getActivoById(id: string | number): Promise<Activo>{
-    const response = await fetch(`${API_URL}/activo/${id}`, 
+export async function getActivo(): Promise<Activo> {
+    const response = await fetch(`${API_URL}/activo`,
+        {
+            method: 'GET',
+            credentials: 'include'
+        }
+    );
+
+    if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Error al obtener los activos existentes.');
+    }
+    return response.json();
+}
+
+export async function getActivoById(id: string | number): Promise<Activo> {
+    const response = await fetch(`${API_URL}/activo/${id}`,
         {
             credentials: 'include'
         }
     );
-    if(!response.ok){
+    if (!response.ok) {
         throw new Error("Error al obtener activo.");
     }
+    return response.json();
+}
+
+export async function comprarActivo(id: number, cantidad: number) {
+    const response = await fetch(`${API_URL}/activo/comprar`,
+        {
+            method: 'POST',
+            headers: { 'Content-type': 'application/json' },
+            body: JSON.stringify({ id, cantidad }),
+            credentials: 'include'
+        }
+    );
+    if(!response.ok){
+        const data = await response.json();
+        throw new Error(data.message || "No se pudo comprar el Activo seleccionado.");
+    }
+
     return response.json();
 }
