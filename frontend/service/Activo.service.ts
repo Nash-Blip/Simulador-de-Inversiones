@@ -16,12 +16,11 @@ export async function CreateActivo(nombre: string, ticker: string, precioInicial
             )
         }
     );
-    if (response.ok) {
-        return response.json();
-    } else {
+    if (!response.ok) {
         const data = await response.json();
         throw new Error(data.message || 'Error al crear el activo.')
     }
+    return response.json();
 }
 
 export async function ModificarActivo(id: number, nombre: string, ticker: string): Promise<Activo> {
@@ -38,12 +37,11 @@ export async function ModificarActivo(id: number, nombre: string, ticker: string
             )
         }
     );
-    if(response.ok){
-        return response.json();
-    } else{
+    if(!response.ok){
         const data = await response.json();
         throw new Error(data.message || 'Error al modificar el activo.')
     }
+    return response.json();
 }
 
 export async function GetActivo(): Promise<Activo[]> {
@@ -54,10 +52,21 @@ export async function GetActivo(): Promise<Activo[]> {
         }
     );
 
-    if(response.ok){
-        return response.json();
-    } else {
+    if(!response.ok){
         const data = await response.json();
-        throw new Error(data.message || 'Error al obtener los activos existentes.')
+        throw new Error(data.message || 'Error al obtener los activos existentes.');
     }
+    return response.json();
+}
+
+export async function getActivoById(id: string | number): Promise<Activo>{
+    const response = await fetch(`${API_URL}/activo/${id}`, 
+        {
+            credentials: 'include'
+        }
+    );
+    if(!response.ok){
+        throw new Error("Error al obtener activo.");
+    }
+    return response.json();
 }

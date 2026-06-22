@@ -1,7 +1,7 @@
 'use client';
 import { SyntheticEvent, useState, useEffect } from 'react';
 import { Activo } from '@/types/index';
-import { GetActivo, ModificarActivo } from '@/service/AdminActivo.service';
+import { GetActivo, ModificarActivo } from '@/service/Activo.service';
 
 export default function ModificarActivoPage() {
     const [activos, setActivos] = useState<Activo[]>([]);

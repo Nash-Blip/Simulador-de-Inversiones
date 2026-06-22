@@ -1,7 +1,7 @@
 'use client';
 import { SyntheticEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CreateActivo } from '@/service/AdminActivo.service';
+import { CreateActivo } from '@/service/Activo.service';
 
 export default function CreateActivos() {
     const [nombre, setNombre] = useState('');

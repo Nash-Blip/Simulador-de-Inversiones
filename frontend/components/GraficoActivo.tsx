@@ -13,6 +13,7 @@ import {
     Filler,
     ScriptableContext
 } from "chart.js";
+import { getActivoById } from "@/service/Activo.service";
 
 ChartJS.register(
     CategoryScale,
@@ -38,19 +39,11 @@ export default function GraficoActivo({ id, ticker, precioActual }: GraficoActiv
         const cargarHistorialBackend = async () => {
             try {
                 setCargando(true);
-                const response = await fetch(`http://localhost:3000/activo/${id}`, {
-                    credentials: "include"
-                });
+                const data = await getActivoById(id);
+                const ultimasTransacciones = data.transacciones ? data.transacciones.slice(-20) : [];
+                const preciosMapped = ultimasTransacciones.map((t: any) => t.precioEjecutado / t.cantidad);
 
-                if (response.ok) {
-                    const data = await response.json();
-                    const ultimasTransacciones = data.transacciones ? data.transacciones.slice(-20) : [];
-                    const preciosMapped = ultimasTransacciones.map((t: any) => t.precioEjecutado / t.cantidad);
-
-                    setHistorial(preciosMapped.length > 0 ? preciosMapped : [precioActual]);
-                } else {
-                    setHistorial([precioActual]);
-                }
+                setHistorial(preciosMapped.length > 0 ? preciosMapped : [precioActual]);
             } catch (error) {
                 console.error("Error al cargar histórico del activo:", error);
                 setHistorial([precioActual]);
