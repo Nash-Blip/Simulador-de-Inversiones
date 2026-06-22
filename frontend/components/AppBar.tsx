@@ -2,21 +2,17 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Inversor } from "../types/index";
 
 export default function AppBar() {
     const pathname = usePathname();
-    const router = useRouter();
     const [errorMessage, setErrorMessage] = useState("");
-
     const [inversor, setInversor] = useState<Inversor | null>(null);
-    const [loading, setLoading] = useState(true);
-
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
-        const obtenerPerfil = async () => {
+        const fetchInversor = async () => {
             try {
                 const response = await fetch("http://localhost:3000/inversor/perfil", {
                     method: "GET",
@@ -27,18 +23,14 @@ export default function AppBar() {
                 if (response.ok) {
                     const data = await response.json();
                     setInversor(data);
-                } else {
-                    router.push("/auth/login");
                 }
             } catch (error) {
-                console.error("Error al obtener el perfil:", error);
-            } finally {
-                setLoading(false);
+                console.error("Error al obtener el perfil del inversor:", error);
             }
         };
 
-        obtenerPerfil();
-    }, [router]);
+        fetchInversor();
+    }, []);
 
     useEffect(() => {
         setIsOpen(false);
@@ -61,7 +53,7 @@ export default function AppBar() {
             });
 
             if (response.ok) {
-                router.push("/");
+                window.location.href = "/";
             } else {
                 const data = await response.json();
                 setErrorMessage(data.message || "Error al intentar cerrar sesión.");
@@ -92,26 +84,19 @@ export default function AppBar() {
                 />
             )}
 
-            <aside className={`fixed md:sticky top-0 left-0 z-40 flex flex-col w-64 h-screen px-4 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700 transition-transform duration-300 transform ${isOpen ? "translate-x-0" : "-translate-x-full"
-                } md:translate-x-0`}>
+            <aside className={`fixed md:sticky top-0 left-0 z-40 flex flex-col w-64 h-screen px-4 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700 transition-transform duration-300 transform ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}>
 
                 <Link href="/">
-                    <img className="w-auto h-6 sm:h-7 mx-auto" src="/logo-simulador.png" alt="Logo Simulador de inversiones" />
+                    <img className="w-auto h-6 sm:h-7 mx-auto" src="/logo-simulador.png" alt="Logo" />
                 </Link>
 
                 <div className="flex flex-col items-center mt-8 mb-2 -mx-2">
                     <div className="w-20 h-20 bg-blue-600/10 border border-blue-500/30 rounded-full flex items-center justify-center text-blue-400 text-2xl font-bold uppercase shadow-inner">
                         {inversor ? `${inversor.nombre[0]}` : "U"}
                     </div>
-                    {loading ? (
-                        <p className="text-sm text-gray-500 animate-pulse mt-2">Cargando usuario...</p>
-                    ) : (
-                        <>
-                            <h4 className="mx-2 mt-4 font-medium text-gray-800 dark:text-gray-200">
-                                {inversor?.nombre || "Usuario"}
-                            </h4>
-                        </>
-                    )}
+                    <h4 className="mx-2 mt-4 font-medium text-gray-800 dark:text-gray-200">
+                        {inversor?.nombre || "Cargando..."}
+                    </h4>
                 </div>
 
                 <div className="flex flex-col justify-between flex-1 mt-6">
@@ -121,7 +106,7 @@ export default function AppBar() {
                             return (
                                 <Link
                                     key={item.href}
-                                    href={item.href}
+                                    href={item.href}                                    
                                     className={`flex items-center px-4 py-2 transition-colors duration-300 transform rounded-md ${isActive
                                         ? "text-gray-700 bg-gray-100 dark:bg-gray-800 dark:text-gray-200"
                                         : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"

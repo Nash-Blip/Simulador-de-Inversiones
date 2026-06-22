@@ -4,18 +4,16 @@ import { useState, useEffect } from "react";
 import { Activo } from "@/types/index";
 
 interface TarjetaProps {
-    tenencia: any; // Mantenemos tu tipado actual
+    tenencia: any; 
     onVender: (activo: Activo, cantidad: number) => void;
 }
 
 import React from "react";
 
-// Envolvemos el componente en React.memo para optimizar rendimiento
 export const ActivoTenencia = React.memo(function ActivoTenencia({ tenencia, onVender }: TarjetaProps) {
     const [cantidad, setCantidadVenta] = useState<number>(0);
     const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-    // Resetea el input local si la cantidad general cambia en el backend
     useEffect(() => {
         setCantidadVenta(0);
     }, [tenencia.cantidad]);
@@ -53,7 +51,7 @@ export const ActivoTenencia = React.memo(function ActivoTenencia({ tenencia, onV
                 </div>
 
                 <div className="flex items-center mt-2 justify-between text-sm text-gray-700 dark:text-gray-200 text-center">
-                    <h3>Precio Actual: ${tenencia.activo.precioActual}</h3>
+                    <h3>Precio Actual: ${tenencia.activo.precioActual.toFixed(2)}</h3>
                     <h3>PPC: ${tenencia.precioCompra.toFixed(2)}</h3>
                     <h3>Total Tenencia: ${(tenencia.activo.precioActual * tenencia.cantidad).toFixed(2)}</h3>
                 </div>

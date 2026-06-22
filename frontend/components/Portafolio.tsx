@@ -64,6 +64,7 @@ export default function PortafolioComp() {
 
     return (
         <div className="p-6 relative min-h-screen">
+            <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400 text-center mb-6">Portafolio</h1>
 
             <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-3 max-w-sm w-full px-4">
                 {ventaExitosa && (

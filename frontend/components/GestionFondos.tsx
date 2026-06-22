@@ -162,6 +162,12 @@ export default function GestionFondos() {
     return (
         <div className="w-full max-w-lg mx-auto bg-[#0b0f19] rounded-2xl border border-gray-800 shadow-2xl overflow-hidden p-6">
 
+            <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400 tracking-wide">
+                    Gestion de Fondos
+                </h1>
+            </div>
+
             <div className="bg-gray-900/60 border border-gray-800 rounded-xl p-4 mb-6 text-center">
                 <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">Saldo Virtual Disponible</p>
                 <div className="text-3xl font-extrabold text-blue-400 min-h-10 flex items-center justify-center">
