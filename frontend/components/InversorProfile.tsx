@@ -101,11 +101,12 @@ export default function InversorProfile() {
     }
     
     return (
-        <div className="max-w-4xl mx-auto space-y-6">
+        <div className="max-w-4xl mx-auto space-y-6 py-6">
 
-            <div>
-                <h1 className="text-2xl font-bold tracking-tight">Ajustes de Cuenta</h1>
-                <p className="text-sm text-gray-400">Gestioná tu información personal y la seguridad de tu cuenta.</p>
+            <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400 tracking-wide">
+                    Ajustes de Cuenta
+                </h1>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
