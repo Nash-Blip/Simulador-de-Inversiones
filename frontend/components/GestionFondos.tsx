@@ -1,5 +1,6 @@
 "use client";
 
+import { getPortafolio, ingresarFondosTarjeta, ingresarFondosTransferencia, retirarFondos } from "@/service/Inversor.service";
 import { useState, useEffect } from "react";
 
 type OperacionActual = "ingreso_transf" | "ingreso_tarjeta" | "retiro";
@@ -20,15 +21,8 @@ export default function GestionFondos() {
 
     const fetchSaldo = async () => {
         try {
-            const response = await fetch("http://localhost:3000/inversor/portafolio", {
-                credentials: "include"
-            });
-            if (response.ok) {
-                const data = await response.json();
-                setSaldoVirtual(data.saldoVirtual);
-            } else {
-                console.error("Error al obtener el portafolio");
-            }
+            const saldo = await getPortafolio();
+            setSaldoVirtual(saldo.saldoVirtual);
         } catch (error) {
             console.error("Error de conexión al obtener el saldo:", error);
         }
@@ -113,47 +107,23 @@ export default function GestionFondos() {
 
         if (!validarFormulario()) return;
 
-        let endpoint = "";
-        let bodyPayload = {};
-
-        if (tabActual === "ingreso_transf") {
-            endpoint = "http://localhost:3000/inversor/ingresar-fondos-transferencia";
-            bodyPayload = { monto: Number(formTransf.monto), cbu: formTransf.cbu, titular: formTransf.titular };
-        } else if (tabActual === "retiro") {
-            endpoint = "http://localhost:3000/inversor/retirar-fondos";
-            bodyPayload = { monto: Number(formTransf.monto), cbu: formTransf.cbu, titular: formTransf.titular };
-        } else if (tabActual === "ingreso_tarjeta") {
-            endpoint = "http://localhost:3000/inversor/ingresar-fondos-tarjeta";
-            bodyPayload = {
-                monto: Number(formTarjeta.monto),
-                numeroTarjeta: formTarjeta.numeroTarjeta,
-                cvv: formTarjeta.cvv,
-                vencimiento: formTarjeta.vencimiento
-            };
-        }
-
         try {
             setCargando(true);
-            const response = await fetch(endpoint, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(bodyPayload),
-                credentials: "include"
-            });
 
-            if (response.ok) {
-                setMensaje({ tipo: "exito", texto: "¡Operación procesada con éxito!" });
-
-                setFormTransf({ monto: "", cbu: "", titular: "" });
-                setFormTarjeta({ monto: "", numeroTarjeta: "", cvv: "", vencimiento: "" });
-
-                await fetchSaldo();
-            } else {
-                const errData = await response.json().catch(() => ({}));
-                setMensaje({ tipo: "error", texto: errData.message || "Error al procesar la transacción." });
+            if (tabActual === "ingreso_transf") {
+                await ingresarFondosTransferencia(Number(formTransf.monto), formTransf.cbu, formTransf.titular);
+            } else if (tabActual === "retiro") {
+                await retirarFondos(Number(formTransf.monto), formTransf.cbu, formTransf.titular);
+            } else if (tabActual === "ingreso_tarjeta") {
+                await ingresarFondosTarjeta(Number(formTarjeta.monto), formTarjeta.numeroTarjeta, formTarjeta.cvv, formTarjeta.vencimiento)
             }
+
+            setMensaje({ tipo: "exito", texto: "¡Operación procesada con éxito!" });
+            setFormTransf({ monto: "", cbu: "", titular: "" });
+            setFormTarjeta({ monto: "", numeroTarjeta: "", cvv: "", vencimiento: "" });
+            await fetchSaldo();
         } catch (error) {
-            setMensaje({ tipo: "error", texto: "Hubo un problema de conexión con el servidor." });
+            setMensaje({ tipo: "error", texto: error instanceof Error ? error.message : "Error al procesar la transacción." });
         } finally {
             setCargando(false);
         }
@@ -274,7 +244,7 @@ export default function GestionFondos() {
                                 placeholder="0.00"
                                 value={formTarjeta.monto}
                                 onChange={handleTarjetaChange}
-                                    className="w-full bg-gray-900 border-2 border-gray-800 rounded-xl p-3 text-white font-bold focus:outline-none focus:border-blue-500 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                className="w-full bg-gray-900 border-2 border-gray-800 rounded-xl p-3 text-white font-bold focus:outline-none focus:border-blue-500 transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
                         </div>
 
@@ -288,27 +258,27 @@ export default function GestionFondos() {
                                 value={formTarjeta.numeroTarjeta}
                                 onChange={handleTarjetaChange}
                                 className="w-full bg-gray-900 border-2 border-gray-800 rounded-xl p-3 text-white tracking-widest text-center focus:outline-none focus:border-blue-500 transition-colors"
-                                />
-                                <span className="text-right block text-xs text-gray-500 mt-1">
-                                    {formTarjeta.numeroTarjeta.length}/16 digitos
-                                </span>
+                            />
+                            <span className="text-right block text-xs text-gray-500 mt-1">
+                                {formTarjeta.numeroTarjeta.length}/16 digitos
+                            </span>
                         </div>
 
                         <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">
-                                        Vencimiento
-                                    </label>
-                                    <input
-                                        required
-                                        name="vencimiento"
-                                        type="text"
-                                        placeholder="MM/AA"
-                                        value={formTarjeta.vencimiento}
-                                        onChange={handleVencimientoChange} 
-                                        className="w-full bg-gray-900 border-2 border-gray-800 rounded-xl p-3 text-white text-center focus:outline-none focus:border-blue-500 transition-colors"
-                                    />
-                                </div>
+                            <div>
+                                <label className="block text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">
+                                    Vencimiento
+                                </label>
+                                <input
+                                    required
+                                    name="vencimiento"
+                                    type="text"
+                                    placeholder="MM/AA"
+                                    value={formTarjeta.vencimiento}
+                                    onChange={handleVencimientoChange}
+                                    className="w-full bg-gray-900 border-2 border-gray-800 rounded-xl p-3 text-white text-center focus:outline-none focus:border-blue-500 transition-colors"
+                                />
+                            </div>
                             <div>
                                 <label className="block text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">CVV</label>
                                 <input
@@ -329,8 +299,8 @@ export default function GestionFondos() {
                     type="submit"
                     disabled={cargando || saldoVirtual === null}
                     className={`w-full font-bold py-3 px-6 rounded-xl transition-all text-white text-center cursor-pointer mt-4 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed ${tabActual === "retiro"
-                            ? "bg-amber-600 hover:bg-amber-500 shadow-amber-900/20"
-                            : "bg-status-success hover:bg-green-500 shadow-green-900/20"
+                        ? "bg-amber-600 hover:bg-amber-500 shadow-amber-900/20"
+                        : "bg-status-success hover:bg-green-500 shadow-green-900/20"
                         }`}
                 >
                     {cargando ? "Procesando..." : tabActual === "retiro" ? "Confirmar Retiro" : "Confirmar Ingreso"}

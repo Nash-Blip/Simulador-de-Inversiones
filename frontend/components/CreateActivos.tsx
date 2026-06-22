@@ -17,8 +17,8 @@ export default function CreateActivos() {
                 await CreateActivo(nombre, ticker, precioInicial);
                 setMessage("Activo creado con éxito.");
                 router.push('/admin/transacciones');
-            } catch (err: any) {
-                setMessage(err.message || 'Error al crear el activo');
+            } catch (err) {
+                setMessage(err instanceof Error ? err.message : 'Error al crear el activo');
             }
         }
         fetchCreateActivo();
