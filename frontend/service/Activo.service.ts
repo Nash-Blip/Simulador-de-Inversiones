@@ -73,9 +73,8 @@ export async function getActivosPaginados(pagina: number = 1){
 }
 
 export async function getActivo(): Promise<Activo[]> {
-    const response = await fetch(`${API_URL}/activo`,
+    const response = await fetch(`${API_URL}/activo/list`,
         {
-            method: 'GET',
             credentials: 'include'
         }
     );
@@ -84,8 +83,7 @@ export async function getActivo(): Promise<Activo[]> {
         const data = await response.json();
         throw new Error(data.message || 'Error al obtener los activos existentes.');
     }
-    const json = await response.json();
-    return json.data;
+    return response.json();
 }
 
 export async function getActivoById(id: string | number): Promise<Activo> {
