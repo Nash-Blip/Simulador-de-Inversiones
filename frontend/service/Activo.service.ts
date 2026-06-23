@@ -93,7 +93,7 @@ export async function comprarActivo(id: number, cantidad: number) {
         {
             method: 'POST',
             headers: { 'Content-type': 'application/json' },
-            body: JSON.stringify({ id, cantidad }),
+            body: JSON.stringify({ activoId: id, cantidad }),
             credentials: 'include'
         }
     );
