@@ -96,8 +96,8 @@ export async function cambiarPassword(actual: string, nueva: string) {
             credentials: "include",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-                actual,
-                nueva
+                passwordActual: actual,
+                passwordNueva: nueva
             }),
         }
     );
@@ -105,4 +105,6 @@ export async function cambiarPassword(actual: string, nueva: string) {
         const data = await response.json()
         throw new Error(data.message || "Error al querer cambiar ")
     }
+
+    return response.json();
 }
