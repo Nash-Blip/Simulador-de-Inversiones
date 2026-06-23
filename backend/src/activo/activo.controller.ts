@@ -60,6 +60,13 @@ export class ActivoController {
     return this.activoService.findAllPaginado(query);
   }
 
+  @Get('list')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(InversorRol.ADMIN)
+  findAll() {
+    return this.activoService.findAll();
+  }
+
   @Get(':id')
   @UseGuards(JwtAuthGuard)
   @ApiFindOneActivo()
