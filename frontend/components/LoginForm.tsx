@@ -16,8 +16,13 @@ export default function LoginForm() {
     
     const fetchLogin = async () => {
       try {
-        await login(email, password);
-        router.push('/mercado');
+        const user = await login(email, password);        
+        if (user.inversor.rol === 'admin') {
+          router.push('/admin/inversores');
+        } else
+        {
+          router.push('/mercado');
+        }
       } catch (error) {
         console.log(error);
         setMessage('Cuenta o contraseña incorrecta');
