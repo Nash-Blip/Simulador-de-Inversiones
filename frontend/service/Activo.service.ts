@@ -45,7 +45,20 @@ export async function ModificarActivo(id: number, nombre: string, ticker: string
 }
 
 export async function getListActivos(): Promise<Activo[]> {
-    const response = await fetch(`${API_URL}/activo`,
+    const response = await fetch(`${API_URL}/activo`, {
+        method: 'GET',
+        credentials: 'include'
+    });
+    if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.message || 'Error al obtener los activos.');
+    }
+    const json = await response.json();
+    return json.data;
+}
+
+export async function getActivosPaginados(pagina: number = 1){
+    const response = await fetch(`${API_URL}/activo?page=${pagina}`,
         {
             method: 'GET',
             credentials: 'include'
@@ -56,8 +69,7 @@ export async function getListActivos(): Promise<Activo[]> {
         const data = await response.json();
         throw new Error(data.message || 'Error al obtener los activos existentes.');
     }
-    const json = await response.json();
-    return json.data;
+    return response.json();
 }
 
 export async function getActivo(): Promise<Activo[]> {

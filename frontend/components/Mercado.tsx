@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { Activo, Inversor } from "@/types";
-import { comprarActivo, getListActivos } from "@/service/Activo.service";
+import { comprarActivo, getActivosPaginados, getListActivos } from "@/service/Activo.service";
 import { getInversor } from "@/service/Inversor.service";
 
 const GraficoActivo = dynamic(() => import("./GraficoActivo"), {
@@ -30,24 +30,26 @@ export default function Mercado() {
     const [inversor, setInversor] = useState<Inversor | null>(null);
     const [maximoCompra, setMaximoCompra] = useState(0);
 
+    const [pagina, setPagina] = useState<number>(1);
+    const [totalPaginas, setTotalPaginas] = useState<number>(1);
+
     const fetchActivos = useCallback(async () => {
         try {
-            const data = await getListActivos();
-            const activosOrdenados = data.sort((a: Activo, b: Activo) =>
-                a.ticker.localeCompare(b.ticker)
-            );
+            const json = await getActivosPaginados(pagina);
+            console.log(json);
+            setActivos(json.data);
+            setTotalPaginas(json.meta.totalPages);
 
-            setActivos(activosOrdenados);
 
             setActivoSeleccionado((prev) => {
                 if (!prev) return null;
-                const actualizado = activosOrdenados.find((a: Activo) => a.id === prev.id);
+                const actualizado = json.data.find((a: Activo) => a.id === prev.id);
                 return actualizado ? actualizado : prev;
             });
         } catch (error) {
             console.error("Error fetching activos:", error);
         }
-    }, []);
+    }, [pagina]);
 
     const fetchInversor = async () => {
         try {
@@ -207,6 +209,25 @@ export default function Mercado() {
                             })}
                         </tbody>
                     </table>
+                    {totalPaginas > 1 && (
+                        <div className="flex justify-center items-center gap-6 mt-6 pt-4 border-t border-gray-800">
+                            <button
+                                onClick={() => setPagina((prev) => Math.max(prev - 1, 1))}
+                                disabled={pagina === 1}
+                                className="px-4 py-2 text-sm bg-gray-900 text-white rounded-md border border-gray-800 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-800 cursor-pointer transition-colors font-medium"
+                            >
+                                ← Anterior
+                            </button>
+                            <span className="text-sm text-gray-400 font-medium">Página {pagina} de {totalPaginas}</span>
+                            <button
+                                onClick={() => setPagina((prev) => prev + 1)}
+                                disabled={pagina >= totalPaginas}
+                                className="px-4 py-2 text-sm bg-gray-900 text-white rounded-md border border-gray-800 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-800 cursor-pointer transition-colors font-medium"
+                            >
+                                Siguiente →
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Panel Lateral de Compra */}
