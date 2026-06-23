@@ -73,10 +73,18 @@ export function ApiVenderActivo() {
 
 export function ApiFindAllActivos() {
   return applyDecorators(
-    ApiOperation({ summary: 'Listar todos los activos' }),
+    ApiOperation({ summary: 'Listar activos paginados (8 por página) y filtrables por nombre o ticker' }),
     ApiOkResponse({ type: ActivosPaginadaResponseDto }),
     ApiAuth(),
     ApiBadRequestResponse({ description: 'Parámetros inválidos (page, search)' }),
+  );
+}
+
+export function ApiFindAllActivosList() {
+  return applyDecorators(
+    ApiOperation({ summary: 'Listar todos los activos (ADMIN)' }),
+    ApiOkResponse({ type: ActivoListItemDto, isArray: true }),
+    ApiAdmin(),
   );
 }
 

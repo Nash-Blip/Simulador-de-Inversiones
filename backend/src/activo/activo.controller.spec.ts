@@ -2,9 +2,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { ActivoController } from './activo.controller';
 import { ActivoService } from './activo.service';
 import { Sistema } from '@/sistema/sistema';
-import { CreateActivoDto } from './dto/create-activo.dto';
-import { CompraActivoDto } from './dto/compra-activo.dto';
-import { VentaActivoDto } from './dto/venta-activo.dto';
+import { CreateActivoDto } from './dto/input/create-activo.dto';
+import { CompraActivoDto } from './dto/input/compra-activo.dto';
+import { VentaActivoDto } from './dto/input/venta-activo.dto';
 import type { Request } from 'express';
 
 describe('ActivoController', () => {
@@ -15,6 +15,7 @@ describe('ActivoController', () => {
   const mockActivoService = {
     create: jest.fn(),
     findAllPaginado: jest.fn(),
+    findAll: jest.fn(),
     findOne: jest.fn(),
   };
 
@@ -112,6 +113,21 @@ describe('ActivoController', () => {
       const result = await controller.findAllPaginado(query);
 
       expect(mockActivoService.findAllPaginado).toHaveBeenCalledWith(query);
+      expect(result).toEqual(expectedResult);
+    });
+  });
+
+  describe('findAll', () => {
+    it('debería retornar todos los activos sin paginación', async () => {
+      const expectedResult = [
+        { id: 1, nombre: 'Bitcoin', ticker: 'BTC' },
+        { id: 2, nombre: 'Ethereum', ticker: 'ETH' },
+      ];
+      mockActivoService.findAll.mockResolvedValue(expectedResult);
+
+      const result = await controller.findAll();
+
+      expect(mockActivoService.findAll).toHaveBeenCalled();
       expect(result).toEqual(expectedResult);
     });
   });

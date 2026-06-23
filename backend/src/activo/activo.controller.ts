@@ -11,7 +11,7 @@ import { RolesGuard } from '@/auth/guards/roles.guard';
 import { Roles } from '@/auth/decorators/roles.decorator';
 import { InversorRol } from '@/inversor/entities/inversor.entity';
 import { UpdateActivoDto } from './dto/input/update-activo.dto';
-import { ApiCreateActivo, ApiUpdateActivo, ApiComprarActivo, ApiVenderActivo, ApiFindAllActivos, ApiFindOneActivo } from './decorators/activo-swagger.decorator';
+import { ApiCreateActivo, ApiUpdateActivo, ApiComprarActivo, ApiVenderActivo, ApiFindAllActivos, ApiFindAllActivosList, ApiFindOneActivo } from './decorators/activo-swagger.decorator';
 import { GetActivosQueryDto } from './dto/input/get-activo-query.dto';
 
 @ApiTags('Activo')
@@ -63,6 +63,7 @@ export class ActivoController {
   @Get('list')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(InversorRol.ADMIN)
+  @ApiFindAllActivosList()
   findAll() {
     return this.activoService.findAll();
   }
