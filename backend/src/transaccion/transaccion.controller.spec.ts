@@ -1,7 +1,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { TransaccionController } from './transaccion.controller';
 import { TransaccionService } from './transaccion.service';
-import { GetTransaccionesQueryDto } from './dto/get-transaccion-query.dto';
+import { GetTransaccionesQueryDto } from './dto/input/get-transaccion-query.dto';
 import type { Request } from 'express';
 
 describe('TransaccionController', () => {

@@ -3,7 +3,7 @@ import { AuthService } from './auth.service';
 import { InversorService } from '@/inversor/inversor.service';
 import { JwtService } from '@nestjs/jwt';
 import { UnauthorizedException } from '@nestjs/common';
-import { CreateInversorDto } from '@/inversor/dto/create-inversor.dto';
+import { CreateInversorDto } from '@/inversor/dto/input/create-inversor.dto';
 import * as bcrypt from 'bcrypt';
 
 jest.mock('bcrypt', () => ({

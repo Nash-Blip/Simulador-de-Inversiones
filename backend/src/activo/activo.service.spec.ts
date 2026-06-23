@@ -3,7 +3,7 @@ import { ActivoService } from './activo.service';
 import { Repository } from 'typeorm';
 import { Activo } from './entities/activo.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { CreateActivoDto } from './dto/create-activo.dto';
+import { CreateActivoDto } from './dto/input/create-activo.dto';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 
 describe('ActivoService', () => {

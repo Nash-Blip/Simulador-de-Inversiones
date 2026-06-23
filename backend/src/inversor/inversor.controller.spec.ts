@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { InversorController } from './inversor.controller';
 import { InversorService } from './inversor.service';
-import { CreateInversorDto } from './dto/create-inversor.dto';
-import { CambioPasswordDto } from './dto/cambio-password.dto';
+import { CreateInversorDto } from './dto/input/create-inversor.dto';
+import { CambioPasswordDto } from './dto/input/cambio-password.dto';
 import type { Request } from 'express';
 
 describe('InversorController', () => {

@@ -3,7 +3,7 @@ import { TransaccionService } from './transaccion.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { TipoTransaccion, Transaccion } from './transaccion.entity';
 import { Repository } from 'typeorm';
-import { GetTransaccionesQueryDto } from './dto/get-transaccion-query.dto';
+import { GetTransaccionesQueryDto } from './dto/input/get-transaccion-query.dto';
 import { Portafolio } from '@/portafolio/portafolio.entity';
 import { Activo } from '@/activo/entities/activo.entity';
 
