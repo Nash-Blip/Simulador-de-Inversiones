@@ -38,7 +38,8 @@ export class InversorController {
   }
 
   @Get('portafolio')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(InversorRol.USER)
   @ApiFindMyPortafolio()
   findMyPortafolio(@Req() req: Request) {
     return this.inversorService.findPortafolio((req as any).user.id);
@@ -62,21 +63,24 @@ export class InversorController {
   }
 
   @Post('ingresar-fondos-tarjeta')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(InversorRol.USER)
   @ApiIngresarFondosTarjeta()
   ingresarFondosTarjeta(@Req() req, @Body() dto: IngresarFondosTarjetaDto) {
     return this.inversorService.ingresarFondosTarjeta((req as any).user.id, dto);
   }
 
   @Post('ingresar-fondos-transferencia')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(InversorRol.USER)
   @ApiIngresarFondosTransferencia()
   ingresarFondosTransferencia(@Req() req, @Body() dto: IngresarFondosTransferenciaDto) {
     return this.inversorService.ingresarFondosTransferencia((req as any).user.id, dto);
   }
 
   @Post('retirar-fondos')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(InversorRol.USER)
   @ApiRetirarFondos()
   retirarFondos(@Req() req, @Body() dto: RetirarFondosDto) {
     return this.inversorService.retirarFondos((req as any).user.id, dto);
