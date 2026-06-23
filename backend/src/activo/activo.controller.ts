@@ -40,21 +40,24 @@ export class ActivoController {
   }
 
   @Post('comprar')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(InversorRol.USER)
   @ApiComprarActivo()
   comprar(@Body() compraDto: CompraActivoDto, @Req() req: Request) {
     return this.sistema.procesarCompra(compraDto, (req as any).user.id);
   }
 
   @Post('vender')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(InversorRol.USER)
   @ApiVenderActivo()
   vender(@Body() ventaDto: VentaActivoDto, @Req() req: Request) {
     return this.sistema.procesarVenta(ventaDto, (req as any).user.id);
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(InversorRol.USER)
   @ApiFindAllActivos()
   findAllPaginado(@Query() query: GetActivosQueryDto) {
     return this.activoService.findAllPaginado(query);
@@ -69,7 +72,8 @@ export class ActivoController {
   }
 
   @Get(':id')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(InversorRol.USER)
   @ApiFindOneActivo()
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.activoService.findOne(id);
