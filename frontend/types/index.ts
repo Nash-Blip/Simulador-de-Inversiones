@@ -60,8 +60,6 @@ export type Inversor = {
     saldo: number;
 }
 
-
-
 export type TransaccionHistorial = {
     id: number;
     tipoTransaccion: TipoTransaccion;

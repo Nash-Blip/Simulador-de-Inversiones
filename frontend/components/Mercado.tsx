@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { Activo, Inversor } from "@/types";
+import { comprarActivo, getListActivos } from "@/service/Activo.service";
+import { getInversor } from "@/service/Inversor.service";
 
 const GraficoActivo = dynamic(() => import("./GraficoActivo"), {
     ssr: false,
@@ -30,36 +32,29 @@ export default function Mercado() {
 
     const fetchActivos = useCallback(async () => {
         try {
-            const response = await fetch("http://localhost:3000/activo", {
-                credentials: 'include'
+            const data = await getListActivos();
+            const activosOrdenados = data.sort((a: Activo, b: Activo) =>
+                a.ticker.localeCompare(b.ticker)
+            );
+
+            setActivos(activosOrdenados);
+
+            setActivoSeleccionado((prev) => {
+                if (!prev) return null;
+                const actualizado = activosOrdenados.find((a: Activo) => a.id === prev.id);
+                return actualizado ? actualizado : prev;
             });
-            const data = await response.json();
-            if (response.ok) {
-                const activosOrdenados = data.sort((a: Activo, b: Activo) =>
-                    a.ticker.localeCompare(b.ticker)
-                );
-
-                setActivos(activosOrdenados);
-
-                setActivoSeleccionado((prev) => {
-                    if (!prev) return null;
-                    const actualizado = activosOrdenados.find((a: Activo) => a.id === prev.id);
-                    return actualizado ? actualizado : prev;
-                });
-            }
         } catch (error) {
             console.error("Error fetching activos:", error);
         }
     }, []);
 
     const fetchInversor = async () => {
-        const response = await fetch("http://localhost:3000/inversor/perfil", {
-            method: 'GET',
-            credentials: 'include'
-        });
-        const data = await response.json();
-        if (response.ok) {
+        try {
+            const data = await getInversor();
             setInversor(data);
+        } catch (error) {
+            console.error("Error al cargar histórico del activo:", error);
         }
     };
 
@@ -84,14 +79,9 @@ export default function Mercado() {
         if (cant === "" || cant < 1) return;
 
         const fetchComprar = async () => {
-            const response = await fetch("http://localhost:3000/activo/comprar", {
-                method: 'POST',
-                headers: { 'Content-type': 'application/json' },
-                body: JSON.stringify({ activoId: comprar.id, cantidad: cant }),
-                credentials: 'include'
-            });
+            try {
+                await comprarActivo(comprar.id, cant);
 
-            if (response.ok) {
                 setCantidadCompra(1);
                 setMostrarCompra(false);
                 setActivoSeleccionado(null);
@@ -105,8 +95,7 @@ export default function Mercado() {
                 timerExito = setTimeout(() => {
                     setCompraExitosa(false);
                 }, 4000);
-
-            } else {
+            } catch {
                 setActivoErrorTicker(comprar.ticker);
                 setErrorSaldo(true);
 
@@ -115,9 +104,11 @@ export default function Mercado() {
                     setErrorSaldo(false);
                 }, 4000);
             }
-        };
+
+        }
         fetchComprar();
-    }
+    };
+
 
     return (
         <div className="min-h-screen bg-[#0b0f19] py-6 px-4">
