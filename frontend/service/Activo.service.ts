@@ -60,7 +60,7 @@ export async function getListActivos(): Promise<Activo[]> {
     return json.data;
 }
 
-export async function getActivo(): Promise<Activo> {
+export async function getActivo(): Promise<Activo[]> {
     const response = await fetch(`${API_URL}/activo`,
         {
             method: 'GET',
@@ -72,7 +72,8 @@ export async function getActivo(): Promise<Activo> {
         const data = await response.json();
         throw new Error(data.message || 'Error al obtener los activos existentes.');
     }
-    return response.json();
+    const json = await response.json();
+    return json.data;
 }
 
 export async function getActivoById(id: string | number): Promise<Activo> {

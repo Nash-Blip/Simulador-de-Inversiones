@@ -1,7 +1,7 @@
 'use client';
 import { SyntheticEvent, useState, useEffect } from 'react';
 import { Activo } from '@/types/index';
-import { GetActivo, ModificarActivo } from '@/service/Activo.service';
+import { getActivo, ModificarActivo } from '@/service/Activo.service';
 
 export default function ModificarActivoPage() {
     const [activos, setActivos] = useState<Activo[]>([]);
@@ -13,7 +13,7 @@ export default function ModificarActivoPage() {
     useEffect(() => {
         const fetchActivos = async () => {
             try {
-                const data = await GetActivo();
+                const data = await getActivo();
                 setActivos(data);
             } catch (err) {
                 console.error(err);
@@ -70,8 +70,8 @@ export default function ModificarActivoPage() {
                             defaultValue=""
                         >
                             <option value="" disabled>Seleccioná un activo</option>
-                            {activos.map((activo) => (
-                                <option key={activo.id} value={activo.id}>{activo.ticker} - {activo.nombre}</option>
+                            {activos.map((activos) => (
+                                <option key={activos.id} value={activos.id}>{activos.ticker} - {activos.nombre}</option>
                             ))}
                         </select>
                     </div>
