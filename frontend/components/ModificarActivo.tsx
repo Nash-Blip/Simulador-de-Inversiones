@@ -35,8 +35,8 @@ export default function ModificarActivoPage() {
             try {
                 await ModificarActivo(activoSeleccionado!.id, nombre, ticker);
                 setMessage('Activo modificado con éxito.');
-            } catch (err: any) {
-                setMessage(err.message || 'Error al modificar el activo');
+            } catch (err) {
+                setMessage(err instanceof Error ? err.message : 'Error al modificar el activo');
             }
         }
         fetchModificar();
