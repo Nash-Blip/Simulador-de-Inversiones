@@ -57,8 +57,11 @@ export async function getListActivos(): Promise<Activo[]> {
     return json.data;
 }
 
-export async function getActivosPaginados(pagina: number = 1){
-    const response = await fetch(`${API_URL}/activo?page=${pagina}`,
+export async function getActivosPaginados(pagina: number = 1, search?: string){
+    const params = new URLSearchParams({ page: String(pagina) });
+    if (search) params.append("search", search);
+
+    const response = await fetch(`${API_URL}/activo?${params.toString()}`,
         {
             method: 'GET',
             credentials: 'include'
