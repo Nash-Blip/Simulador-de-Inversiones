@@ -49,6 +49,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     useEffect(() => {
         verificarSesion();
+
+        const handlePageShow = (event: PageTransitionEvent) => {
+            if (event.persisted) {
+                setLoading(true);
+                setInversor(null);
+                verificarSesion();
+            }
+        };
+        window.addEventListener('pageshow', handlePageShow);
+        return () => window.removeEventListener('pageshow', handlePageShow);
     }, [verificarSesion]);
 
     const redirigirAlLogin = () => {

@@ -44,7 +44,7 @@ export default function AppBarAdmin() {
                 const perfil = await getPerfil();
                 setPerfil(perfil);
             } catch {
-                router.push('/auth/login');
+                window.location.replace('/');
             } finally {
                 setLoading(false);
             }
@@ -59,7 +59,7 @@ export default function AppBarAdmin() {
     const handleLogout = async () => {
         try{
             await logout();
-            router.push('/');    
+            window.location.replace('/');    
         }catch(err){
             console.log(err);
         }

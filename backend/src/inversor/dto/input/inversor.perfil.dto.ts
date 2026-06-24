@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNumber, IsString } from "class-validator";
+import { IsEmail, IsEnum, IsNumber, IsString } from "class-validator";
+import { InversorRol } from '@/inversor/entities/inversor.entity';
 
 export class InversorPerfilDto {
     @ApiProperty({ example: 'Juan Pérez', description: 'Nombre del inversor' })
@@ -11,5 +12,9 @@ export class InversorPerfilDto {
     email!: string;
 
     @IsNumber()
-    saldo!: number
+    saldo!: number;
+
+    @ApiProperty({ enum: InversorRol, example: InversorRol.USER, description: 'Rol del inversor' })
+    @IsEnum(InversorRol)
+    rol!: InversorRol;
 }
