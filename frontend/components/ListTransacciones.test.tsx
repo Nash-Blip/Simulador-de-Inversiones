@@ -38,7 +38,7 @@ describe('Componente ListTransaccionesAdmin', () => {
     });
 
     // Valida llamada inicial: pagina 1, filtro "TODOS"
-    expect(getTransacciones).toHaveBeenCalledWith(1, 'TODOS');
+    expect(getTransacciones).toHaveBeenCalledWith(1, 'TODOS', '', undefined, undefined);
     expect(screen.getByText('AAPL')).toBeInTheDocument();
     expect(screen.getByText('$150.00')).toBeInTheDocument(); // precioOperado calculado (1500 / 10)
   });
@@ -57,7 +57,7 @@ describe('Componente ListTransaccionesAdmin', () => {
 
     await waitFor(() => {
       // Al cambiar el filtro, re-ejecuta la API desde la página 1
-      expect(getTransacciones).toHaveBeenLastCalledWith(1, 'COMPRA');
+      expect(getTransacciones).toHaveBeenLastCalledWith(1, 'COMPRA', '', undefined, undefined);
     });
   });
 
@@ -77,7 +77,7 @@ describe('Componente ListTransaccionesAdmin', () => {
     fireEvent.click(botonSiguiente);
 
     await waitFor(() => {
-      expect(getTransacciones).toHaveBeenLastCalledWith(2, 'TODOS');
+      expect(getTransacciones).toHaveBeenLastCalledWith(2, 'TODOS', '', undefined, undefined);
       expect(screen.getByText('GGAL')).toBeInTheDocument();
       expect(screen.getByText('Página 2 de 2')).toBeInTheDocument();
     });
