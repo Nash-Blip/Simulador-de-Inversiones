@@ -103,7 +103,7 @@ export async function cambiarPassword(actual: string, nueva: string) {
     );
     if (!response.ok) {
         const data = await response.json()
-        throw new Error(data.message || "Error al querer cambiar ")
+        throw new Error(data.message || "Error al querer cambiar contraseña.")
     }
 
     return response.json();
