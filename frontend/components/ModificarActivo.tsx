@@ -2,6 +2,7 @@
 import { SyntheticEvent, useState, useEffect } from 'react';
 import { Activo } from '@/types/index';
 import { getActivo, ModificarActivo } from '@/service/Activo.service';
+import Link from 'next/link';
 
 export default function ModificarActivoPage() {
     const [activos, setActivos] = useState<Activo[]>([]);
@@ -34,6 +35,7 @@ export default function ModificarActivoPage() {
         const fetchModificar = async () => {
             try {
                 await ModificarActivo(activoSeleccionado!.id, nombre, ticker);
+                window.location.reload();
                 setMessage('Activo modificado con éxito.');
             } catch (err) {
                 setMessage(err instanceof Error ? err.message : 'Error al modificar el activo');
@@ -49,14 +51,14 @@ export default function ModificarActivoPage() {
                     Modificar Activo
                 </h1>
                 <div className="flex items-center justify-center mb-6">
-                    <a href="/admin/activos"
+                    <Link href="/admin/activos"
                         className="w-1/3 pb-4 font-medium text-center text-gray-500 capitalize border-b border-gray-400">
                         Crear
-                    </a>
-                    <a href="/admin/activos/modificar"
+                    </Link>
+                    <Link href="/admin/activos/modificar"
                         className="w-1/3 pb-4 font-medium text-center text-white capitalize border-b-2 border-blue-400">
                         Modificar
-                    </a>
+                    </Link>
                 </div>
                 <div className="w-full bg-[#0b0f19] rounded-xl border-2 p-6">
                     <div className="flex flex-col gap-1 mb-4">

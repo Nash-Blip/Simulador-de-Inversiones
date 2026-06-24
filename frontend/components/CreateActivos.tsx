@@ -1,6 +1,7 @@
 'use client';
 import { SyntheticEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link'; 
 import { CreateActivo } from '@/service/Activo.service';
 
 export default function CreateActivos() {
@@ -37,17 +38,23 @@ export default function CreateActivos() {
                 <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400 text-center mb-6">
                     Crear Activo
                 </h1>
+
                 <div className="flex items-center justify-center mb-6">
-                    <a href="/admin/activos/nuevo"
-                        className="w-1/3 pb-4 font-medium text-center text-white capitalize border-b-2 border-blue-400">
+                    <Link
+                        href="/admin/activos/nuevo"
+                        className="w-1/3 pb-4 font-medium text-center text-white capitalize border-b-2 border-blue-400"
+                    >
                         Crear
-                    </a>
-                    <a href="/admin/activos/modificar"
-                        className="w-1/3 pb-4 font-medium text-center text-gray-500 capitalize border-b border-gray-400">
+                    </Link>
+                    <Link
+                        href="/admin/activos/modificar"
+                        className="w-1/3 pb-4 font-medium text-center text-gray-500 capitalize border-b border-gray-400"
+                    >
                         Modificar
-                    </a>
+                    </Link>
                 </div>
-                <div className="w-full bg-[#0b0f19] rounded-xl border-2 p-6">
+
+                <div className="w-full bg-[#0b0f19] rounded-xl border-2 border-gray-800 p-6">
                     <form onSubmit={handleSubmit} onReset={handleReset} className="flex flex-col gap-4">
                         <div className="flex flex-col gap-1">
                             <label className="text-sm text-gray-400 uppercase tracking-wider">Nombre</label>
@@ -91,12 +98,14 @@ export default function CreateActivos() {
 
                         <button
                             className="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 px-6 rounded-lg transition-colors cursor-pointer mt-2"
-                            type="submit">
+                            type="submit"
+                        >
                             Crear activo
                         </button>
                         <button
                             className="w-full bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold py-3 px-6 rounded-lg transition-colors cursor-pointer"
-                            type="reset">
+                            type="reset"
+                        >
                             Restablecer
                         </button>
                     </form>
