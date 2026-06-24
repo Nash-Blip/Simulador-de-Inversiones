@@ -48,7 +48,7 @@ export default function AppBar() {
     const handleLogout = async () => {
         try {
             await logout();
-            window.location.replace('/');
+            window.location.href = ('/');
         } catch (error) {
             console.error("Error en la conexión con el servidor:", error);
             setErrorMessage("No se pudo conectar con el servidor.");

@@ -1,7 +1,12 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-const PROTECTED_HEADERS = { 'Cache-Control': 'no-store, no-cache, must-revalidate' };
+// 1. Ampliamos las cabeceras para matar el BFCache en todos los navegadores
+const PROTECTED_HEADERS = { 
+    'Cache-Control': 'no-store, no-cache, must-revalidate, proxy-revalidate',
+    'Pragma': 'no-cache',
+    'Expires': '0'
+};
 const COOKIE_LAST_PATH = 'last_valid_path';
 
 const ROL_HOME: Record<string, string> = {
@@ -21,12 +26,13 @@ function setLastPathCookie(response: NextResponse, pathname: string): NextRespon
         httpOnly: false,
         sameSite: 'lax',
         path: '/',
-        maxAge: 60 * 60 * 24,
+        maxAge: 60 * 60 * 24, // 1 día
     });
     return response;
 }
 
-export function proxy(request: NextRequest) {
+// 2. OBLIGATORIO: La función debe llamarse 'middleware'
+export function proxy(request: NextRequest) { 
     const token = request.cookies.get('token')?.value;
     const { pathname } = request.nextUrl;
 
@@ -42,14 +48,17 @@ export function proxy(request: NextRequest) {
     const isAdminRoute = pathname.startsWith('/admin');
     const isAuthRoute = pathname.startsWith('/auth');
 
+    // Flujo SIN Token
     if (!token) {
         if (isProtectedRoute) {
             const loginUrl = new URL('/auth/login', request.url);
-            return NextResponse.redirect(loginUrl);
+            // 🚨 APLICAMOS withNoStore a la redirección para que el navegador no cachee el rebote
+            return withNoStore(NextResponse.redirect(loginUrl));
         }
         return NextResponse.next();
     }
 
+    // Flujo CON Token
     try {
         const base64Url = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
         const payload = JSON.parse(atob(base64Url));
@@ -57,16 +66,16 @@ export function proxy(request: NextRequest) {
 
         if (role === 'admin' && isUserRoute) {
             const lastValid = request.cookies.get(COOKIE_LAST_PATH)?.value;
-            return NextResponse.redirect(new URL(lastValid || ROL_HOME.admin, request.url));
+            return withNoStore(NextResponse.redirect(new URL(lastValid || ROL_HOME.admin, request.url)));
         }
 
         if (role === 'user' && isAdminRoute) {
             const lastValid = request.cookies.get(COOKIE_LAST_PATH)?.value;
-            return NextResponse.redirect(new URL(lastValid || ROL_HOME.user, request.url));
+            return withNoStore(NextResponse.redirect(new URL(lastValid || ROL_HOME.user, request.url)));
         }
 
         if (isAuthRoute) {
-            return NextResponse.redirect(new URL(ROL_HOME[role] || ROL_HOME.user, request.url));
+            return withNoStore(NextResponse.redirect(new URL(ROL_HOME[role] || ROL_HOME.user, request.url)));
         }
 
         if (isProtectedRoute) {
@@ -75,8 +84,9 @@ export function proxy(request: NextRequest) {
 
         return withNoStore(NextResponse.next());
     } catch {
+        // Si el token es inválido o expiró
         if (isProtectedRoute) {
-            return NextResponse.redirect(new URL('/auth/login', request.url));
+            return withNoStore(NextResponse.redirect(new URL('/auth/login', request.url)));
         }
         return NextResponse.next();
     }
