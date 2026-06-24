@@ -1,28 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { FinnhubService } from './finnhub.service';
+import { SincronizacionPreciosService } from './sincronizacion-precios.service';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Activo } from '@/activo/entities/activo.entity';
 import { Repository } from 'typeorm';
 import { NotFoundException } from '@nestjs/common';
+import { PrecioConexion } from './conexion/precio-conexion.interface';
 
-jest.mock('finnhub', () => {
-  function MockDefaultApi() {}
-  
-  MockDefaultApi.prototype.quote = function (ticker: string, callback: any) {
-    if (typeof (global as any).mockFinnhubImplementation === 'function') {
-      return (global as any).mockFinnhubImplementation(ticker, callback);
-    }
-    callback(null, { c: 150.5 }, null);
-  };
-
-  return {
-    DefaultApi: MockDefaultApi,
-  };
-});
-
-describe('FinnhubService', () => {
-  let service: FinnhubService;
+describe('SincronizacionPreciosService', () => {
+  let service: SincronizacionPreciosService;
   let activoRepo: Repository<Activo>;
+  let precioConexion: PrecioConexion;
 
   const mockActivoRepo = {
     find: jest.fn(),
@@ -30,22 +17,30 @@ describe('FinnhubService', () => {
     save: jest.fn(),
   };
 
+  const mockPrecioConexion = {
+    obtenerPrecio: jest.fn(),
+  };
+
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        FinnhubService,
+        SincronizacionPreciosService,
         {
           provide: getRepositoryToken(Activo),
           useValue: mockActivoRepo,
         },
+        {
+          provide: PrecioConexion,
+          useValue: mockPrecioConexion,
+        },
       ],
     })
-    // muteamos los loggers
     .setLogger({ log: () => {}, error: () => {}, warn: () => {}, debug: () => {}, verbose: () => {} })
     .compile();
 
-    service = module.get<FinnhubService>(FinnhubService);
+    service = module.get<SincronizacionPreciosService>(SincronizacionPreciosService);
     activoRepo = module.get<Repository<Activo>>(getRepositoryToken(Activo));
+    precioConexion = module.get<PrecioConexion>(PrecioConexion);
   });
 
   afterEach(() => {
@@ -54,43 +49,6 @@ describe('FinnhubService', () => {
 
   it('debería estar definido', () => {
     expect(service).toBeDefined();
-  });
-
-  describe('obtenerPrecioInicial', () => {
-    afterEach(() => {
-      delete (global as any).mockFinnhubImplementation;
-    });
-
-    it('debería resolver con el precio actual ("c") si la API de Finnhub responde exitosamente', async () => {
-      (global as any).mockFinnhubImplementation = (ticker: string, callback: any) => {
-        callback(null, { c: 150.5 }, null);
-      };
-
-      const precio = await (service as any).obtenerPrecioInicial('AAPL');
-      expect(precio).toBe(150.5);
-    });
-
-    it('debería rechazar con un error si la API externa falla', async () => {
-      const apiError = new Error('API Key Limit Exceeded');
-
-      (global as any).mockFinnhubImplementation = (ticker: string, callback: any) => {
-        callback(apiError, null, null);
-      };
-
-      await expect((service as any).obtenerPrecioInicial('TSLA')).rejects.toThrow(
-        'Error en llamada a Finnhub SDK: API Key Limit Exceeded'
-      );
-    });
-
-    it('debería rechazar si la API responde pero el campo "c" es 0 o indefinido', async () => {
-      (global as any).mockFinnhubImplementation = (ticker: string, callback: any) => {
-        callback(null, { c: 0 }, null);
-      };
-
-      await expect((service as any).obtenerPrecioInicial('MSFT')).rejects.toThrow(
-        "La API no retornó un precio válido ('c') para el ticker: MSFT"
-      );
-    });
   });
 
   describe('updateActivo', () => {
@@ -122,14 +80,17 @@ describe('FinnhubService', () => {
     it('debería sincronizar todos los tickers de la base de datos exitosamente', async () => {
       const activosEnBD = [{ ticker: 'AAPL' }, { ticker: 'GOOGL' }];
       mockActivoRepo.find.mockResolvedValue(activosEnBD);
+      
+      mockPrecioConexion.obtenerPrecio.mockResolvedValue(150);
 
-      const obtenerPrecioSpy = jest.spyOn(service as any, 'obtenerPrecioInicial').mockResolvedValue(150);
       const updateActivoSpy = jest.spyOn(service as any, 'updateActivo').mockResolvedValue(undefined);
 
       await service.onApplicationBootstrap();
 
       expect(mockActivoRepo.find).toHaveBeenCalled();
-      expect(obtenerPrecioSpy).toHaveBeenCalledTimes(2);
+      expect(mockPrecioConexion.obtenerPrecio).toHaveBeenCalledTimes(2);
+      expect(mockPrecioConexion.obtenerPrecio).toHaveBeenNthCalledWith(1, 'AAPL');
+      expect(mockPrecioConexion.obtenerPrecio).toHaveBeenNthCalledWith(2, 'GOOGL');
       expect(updateActivoSpy).toHaveBeenCalledTimes(2);
     });
 
@@ -137,15 +98,14 @@ describe('FinnhubService', () => {
       const activosEnBD = [{ ticker: 'FALLA' }, { ticker: 'EXITO' }];
       mockActivoRepo.find.mockResolvedValue(activosEnBD);
 
-      const obtenerPrecioSpy = jest.spyOn(service as any, 'obtenerPrecioInicial');
-      obtenerPrecioSpy.mockRejectedValueOnce(new Error('Error de red'));
-      obtenerPrecioSpy.mockResolvedValueOnce(300);
+      mockPrecioConexion.obtenerPrecio.mockRejectedValueOnce(new Error('Proveedor Caído'));
+      mockPrecioConexion.obtenerPrecio.mockResolvedValueOnce(300);
 
       const updateActivoSpy = jest.spyOn(service as any, 'updateActivo').mockResolvedValue(undefined);
 
       await service.onApplicationBootstrap();
 
-      expect(obtenerPrecioSpy).toHaveBeenCalledTimes(2);
+      expect(mockPrecioConexion.obtenerPrecio).toHaveBeenCalledTimes(2);
       expect(updateActivoSpy).toHaveBeenCalledTimes(1);
       expect(updateActivoSpy).toHaveBeenCalledWith('EXITO', 300);
     });
