@@ -83,7 +83,7 @@ export default function ListTransaccionesAdmin() {
                         </div>
                     </div>
                 </div>
-                <div className="flex bg-gray-900/60 p-1 rounded-lg border border-gray-800">
+                <div className="flex bg-gray-900/60 p-1 rounded-lg border border-gray-800 self-center sm:self-auto">
                     {["TODOS", "COMPRA", "VENTA"].map((tipo) => (
                         <button key={tipo}
                             onClick={() => handleFiltroChange(tipo)}
