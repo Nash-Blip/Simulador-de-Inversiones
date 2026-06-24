@@ -53,7 +53,8 @@ export class InversorController {
   }
 
   @Patch('cambiar-password')
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(InversorRol.USER)
   @ApiCambiarPassword()
   async cambiarPassword(
     @Req() req: Request,
