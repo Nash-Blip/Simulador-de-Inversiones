@@ -24,7 +24,7 @@ export default function AppBar() {
                 setInversor(perfil);
             } catch (error) {
                 console.error("Error al obtener el perfil:", error);
-                window.location.href = '/auth/login';
+                window.location.replace('/');
             } finally {
                 setLoading(false);
             }
@@ -48,7 +48,7 @@ export default function AppBar() {
     const handleLogout = async () => {
         try {
             await logout();
-            window.location.href = '/';
+            window.location.href = ('/');
         } catch (error) {
             console.error("Error en la conexión con el servidor:", error);
             setErrorMessage("No se pudo conectar con el servidor.");

@@ -48,7 +48,7 @@ export class ActivoController {
   }
 
   @Post('vender')
-  @UseGuards(JwtAuthGuard, RolesGuard)
+  @UseGuards(JwtAuthGuard)
   @Roles(InversorRol.USER)
   @ApiVenderActivo()
   vender(@Body() ventaDto: VentaActivoDto, @Req() req: Request) {

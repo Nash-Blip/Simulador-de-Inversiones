@@ -174,7 +174,8 @@ export class InversorService {
     return {
       nombre: inversor.nombre,
       email: inversor.email,
-      saldo: inversor.saldoVirtual
+      saldo: inversor.saldoVirtual,
+      rol: inversor.rol
     };
   }
 
