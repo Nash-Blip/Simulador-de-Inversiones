@@ -3,7 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { Activo, Inversor } from "@/types";
-import { comprarActivo, getActivosPaginados, getListActivos } from "@/service/Activo.service";
+import { comprarActivo, getActivosPaginados } from "@/service/Activo.service";
 import { getInversor } from "@/service/Inversor.service";
 
 const GraficoActivo = dynamic(() => import("./GraficoActivo"), {
