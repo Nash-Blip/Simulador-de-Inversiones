@@ -11,7 +11,8 @@ export function proxy(request: NextRequest) {
         request.nextUrl.pathname.startsWith('/portafolio') ||
         request.nextUrl.pathname.startsWith('/transacciones') ||
         request.nextUrl.pathname.startsWith('/fondos') ||
-        request.nextUrl.pathname.startsWith('/ajustes') ;
+        request.nextUrl.pathname.startsWith('/ajustes') ||
+        request.nextUrl.pathname.startsWith('/admin')  ;
 
     // 3. Si intenta entrar a una ruta protegida sin token, redirección fulminante
     if (isProtectedRoute && !token) {
@@ -19,7 +20,8 @@ export function proxy(request: NextRequest) {
         return NextResponse.redirect(loginUrl);
     }
 
-    return NextResponse.next();
+    const response = NextResponse.next();
+    return response;
 }
 
 // Configura el matcher para optimizar el rendimiento del middleware
@@ -31,5 +33,6 @@ export const config = {
         '/fondos/:path*',
         '/ajustes/:path*',
         '/inversor/:path*',
+        '/admin/:path'
     ],
 };
