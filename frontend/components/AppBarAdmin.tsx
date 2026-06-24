@@ -5,7 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Perfil } from '@/types/index';
 import { getPerfil } from "@/service/Inversor.service";
-import { logout } from '@/service/Auth.service';
+import { useAuth } from "@/app/auth/AuthContext";
 
 export default function AppBarAdmin() {
     const pathname = usePathname();
@@ -13,6 +13,7 @@ export default function AppBarAdmin() {
     const [isOpen, setIsOpen] = useState(false);
     const [perfil, setPerfil] = useState<Perfil | null>(null);
     const [loading, setLoading] = useState(true);
+    const { logout } = useAuth();
 
     const menuItems = [
         {
@@ -84,7 +85,7 @@ export default function AppBarAdmin() {
 
             <aside className={`fixed md:sticky top-0 left-0 z-40 flex flex-col w-64 h-screen px-4 py-8 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700 transition-transform duration-300 transform ${isOpen ? "translate-x-0" : "-translate-x-full"} md:translate-x-0`}>
 
-                <Link href="/admin">
+                <Link href="/">
                     <img className="w-auto h-6 sm:h-7 mx-auto" src="/logo-simulador.png" alt="Logo Simulador de inversiones" />
                 </Link>
 
