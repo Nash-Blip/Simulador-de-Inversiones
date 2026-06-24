@@ -31,7 +31,7 @@ interface GraficoActivoProps {
     precioActual: number;
 }
 
-export default function GraficoActivo({ id, ticker, precioActual }: GraficoActivoProps) {
+export default function GraficoActivo({ id, precioActual }: GraficoActivoProps) {
     const [historial, setHistorial] = useState<number[]>([]);
     const [cargando, setCargando] = useState(true);
 
