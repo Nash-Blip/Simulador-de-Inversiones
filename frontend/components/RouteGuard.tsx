@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import { useAuth } from '@/app/auth/AuthContext';
 import { InversorRol } from '@/types';
 
@@ -13,27 +13,13 @@ interface RouteGuardProps {
 export default function RouteGuard({ allowedRole, redirectTo, children }: RouteGuardProps) {
     const { inversor, loading } = useAuth();
 
-    const redirect = useCallback(() => {
-        window.location.replace(redirectTo);
-    }, [redirectTo]);
-
     useEffect(() => {
         if (!loading && inversor) {
             if (inversor.rol !== allowedRole) {
-                redirect();
+                window.location.replace(redirectTo);
             }
         }
-    }, [loading, inversor, allowedRole, redirect]);
-
-    useEffect(() => {
-        const handlePageShow = (event: PageTransitionEvent) => {
-            if (event.persisted) {
-                redirect();
-            }
-        };
-        window.addEventListener('pageshow', handlePageShow);
-        return () => window.removeEventListener('pageshow', handlePageShow);
-    }, [redirect]);
+    }, [loading, inversor, allowedRole, redirectTo]);
 
     if (loading) {
         return <p className="text-center mt-10 text-gray-400 animate-pulse">Cargando...</p>;

@@ -2,11 +2,27 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
 const PROTECTED_HEADERS = { 'Cache-Control': 'no-store, no-cache, must-revalidate' };
+const COOKIE_LAST_PATH = 'last_valid_path';
 
-function noStore(response: NextResponse): NextResponse {
+const ROL_HOME: Record<string, string> = {
+    admin: '/admin/inversores',
+    user: '/mercado',
+};
+
+function withNoStore(response: NextResponse): NextResponse {
     for (const [key, value] of Object.entries(PROTECTED_HEADERS)) {
         response.headers.set(key, value);
     }
+    return response;
+}
+
+function setLastPathCookie(response: NextResponse, pathname: string): NextResponse {
+    response.cookies.set(COOKIE_LAST_PATH, pathname, {
+        httpOnly: false,
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 60 * 60 * 24,
+    });
     return response;
 }
 
@@ -37,21 +53,27 @@ export function proxy(request: NextRequest) {
     try {
         const base64Url = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
         const payload = JSON.parse(atob(base64Url));
-        const role = payload.rol;
+        const role: string = payload.rol;
 
         if (role === 'admin' && isUserRoute) {
-            return NextResponse.redirect(new URL('/admin/inversores', request.url));
+            const lastValid = request.cookies.get(COOKIE_LAST_PATH)?.value;
+            return NextResponse.redirect(new URL(lastValid || ROL_HOME.admin, request.url));
         }
 
         if (role === 'user' && isAdminRoute) {
-            return NextResponse.redirect(new URL('/mercado', request.url));
+            const lastValid = request.cookies.get(COOKIE_LAST_PATH)?.value;
+            return NextResponse.redirect(new URL(lastValid || ROL_HOME.user, request.url));
         }
 
         if (isAuthRoute) {
-            return NextResponse.redirect(new URL(role === 'admin' ? '/admin/inversores' : '/mercado', request.url));
+            return NextResponse.redirect(new URL(ROL_HOME[role] || ROL_HOME.user, request.url));
         }
 
-        return noStore(NextResponse.next());
+        if (isProtectedRoute) {
+            return setLastPathCookie(withNoStore(NextResponse.next()), pathname);
+        }
+
+        return withNoStore(NextResponse.next());
     } catch {
         if (isProtectedRoute) {
             return NextResponse.redirect(new URL('/auth/login', request.url));
