@@ -26,7 +26,6 @@ const mockActivo: Activo = {
 
 describe('Activo Service', () => {
   
-  // Limpiamos los mocks antes de cada test para que no se interfieran
   beforeEach(() => {
     jest.resetAllMocks();
     global.fetch = jest.fn();
@@ -34,7 +33,6 @@ describe('Activo Service', () => {
 
   describe('CreateActivo', () => {
     it('debería crear un activo correctamente y retornar su JSON', async () => {
-      // Configuramos fetch para simular una respuesta exitosa (ok: true)
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: jest.fn().mockResolvedValueOnce(mockActivo),
@@ -42,7 +40,6 @@ describe('Activo Service', () => {
 
       const result = await CreateActivo('Bitcoin', 'BTC', 50000);
 
-      // Verificaciones
       expect(global.fetch).toHaveBeenCalledWith(`${API_URL}/activo`, {
         method: 'POST',
         headers: { 'Content-type': 'application/json' },
@@ -59,7 +56,6 @@ describe('Activo Service', () => {
         json: jest.fn().mockResolvedValueOnce({ message: errorMessage }),
       });
 
-      // Verificamos que lance la excepción esperada
       await expect(CreateActivo('Bitcoin', 'BTC', 50000))
         .rejects
         .toThrow(errorMessage);
@@ -85,7 +81,6 @@ describe('Activo Service', () => {
 
   describe('getListActivos', () => {
     it('debería retornar el array dentro de json.data', async () => {
-      // Notar que tu función desestructura retornando json.data
       (global.fetch as jest.Mock).mockResolvedValueOnce({
         ok: true,
         json: jest.fn().mockResolvedValueOnce({ data: [mockActivo] }),
