@@ -2,7 +2,7 @@ import { ConflictException, Injectable, NotFoundException } from '@nestjs/common
 import { CreateActivoDto } from './dto/input/create-activo.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Activo } from './entities/activo.entity';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 import { TipoTransaccion } from '@/transaccion/transaccion.entity';
 import { UpdateActivoDto } from './dto/input/update-activo.dto';
 import { formatearRespuestaPaginada } from '@/common/utils/pagination.util';
@@ -16,7 +16,7 @@ export class ActivoService {
   ) { }
 
   async create(dto: CreateActivoDto) {
-    await this.validarActivoDuplicado(dto.nombre,dto.ticker);
+    await this.validarActivoDuplicadoCreate(dto.nombre,dto.ticker);
 
     const activo = this.activoRepo.create({
       nombre: dto.nombre,
@@ -37,7 +37,7 @@ export class ActivoService {
       throw new NotFoundException(`No se encontró el Activo con ID ${id}`);
     }
 
-    await this.validarActivoDuplicado(dto.nombre,dto.ticker);
+    await this.validarActivoDuplicadoUpdate(dto.nombre,dto.ticker,id);
 
     const { nombre, ticker } = dto;
     return await this.activoRepo.save({
@@ -123,14 +123,25 @@ export class ActivoService {
     return nuevoPrecio;
   }
 
-  private async validarActivoDuplicado(nombre: string, ticker: string){
+  private async validarActivoDuplicadoUpdate(nombre: string, ticker: string, id: number){
+    const existeNombre = await this.activoRepo.findOneBy({ nombre: nombre, id: Not(id) });
+    if (existeNombre) {
+      throw new ConflictException(`El Activo ${nombre} ya existe.`);
+    }
+    const existeTicker = await this.activoRepo.findOneBy({ ticker: ticker, id: Not(id) });
+    if (existeTicker) {
+      throw new ConflictException(`El activo con el ticker ${ticker} ya existe.`);
+    }
+  }
+
+  private async validarActivoDuplicadoCreate(nombre: string, ticker: string){ 
     const existeNombre = await this.activoRepo.findOneBy({ nombre: nombre });
     if (existeNombre) {
       throw new ConflictException(`El Activo ${nombre} ya existe.`);
     }
     const existeTicker = await this.activoRepo.findOneBy({ ticker: ticker });
     if (existeTicker) {
-      throw new ConflictException(`El activo con el ticker ${ticker} ya existe.`)
+      throw new ConflictException(`El activo con el ticker ${ticker} ya existe.`);
     }
   }
 }
