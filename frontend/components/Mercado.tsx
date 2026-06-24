@@ -32,10 +32,11 @@ export default function Mercado() {
 
     const [pagina, setPagina] = useState<number>(1);
     const [totalPaginas, setTotalPaginas] = useState<number>(1);
+    const [search, setSearch] = useState("");
 
     const fetchActivos = useCallback(async () => {
         try {
-            const json = await getActivosPaginados(pagina);
+            const json = await getActivosPaginados(pagina, search);
             console.log(json);
             setActivos(json.data);
             setTotalPaginas(json.meta.totalPages);
@@ -49,7 +50,7 @@ export default function Mercado() {
         } catch (error) {
             console.error("Error fetching activos:", error);
         }
-    }, [pagina]);
+    }, [pagina, search]);
 
     const fetchInversor = async () => {
         try {
@@ -70,6 +71,10 @@ export default function Mercado() {
 
         return () => clearInterval(interval);
     }, [fetchActivos]);
+
+    useEffect(() => {
+        setPagina(1);
+    }, [search]);
 
     function handleSelect(select: Activo) {
         setActivoSeleccionado(select);
@@ -156,10 +161,21 @@ export default function Mercado() {
 
             <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400 text-center mb-6">Mercado</h1>
 
-            <div className={`w-full max-w-7xl mx-auto grid grid-cols-1 gap-6 transition-all duration-300 ${activoSeleccionado ? "lg:grid-cols-[1fr_384px]" : "lg:grid-cols-1"}`}>
+            <div className="w-full max-w-6xl mx-auto mb-4">
+                <input
+                    type="text"
+                    placeholder="Buscar por nombre o ticker..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    maxLength={25}
+                    className="w-full sm:w-64 bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                />
+            </div>
+
+            <div className={`w-full max-w-6xl mx-auto grid grid-cols-1 gap-6 transition-all duration-300 ${activoSeleccionado ? "lg:grid-cols-[1fr_384px]" : "lg:grid-cols-1"}`}>
 
                 {/* Tabla de Activos */}
-                <div className="w-full bg-[#0b0f19] rounded-xl border-2 p-4 md:p-6 overflow-x-auto h-fit">
+                <div className="w-full bg-[#0b0f19] rounded-xl border-2 p-4 md:p-6 overflow-x-auto">
                     <table className="w-full text-center border-collapse min-w-[175px]">
                         <thead>
                             <tr className="font-bold text-white border-b border-gray-800">
@@ -209,6 +225,14 @@ export default function Mercado() {
                             })}
                         </tbody>
                     </table>
+                    {activos.length === 0 && (
+                        <div className="text-center py-12 text-gray-500">
+                            {search
+                                ? `No se encontraron activos que coincidan con "${search}".`
+                                : "No hay activos disponibles."
+                            }
+                        </div>
+                    )}
                     {totalPaginas > 1 && (
                         <div className="flex justify-center items-center gap-6 mt-6 pt-4 border-t border-gray-800">
                             <button
