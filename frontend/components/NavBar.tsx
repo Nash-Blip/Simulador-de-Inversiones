@@ -2,9 +2,31 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
+import { useAuth } from '@/app/auth/AuthContext'; 
+
 
 export default function NavBar() {
     const [isOpen, setIsOpen] = useState(false);
+    const { inversor, loading } = useAuth(); 
+    const { logout } = useAuth();
+
+    
+    const handleLogout = async () => {
+        setIsOpen(false);
+        try {
+            await logout();            
+            window.location.href = "/";
+        } catch
+        {
+            window.location.href = "/";
+        }
+    };
+
+    
+    const obtenerRutaSimulador = () => {
+        if (!inversor) return "/";
+        return inversor.rol === "admin" ? "/admin/inversores" : "/mercado";
+    };
 
     return (
         <>
@@ -42,20 +64,45 @@ export default function NavBar() {
                         ${isOpen ? 'translate-x-0 opacity-100 block' : '-translate-x-full opacity-0 hidden md:flex md:opacity-100 md:translate-x-0'}
                     `}>
                         <div className="flex flex-col md:flex-row md:mx-6">
-                            <Link
-                                href="/auth/login"
-                                className="my-2 text-mark font-semibold transition-colors duration-300 transform hover:text-blue-500 md:mx-4 md:my-0"
-                                onClick={() => setIsOpen(false)} 
-                            >
-                                Login
-                            </Link>
-                            <Link
-                                href="/auth/register"
-                                className="my-2 text-mark font-semibold transition-colors duration-300 transform hover:text-blue-500 md:mx-4 md:my-0"
-                                onClick={() => setIsOpen(false)}
-                            >
-                                Registro
-                            </Link>
+
+                            {/* ⏳ Mientras verifica la sesión, dejamos un esqueleto o espacio vacío para evitar saltos visuales */}
+                            {loading ? (
+                                <span className="my-2 text-mark font-semibold text-gray-400 md:mx-4 md:my-0">Cargando...</span>
+                            ) : inversor ? (                                
+                                <>
+                                    <Link
+                                        href={obtenerRutaSimulador()}
+                                        className="my-2 text-mark font-semibold text-blue-600 transition-colors duration-300 transform hover:text-blue-500 md:mx-4 md:my-0"
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        Ir al Simulador
+                                    </Link>
+                                    <button
+                                        onClick={handleLogout}
+                                        className="my-2 text-mark font-semibold text-red-600 text-left transition-colors duration-300 transform hover:text-red-500 md:mx-4 md:my-0 cursor-pointer"
+                                    >
+                                        Cerrar Sesión
+                                    </button>
+                                </>
+                            ) : (
+                                
+                                <>
+                                    <Link
+                                        href="/auth/login"
+                                        className="my-2 text-mark font-semibold transition-colors duration-300 transform hover:text-blue-500 md:mx-4 md:my-0"
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        Login
+                                    </Link>
+                                    <Link
+                                        href="/auth/register"
+                                        className="my-2 text-mark font-semibold transition-colors duration-300 transform hover:text-blue-500 md:mx-4 md:my-0"
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        Registro
+                                    </Link>
+                                </>
+                            )}
                         </div>
                     </div>
 

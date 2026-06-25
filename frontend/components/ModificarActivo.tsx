@@ -1,5 +1,5 @@
 'use client';
-import { SyntheticEvent, useState, useEffect } from 'react';
+import { SyntheticEvent, useState, useEffect, useCallback } from 'react';
 import { Activo } from '@/types/index';
 import { getActivo, ModificarActivo } from '@/service/Activo.service';
 import Link from 'next/link';
@@ -11,17 +11,21 @@ export default function ModificarActivoPage() {
     const [ticker, setTicker] = useState('');
     const [message, setMessage] = useState('');
 
-    useEffect(() => {
-        const fetchActivos = async () => {
-            try {
-                const data = await getActivo();
-                setActivos(data);
-            } catch (err) {
-                console.error(err);
-            }
+    const fetchActivos = useCallback(async () => {
+        try {
+            const data = await getActivo();
+            setActivos(data);
+        } catch (err) {
+            console.error(err);
         }
-        fetchActivos();
     }, []);
+
+    useEffect(() => {
+        const initFetch = async () => {
+            await fetchActivos();
+        };
+        initFetch();
+    }, [fetchActivos]);
 
     function handleSelect(activo: Activo) {
         setActivoSeleccionado(activo);
@@ -30,18 +34,20 @@ export default function ModificarActivoPage() {
         setMessage('');
     }
 
-    function handleSubmit(e: SyntheticEvent) {
+    async function handleSubmit(e: SyntheticEvent) {
         e.preventDefault();
-        const fetchModificar = async () => {
-            try {
-                await ModificarActivo(activoSeleccionado!.id, nombre, ticker);
-                window.location.reload();
-                setMessage('Activo modificado con éxito.');
-            } catch (err) {
-                setMessage(err instanceof Error ? err.message : 'Error al modificar el activo');
-            }
+        if (!activoSeleccionado) return;
+
+        try {
+            await ModificarActivo(activoSeleccionado.id, nombre, ticker);
+            setMessage('Activo modificado con éxito.');
+        
+            await fetchActivos(); 
+            
+            setActivoSeleccionado(null);
+        } catch (err) {
+            setMessage(err instanceof Error ? err.message : 'Error al modificar el activo');
         }
-        fetchModificar();
     }
 
     return (
@@ -66,14 +72,14 @@ export default function ModificarActivoPage() {
                         <select
                             className="bg-gray-900 border border-gray-800 rounded-lg px-4 py-3 text-white focus:outline-none focus:border-blue-500"
                             onChange={(e) => {
-                                const activo = activos.find(a => a.id === Number(e.target.value));
+                                const activo = activos.find(a => String(a.id) === e.target.value);
                                 if (activo) handleSelect(activo);
                             }}
-                            defaultValue=""
+                            value={activoSeleccionado?.id || ""}
                         >
                             <option value="" disabled>Seleccioná un activo</option>
-                            {activos.map((activos) => (
-                                <option key={activos.id} value={activos.id}>{activos.ticker} - {activos.nombre}</option>
+                            {activos.map((act) => (
+                                <option key={act.id} value={act.id}>{act.ticker} - {act.nombre}</option>
                             ))}
                         </select>
                     </div>
@@ -100,7 +106,7 @@ export default function ModificarActivoPage() {
                             </div>
 
                             {message && (
-                                <div className={`text-xs p-2 rounded-lg text-center font-medium animate-pulse ${message.includes('éxito') ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}`}>
+                                <div className={`text-xs p-2 rounded-lg text-center font-medium ${message.includes('éxito') ? 'bg-green-900/30 text-green-400' : 'bg-red-900/30 text-red-400'}`}>
                                     {message}
                                 </div>
                             )}

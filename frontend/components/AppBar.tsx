@@ -4,8 +4,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Inversor } from "../types/index";
-import { logout } from '@/service/Auth.service';
 import { getInversor } from '@/service/Inversor.service';
+import { useAuth } from "@/app/auth/AuthContext";
 
 export default function AppBar() {
     const pathname = usePathname();
@@ -16,6 +16,7 @@ export default function AppBar() {
     const [loading, setLoading] = useState(true);
 
     const [isOpen, setIsOpen] = useState(false);
+    const { logout } = useAuth();    
 
     useEffect(() => {
         const obtenerPerfil = async () => {

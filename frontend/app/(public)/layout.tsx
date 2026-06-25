@@ -3,6 +3,7 @@ import { Montserrat } from "next/font/google";
 import "../globals.css";
 import NavBar from "@/components/NavBar";
 import Footer from "@/components/Footer";
+import { AuthProvider } from "../auth/AuthContext";
 
 const montserrat = Montserrat({
     subsets: ["latin"],
@@ -21,11 +22,13 @@ export default function PublicLayout({
 }>) {
     return (
         <div>
+            <AuthProvider>
             <NavBar />
             <main className="flex-1 flex flex-col">
                 {children}
             </main>
             <Footer />
+            </AuthProvider>
         </div>
     );
 }

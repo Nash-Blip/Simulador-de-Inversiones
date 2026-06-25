@@ -3,10 +3,18 @@
 import { useState, useEffect } from "react";
 import { Activo } from "@/types/index";
 
+interface Tenencia {
+    activo: Activo;
+    cantidad: number;
+    rendimiento: number;
+    precioCompra: number;
+}
+
 interface TarjetaProps {
-    tenencia: any; 
+    tenencia: Tenencia; 
     onVender: (activo: Activo, cantidad: number) => void;
 }
+
 
 import React from "react";
 
