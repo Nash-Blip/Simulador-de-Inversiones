@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import PortafolioComp from './Portafolio';
 import { getPortafolio } from '../service/Inversor.service';
@@ -116,7 +116,7 @@ describe('Componente Portafolio', () => {
 
     expect(screen.getAllByText(/aapl/i).length).toBeGreaterThanOrEqual(2);
 
-    jest.advanceTimersByTime(4000);
+    act(() => { jest.advanceTimersByTime(4000); });
 
     await waitFor(() => {
       expect(screen.queryByText(/procesada/i)).not.toBeInTheDocument();

@@ -8,6 +8,10 @@ jest.mock('@/app/auth/AuthContext', () => ({
   useAuth: jest.fn(),
 }));
 
+beforeAll(() => {
+  jest.spyOn(console, 'error').mockImplementation();
+});
+
 describe('Componente RouteGuard', () => {
   beforeEach(() => {
     jest.clearAllMocks();

@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { act, render, screen, fireEvent, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import ListTransaccionesAdmin from './ListTransacciones';
 import { getTransacciones } from '../service/ListTransacciones.service';
@@ -94,7 +94,7 @@ describe('Componente ListTransaccionesAdmin', () => {
     });
 
     // Adelantamos el reloj artificialmente 5 segundos
-    jest.advanceTimersByTime(5000);
+    act(() => { jest.advanceTimersByTime(5000); });
 
     await waitFor(() => {
       expect(getTransacciones).toHaveBeenCalledTimes(2);

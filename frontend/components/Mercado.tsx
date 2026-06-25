@@ -37,7 +37,6 @@ export default function Mercado() {
     const fetchActivos = useCallback(async () => {
         try {
             const json = await getActivosPaginados(pagina, search);
-            console.log(json);
             setActivos(json.data);
             setTotalPaginas(json.meta.totalPages);
 
