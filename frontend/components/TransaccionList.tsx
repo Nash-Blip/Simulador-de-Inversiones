@@ -105,7 +105,7 @@ export default function TransaccionList() {
                             <thead>
                                 <tr className="font-bold text-white border-b border-gray-800">
                                     <th className="pb-4 px-2 text-left">Tipo</th>
-                                    <th className="pb-4 px-2">Ticker</th>
+                                    <th className="pb-4 px-2">Ticker/Nombre</th>
                                     <th className="pb-4 px-2">Cantidad</th>
                                     <th className="pb-4 px-2">Precio Ejecutado</th>
                                     <th className="pb-4 px-2">Monto Total</th>
@@ -125,8 +125,13 @@ export default function TransaccionList() {
                                                     {transaccion.tipoTransaccion}
                                                 </span>
                                             </td>
-                                            <td className="py-4 px-2">
-                                                <strong className="text-blue-400 font-semibold">{transaccion.ticker}</strong>
+                                            <td className="py-4 px-2 text-left">
+                                                <span className="block">
+                                                    <strong className="text-blue-400 font-semibold">{transaccion.ticker}</strong>
+                                                    {transaccion.nombre && (
+                                                        <span className="text-xs text-gray-400 block mt-0.5">{transaccion.nombre}</span>
+                                                    )}
+                                                </span>
                                             </td>
                                             <td className="py-4 px-2 text-white font-medium">
                                                 {transaccion.cantidad}

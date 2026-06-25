@@ -102,7 +102,7 @@ export default function ListTransaccionesAdmin() {
                             <thead>
                                 <tr className="font-bold text-white border-b border-gray-800">
                                     <th className="pb-4 px-2 text-left">Tipo</th>
-                                    <th className="pb-4 px-2">Ticker</th>
+                                    <th className="pb-4 px-2">Ticker/Nombre</th>
                                     <th className="pb-4 px-2">Cantidad</th>
                                     <th className="pb-4 px-2">Precio Ejecutado</th>
                                     <th className="pb-4 px-2">Monto Total</th>
@@ -121,7 +121,14 @@ export default function ListTransaccionesAdmin() {
                                                     {transaccion.tipoTransaccion}
                                                 </span>
                                             </td>
-                                            <td className="py-4 px-2"><strong className="text-blue-400 font-semibold">{transaccion.ticker}</strong></td>
+                                            <td className="py-4 px-2 text-left">
+                                                <span className="block">
+                                                    <strong className="text-blue-400 font-semibold">{transaccion.ticker}</strong>
+                                                    {transaccion.nombre && (
+                                                        <span className="text-xs text-gray-400 block mt-0.5">{transaccion.nombre}</span>
+                                                    )}
+                                                </span>
+                                            </td>
                                             <td className="py-4 px-2 text-white font-medium">{transaccion.cantidad}</td>
                                             <td className="py-4 px-2 text-gray-300">${precioOperado.toFixed(2)}</td>
                                             <td className="py-4 px-2 text-white font-semibold">${transaccion.precioEjecutado.toFixed(2)}</td>

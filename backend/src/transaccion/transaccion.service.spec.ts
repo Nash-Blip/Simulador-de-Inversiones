@@ -56,7 +56,7 @@ describe('TransaccionService', () => {
     it('debería retornar datos paginados y mapeados por defecto (Página 1)', async () => {
       const queryDto: GetTransaccionesQueryDto = { page: 1 } as any;
       const mockTransacciones = [
-        { id: 1, tipoTransaccion: TipoTransaccion.COMPRA, cantidad: 10, precioEjecutado: 500, fecha: new Date(), activo: { ticker: 'AAPL' } }
+        { id: 1, tipoTransaccion: TipoTransaccion.COMPRA, cantidad: 10, precioEjecutado: 500, fecha: new Date(), activo: { ticker: 'AAPL', nombre: 'Apple Inc.' } }
       ];
       mockQueryBuilder.getManyAndCount.mockResolvedValue([mockTransacciones, 1]);
 
@@ -68,6 +68,7 @@ describe('TransaccionService', () => {
       expect(mockQueryBuilder.take).toHaveBeenCalledWith(10);
       
       expect(result.data[0].ticker).toBe('AAPL');
+      expect(result.data[0].nombre).toBe('Apple Inc.');
       expect(result.meta.totalPages).toBe(1);
       expect(result.meta.currentPage).toBe(1);
     });

@@ -38,6 +38,7 @@ export class TransaccionService {
             precioEjecutado: t.precioEjecutado,
             fecha: t.fecha,
             ticker: t.activo ? t.activo.ticker : null,
+            nombre: t.activo ? t.activo.nombre : null,
         }));
 
         return formatearRespuestaPaginada(data, totalItems, page, LIMIT_FIJO);
@@ -70,6 +71,7 @@ export class TransaccionService {
             precioEjecutado: t.precioEjecutado,
             fecha: t.fecha,
             ticker: t.activo ? t.activo.ticker : null,
+            nombre: t.activo ? t.activo.nombre : null,
         }));
 
         return formatearRespuestaPaginada(data, totalItems, page, LIMIT_FIJO);

@@ -67,6 +67,7 @@ export type TransaccionHistorial = {
     precioEjecutado: number;
     fecha: Date;
     ticker: string | null;
+    nombre: string | null;
 }
 
 export type Perfil = {
