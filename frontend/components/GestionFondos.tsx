@@ -34,12 +34,14 @@ export default function GestionFondos() {
 
     const handleTransfChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
+        if (name === "monto" && !/^\d*\.?\d*$/.test(value)) return;
         if (name === "cbu" && (!/^\d*$/.test(value) || value.length > 22)) return;
         setFormTransf(prev => ({ ...prev, [name]: value }));
     };
 
     const handleTarjetaChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
+        if (name === "monto" && !/^\d*\.?\d*$/.test(value)) return;
         if (name === "numeroTarjeta" && (!/^\d*$/.test(value) || value.length > 16)) return;
         if (name === "cvv" && (!/^\d*$/.test(value) || value.length > 4)) return;
         setFormTarjeta(prev => ({ ...prev, [name]: value }));
@@ -192,9 +194,7 @@ export default function GestionFondos() {
                             <input
                                 required
                                 name="monto"
-                                type="number"
-                                min="1"
-                                step="any"
+                                type="text"
                                 placeholder="0.00"
                                 value={formTransf.monto}
                                 onChange={handleTransfChange}
@@ -238,9 +238,7 @@ export default function GestionFondos() {
                             <input
                                 required
                                 name="monto"
-                                type="number"
-                                min="1"
-                                step="any"
+                                type="text"
                                 placeholder="0.00"
                                 value={formTarjeta.monto}
                                 onChange={handleTarjetaChange}

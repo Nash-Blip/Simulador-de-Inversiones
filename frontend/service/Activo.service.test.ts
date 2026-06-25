@@ -3,6 +3,7 @@ import {
   ModificarActivo, 
   getListActivos, 
   getActivosPaginados, 
+  getActivo,
   getActivoById, 
   comprarActivo, 
   venderActivo 
@@ -77,6 +78,28 @@ describe('Activo Service', () => {
       }));
       expect(result.nombre).toBe('Bitcoin Editado');
     });
+
+    it('debería lanzar error con el mensaje del servidor si la respuesta no es OK', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        json: jest.fn().mockResolvedValueOnce({ message: 'Activo no encontrado' }),
+      });
+
+      await expect(ModificarActivo(999, 'X', 'XYZ'))
+        .rejects
+        .toThrow('Activo no encontrado');
+    });
+
+    it('debería lanzar error genérico si falla y no hay mensaje en la respuesta', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        json: jest.fn().mockResolvedValueOnce({}),
+      });
+
+      await expect(ModificarActivo(1, 'X', 'XYZ'))
+        .rejects
+        .toThrow('Error al modificar el activo.');
+    });
   });
 
   describe('getListActivos', () => {
@@ -90,6 +113,28 @@ describe('Activo Service', () => {
 
       expect(global.fetch).toHaveBeenCalledWith(`${API_URL}/activo`, expect.objectContaining({ method: 'GET' }));
       expect(result).toEqual([mockActivo]);
+    });
+
+    it('debería lanzar error con el mensaje del servidor si la respuesta no es OK', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        json: jest.fn().mockResolvedValueOnce({ message: 'Error interno' }),
+      });
+
+      await expect(getListActivos())
+        .rejects
+        .toThrow('Error interno');
+    });
+
+    it('debería lanzar error genérico si falla y no hay mensaje en la respuesta', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        json: jest.fn().mockResolvedValueOnce({}),
+      });
+
+      await expect(getListActivos())
+        .rejects
+        .toThrow('Error al obtener los activos.');
     });
   });
 
@@ -105,6 +150,88 @@ describe('Activo Service', () => {
 
       expect(global.fetch).toHaveBeenCalledWith(`${API_URL}/activo?page=2`, expect.any(Object));
       expect(result).toEqual(mockPaginacion);
+    });
+
+    it('debería usar página 1 por defecto si no se pasa argumento', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: jest.fn().mockResolvedValueOnce({ data: [], total: 0 }),
+      });
+
+      await getActivosPaginados();
+
+      expect(global.fetch).toHaveBeenCalledWith(`${API_URL}/activo?page=1`, expect.any(Object));
+    });
+
+    it('debería incluir el parámetro search en la URL', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: jest.fn().mockResolvedValueOnce({ data: [], total: 0 }),
+      });
+
+      await getActivosPaginados(1, 'amazon');
+
+      expect(global.fetch).toHaveBeenCalledWith(`${API_URL}/activo?page=1&search=amazon`, expect.any(Object));
+    });
+
+    it('debería lanzar error con el mensaje del servidor si la respuesta no es OK', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        json: jest.fn().mockResolvedValueOnce({ message: 'Sin acceso' }),
+      });
+
+      await expect(getActivosPaginados(1))
+        .rejects
+        .toThrow('Sin acceso');
+    });
+
+    it('debería lanzar error genérico si falla y no hay mensaje en la respuesta', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        json: jest.fn().mockResolvedValueOnce({}),
+      });
+
+      await expect(getActivosPaginados(1))
+        .rejects
+        .toThrow('Error al obtener los activos existentes.');
+    });
+  });
+
+  describe('getActivo', () => {
+    it('debería obtener todos los activos desde /activo/list', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: true,
+        json: jest.fn().mockResolvedValueOnce([mockActivo]),
+      });
+
+      const result = await getActivo();
+
+      expect(global.fetch).toHaveBeenCalledWith(`${API_URL}/activo/list`, expect.objectContaining({
+        credentials: 'include',
+      }));
+      expect(result).toEqual([mockActivo]);
+    });
+
+    it('debería lanzar error con el mensaje del servidor si la respuesta no es OK', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        json: jest.fn().mockResolvedValueOnce({ message: 'Error de conexión' }),
+      });
+
+      await expect(getActivo())
+        .rejects
+        .toThrow('Error de conexión');
+    });
+
+    it('debería lanzar error genérico si falla y no hay mensaje en la respuesta', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        json: jest.fn().mockResolvedValueOnce({}),
+      });
+
+      await expect(getActivo())
+        .rejects
+        .toThrow('Error al obtener los activos existentes.');
     });
   });
 
@@ -147,6 +274,28 @@ describe('Activo Service', () => {
       }));
       expect(result).toEqual({ success: true });
     });
+
+    it('debería lanzar error con el mensaje del servidor si la respuesta no es OK', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        json: jest.fn().mockResolvedValueOnce({ message: 'Saldo insuficiente' }),
+      });
+
+      await expect(comprarActivo(1, 999))
+        .rejects
+        .toThrow('Saldo insuficiente');
+    });
+
+    it('debería lanzar error genérico si falla y no hay mensaje en la respuesta', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        json: jest.fn().mockResolvedValueOnce({}),
+      });
+
+      await expect(comprarActivo(1, 5))
+        .rejects
+        .toThrow('No se pudo comprar el Activo seleccionado.');
+    });
   });
 
   describe('venderActivo', () => {
@@ -163,6 +312,28 @@ describe('Activo Service', () => {
         body: JSON.stringify({ activoId: mockActivo.id, cantidad: 10 })
       }));
       expect(result).toEqual({ success: true });
+    });
+
+    it('debería lanzar error con el mensaje del servidor si la respuesta no es OK', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        json: jest.fn().mockResolvedValueOnce({ message: 'No tienes suficientes acciones' }),
+      });
+
+      await expect(venderActivo(mockActivo, 999))
+        .rejects
+        .toThrow('No tienes suficientes acciones');
+    });
+
+    it('debería lanzar error genérico si falla y no hay mensaje en la respuesta', async () => {
+      (global.fetch as jest.Mock).mockResolvedValueOnce({
+        ok: false,
+        json: jest.fn().mockResolvedValueOnce({}),
+      });
+
+      await expect(venderActivo(mockActivo, 5))
+        .rejects
+        .toThrow('No se pudo vender el activo seleccionado.');
     });
   });
 });
