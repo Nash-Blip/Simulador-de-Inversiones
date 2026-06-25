@@ -1,12 +1,12 @@
 > **Proyecto:** Simulador de Inversiones
 
-> **Versión del documento:** 1.4
+> **Versión del documento:** 2.0
 
-> **Fecha:** 2026-06-16
+> **Fecha:** 2026-06-25
 
 > **Autor(es):** Alejo Suarez / Matias Fernandez / Pablo Duval / Ramiro Gomez Rivelli / Agustin Begue
 
-> **Estado:** `En revisión`
+> **Estado:** `Aprobado`
 
 ---
 
@@ -28,6 +28,7 @@
 | 1.3     | 2026-05-21 | [Agustin Begue]| Ajuste en criterios de autorizacion RF-003 al RF-006 |    
 | 1.4     | 2026-06-16 | [Agustin Begue]| Correcciones del docente + Nuevos requerimientos funcionales del sistema |
 | 1.5     | 2026-06-20 | [Alejo Suarez] | Incorporacion de RNF-005 |
+| 2.0     | 2026-06-25 | [Agustin Begue]| Correccion final |
 
 ---
 
@@ -47,12 +48,12 @@
 > El usuario interesado en operar en la plataforma accederá a la página de registro, donde se le presentará un formulario para ingresar sus datos personales (nombre completo, correo electrónico, contraseña). El sistema contará con un botón para confirmar el registro. 
 
 ```
-El sistema debe permitir dar de alta a un nuevo inversor siempre y cuando el correo electrónico ingresado no se encuentre registrado previamente y la contraseña cumpla con las políticas de seguridad. En el caso en que esta operación sea exitosa, se creará el perfil del usuario, se le asignará una billetera digital con un saldo inicial de $10000, e iniciará sesión automaticamente al sistema.
+El sistema debe permitir dar de alta a un nuevo inversor siempre y cuando el correo electrónico ingresado no se encuentre registrado previamente y la contraseña cumpla con las políticas de seguridad "La contraseña debe tener al menos 6 caracteres". En el caso en que esta operación sea exitosa, se creará el perfil del usuario, se le asignará una billetera digital con un saldo inicial de $10000, e iniciará sesión automaticamente al sistema.
 ```
 
 #### Criterios de Aceptación
 - [x] El sistema debe mostrar un mensaje de error claro si alguno de los campos obligatorios del formulario queda vacío.
-- [x] El servidor debe validar en tiempo real que el formato del correo electrónico sea válido y que las contraseñas coincidan.
+- [x] El servidor debe validar en tiempo real que el formato del correo electrónico sea válido y que la contraseña coincida.
 - [x] El servidor retorna el código HTTP `201 Created` en caso de que la operación de registro sea exitosa.
 - [x] El servidor retorna el código HTTP `409 Conflict` en caso de que el correo electrónico ya exista en el sistema o los datos enviados no cumplan con las validaciones de negocio.
 
@@ -152,7 +153,7 @@ se realizaran desde el portafolio lo que imposibilitará al usuario a vender un 
 | **Nombre**    | Creacion de Activos |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Baja`         |
-| **Estado**    | `En desarrollo`|
+| **Estado**    | `Completado`|
 ---
 
 #### Descripción
@@ -181,7 +182,7 @@ el activo debe integrarse y mostrarse dinámicamente en el listado principal de 
 | **Nombre**    | Modificación de Activos |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Baja`         |
-| **Estado**    | `En desarrollo`|
+| **Estado**    | `Completado`|
 ---
 
 #### Descripción
@@ -212,16 +213,16 @@ en toda la plataforma, incluyendo el portafolio de los usuarios que ya posean di
 | **Nombre**    | Registro de Transacciones del inversor |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Media`        |
-| **Estado**    | `En desarrollo`|
+| **Estado**    | `Completado`|
 ---
 
 #### Descripción
-> El sistema debe permitir a un inversor acceder a una pantalla de historial de transacciones donde se visualizarán todas las operaciones de compra y venta realizadas. La información deberá presentarse de forma paginada y permitir su filtrado por activo.
+> El sistema debe permitir a un inversor acceder a una pantalla de historial de transacciones donde se visualizarán todas las operaciones, solo las de compra o solo las de venta realizadas, según lo que indique el inversor. La información deberá presentarse de forma paginada y permitir su filtrado por nombre o ticker del activo operado. Además, debe permitir filtrar transacciones históricas mediante un rango de fechas (indicando fecha de inicio y fecha de fin). El sistema debe permitir filtrar en simultaneo con todos sus filtros.
 
 ```
 El sistema debe proveer un endpoint que retorne las transacciones asociadas al inversor actual, 
 ordenadas por fecha de creación en orden descendente. Los resultados deben estar paginados en bloques 
-de 10 elementos. El endpoint debe permitir opcionalmente filtrar por activo. 
+de 10 elementos. El endpoint debe permitir opcionalmente filtrar por todas las operaciones, compras o ventas, buscar por nombre o ticker del activo y encontrar transacciones operadas entre un rango de fechas ingresado por el inversor.
 Cada transacción debe incluir: identificador, tipo de operación, activo involucrado, cantidad,
 monto y fecha. La información debe persistirse en la base de datos y recuperarse de forma consistente.
 ```
@@ -230,7 +231,9 @@ monto y fecha. La información debe persistirse en la base de datos y recuperars
 - [x] El servidor debe retornar únicamente las transacciones asociadas al inversor autenticado.
 - [x] El servidor debe paginar los resultados en bloques de 10 transacciones por página.
 - [x] El servidor debe ordenar las transacciones por fecha de creación en orden descendente (más recientes primero).
-- [x] El servidor debe permitir filtrar las transacciones por activo mediante un parámetro opcional.
+- [x] El servidor debe permitir filtrar por todas las transacciones, por las de compra o por las de venta.
+- [x] El servidor debe permitir filtrar las transacciones buscando por nombre o ticker del activo mediante un parámetro opcional.
+- [x] El servidor debe permitir filtrar las transacciones operadas entre un rango de fechas ingresadas por el inversor.
 - [x] El servidor debe garantizar que los datos retornados correspondan a transacciones persistidas en la base de datos.
 - [x] El servidor retorna el código HTTP `500 Internal Server` Error en caso de fallas inesperadas al recuperar la información.
 - [x] Cada transacción debe incluir los siguientes campos obligatorios: (ID de la transacción, Tipo de operación (compra/venta), Activo, Cantidad, Monto, Fecha de creación)
@@ -264,6 +267,8 @@ El sistema debe permitir al inversor autenticado realizar tres operaciones finan
 - [x] El servidor debe validar que el número de tarjeta tenga exactamente 16 dígitos numéricos.
 - [x] El servidor debe validar que el CVV tenga exactamente 3 dígitos.
 - [x] El servidor debe validar que la fecha de vencimiento no sea anterior al mes/año actual.
+- [x] El servidor debe validar que el formato de la fecha de la tarjeta sea MM/AA (MM: Mes, AA: Ultimos dos dígitos del año).
+- [x] El servidor debe validar que el mes ingresado este comprendido entre 01 (Enero) y 12 (Diciembre).
 - [x] El servidor debe validar que el CBU tenga exactamente 22 dígitos numéricos.
 - [x] El servidor debe validar que el monto a retirar no supere el saldo virtual disponible del inversor.
 - [x] El servidor retorna el código HTTP `200 OK` en caso de que la operación sea exitosa.
@@ -447,7 +452,7 @@ El sistema debe implementar un diseño Responsive fluido que asegure que las tab
 | **Tipo**       | No Funcional    |
 | **Categoría**  | `Mantenibilidad`|
 | **Prioridad**  | `Alta`          |
-| **Estado**     | `Pendiente`     |
+| **Estado**     | `Completado`     |
 
 #### Descripción
 > El código debe cumplir con umbrales de mantenibilidad verificables mediante las herramientas ya integradas en el proyecto.
