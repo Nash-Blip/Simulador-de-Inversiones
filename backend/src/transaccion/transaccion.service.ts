@@ -95,8 +95,8 @@ export class TransaccionService {
         }
 
         if (query.fechaInicio && query.fechaFin) {
-            const inicio = new Date(`${query.fechaInicio}T00:00:00.000Z`);
-            const fin = new Date(`${query.fechaFin}T23:59:59.999Z`);
+            const inicio = new Date(`${query.fechaInicio}T00:00:00.000`);
+            const fin = new Date(`${query.fechaFin}T23:59:59.999`);
             queryBuilder.andWhere('transaccion.fecha BETWEEN :inicio AND :fin', { inicio, fin });
         }
 
