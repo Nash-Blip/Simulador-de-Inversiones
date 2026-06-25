@@ -9,22 +9,14 @@ jest.mock('../service/ListTransacciones.service', () => ({
 
 const mockResponsePagina1 = {
   data: [
-<<<<<<< HEAD
     { id: 't1', tipoTransaccion: 'COMPRA', ticker: 'AAPL', nombre: 'Apple Inc.', cantidad: 10, precioEjecutado: 1500, fecha: '2026-06-20T10:00:00.000Z' }
-=======
-    { id: 't1', tipoTransaccion: 'COMPRA', ticker: 'AAPL', cantidad: 10, precioEjecutado: 1500, fecha: '2026-06-20T10:00:00.000Z' }
->>>>>>> develop
   ],
   meta: { totalPages: 2 }
 };
 
 const mockResponsePagina2 = {
   data: [
-<<<<<<< HEAD
     { id: 't2', tipoTransaccion: 'VENTA', ticker: 'GGAL', nombre: 'Grupo Galicia', cantidad: 5, precioEjecutado: 1000, fecha: '2026-06-21T12:00:00.000Z' }
-=======
-    { id: 't2', tipoTransaccion: 'VENTA', ticker: 'GGAL', cantidad: 5, precioEjecutado: 1000, fecha: '2026-06-21T12:00:00.000Z' }
->>>>>>> develop
   ],
   meta: { totalPages: 2 }
 };
@@ -46,10 +38,7 @@ describe('Componente TransaccionList', () => {
 
     expect(getUserTransacciones).toHaveBeenCalledWith(1, 'TODOS', '', undefined, undefined);
     expect(screen.getByText('AAPL')).toBeInTheDocument();
-<<<<<<< HEAD
     expect(screen.getByText('Apple Inc.')).toBeInTheDocument();
-=======
->>>>>>> develop
     expect(screen.getByText('$150.00')).toBeInTheDocument();
   });
 
