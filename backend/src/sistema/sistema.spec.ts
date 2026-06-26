@@ -1,48 +1,53 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { Sistema } from './sistema';
-import { getRepositoryToken } from '@nestjs/typeorm';
-import { Inversor } from '@/inversor/entities/inversor.entity';
-import { TenenciaActivo } from '@/tenenciaActivo/tenenciaActivo.entity';
 import { InversorService } from '@/inversor/inversor.service';
 import { ActivoService } from '@/activo/activo.service';
 import { TransaccionService } from '@/transaccion/transaccion.service';
+import { TenenciaService } from '@/tenenciaActivo/tenencia.service';
 import { TipoTransaccion } from '@/transaccion/transaccion.entity';
 import { BadRequestException } from '@nestjs/common';
-import { Repository } from 'typeorm';
 
 describe('Sistema', () => {
   let sistema: Sistema;
-  let inversorRepo: Repository<Inversor>;
-  let tenenciaRepo: Repository<TenenciaActivo>;
   let inversorService: InversorService;
   let activoService: ActivoService;
   let transaccionService: TransaccionService;
+  let tenenciaService: TenenciaService;
 
-  const mockInversorRepo = { save: jest.fn() };
-  const mockTenenciaRepo = { save: jest.fn(), create: jest.fn(), remove: jest.fn() };
-
-  const mockInversorService = { findOne: jest.fn(), findPortafolio: jest.fn() };
-  const mockActivoService = { findOne: jest.fn(), actualizarActivo: jest.fn() };
-  const mockTransaccionService = { create: jest.fn() };
+  const mockInversorService = {
+    findOne: jest.fn(),
+    findPortafolio: jest.fn(),
+    registrarCompra: jest.fn(),
+    registrarVenta: jest.fn(),
+  };
+  const mockActivoService = {
+    findOne: jest.fn(),
+    actualizarActivo: jest.fn(),
+  };
+  const mockTransaccionService = {
+    create: jest.fn(),
+  };
+  const mockTenenciaService = {
+    verificarTenenciaCompra: jest.fn(),
+    verificarTenenciaVenta: jest.fn(),
+  };
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         Sistema,
-        { provide: getRepositoryToken(Inversor), useValue: mockInversorRepo },
-        { provide: getRepositoryToken(TenenciaActivo), useValue: mockTenenciaRepo },
         { provide: InversorService, useValue: mockInversorService },
         { provide: ActivoService, useValue: mockActivoService },
         { provide: TransaccionService, useValue: mockTransaccionService },
+        { provide: TenenciaService, useValue: mockTenenciaService },
       ],
     }).compile();
 
     sistema = module.get<Sistema>(Sistema);
-    inversorRepo = module.get<Repository<Inversor>>(getRepositoryToken(Inversor));
-    tenenciaRepo = module.get<Repository<TenenciaActivo>>(getRepositoryToken(TenenciaActivo));
     inversorService = module.get<InversorService>(InversorService);
     activoService = module.get<ActivoService>(ActivoService);
     transaccionService = module.get<TransaccionService>(TransaccionService);
+    tenenciaService = module.get<TenenciaService>(TenenciaService);
   });
 
   afterEach(() => {
@@ -55,136 +60,88 @@ describe('Sistema', () => {
 
   describe('procesarCompra', () => {
     const compraDto = { activoId: 1, cantidad: 10 };
-    const inversorMock = { id: 42, saldoVirtual: 5000, portafolio: { costoPortafolio: 1000 } };
+    const inversorMock = { id: 42, saldoVirtual: 5000 };
     const activoMock = { id: 1, precioActual: 200 }; 
     const portafolioMock = { tenencias: [] };
-    const transaccionMock = { cantidad: 10, fecha: new Date(), precioExecuted: 2000, tipoTransaccion: TipoTransaccion.COMPRA };
+    const transaccionMock = { 
+      cantidad: 10, 
+      fecha: new Date(), 
+      precioEjecutado: 200, 
+      tipoTransaccion: TipoTransaccion.COMPRA 
+    };
 
     it('debería procesar la compra exitosamente si el inversor tiene saldo', async () => {
       mockInversorService.findOne.mockResolvedValue(inversorMock);
       mockActivoService.findOne.mockResolvedValue(activoMock);
       mockInversorService.findPortafolio.mockResolvedValue(portafolioMock);
       mockTransaccionService.create.mockResolvedValue(transaccionMock);
-      
-      const verificarCompraSpy = jest.spyOn(sistema, 'verificarTenenciaCompra').mockResolvedValue(undefined);
+      mockTenenciaService.verificarTenenciaCompra.mockResolvedValue(undefined);
+      mockInversorService.registrarCompra.mockResolvedValue(undefined);
 
       const result = await sistema.procesarCompra(compraDto, 42);
 
-      expect(inversorMock.saldoVirtual).toBe(3000);
-      expect(inversorMock.portafolio.costoPortafolio).toBe(3000);
+      expect(mockTenenciaService.verificarTenenciaCompra).toHaveBeenCalledWith(portafolioMock, activoMock, 10);
+      expect(mockTransaccionService.create).toHaveBeenCalledWith(TipoTransaccion.COMPRA, 10, 2000, portafolioMock, activoMock);
       expect(mockActivoService.actualizarActivo).toHaveBeenCalledWith(activoMock, 10, TipoTransaccion.COMPRA);
-      expect(mockInversorRepo.save).toHaveBeenCalledWith(inversorMock);
-      expect(result.cantidad).toBe(10);
+      expect(mockInversorService.registrarCompra).toHaveBeenCalledWith(42, 2000);
       
-      verificarCompraSpy.mockRestore();
+      expect(result.cantidad).toBe(10);
+      expect(result.TipoTransaccion).toBe(TipoTransaccion.COMPRA);
     });
 
     it('debería lanzar BadRequestException si el saldo es insuficiente', async () => {
-      const inversorPobre = { ...inversorMock, saldoVirtual: 500 };
+      const inversorPobre = { ...inversorMock, saldoVirtual: 500 }; 
       mockInversorService.findOne.mockResolvedValue(inversorPobre);
       mockActivoService.findOne.mockResolvedValue(activoMock);
 
       await expect(sistema.procesarCompra(compraDto, 42)).rejects.toThrow(BadRequestException);
-      expect(mockInversorRepo.save).not.toHaveBeenCalled();
+      
+      expect(mockTenenciaService.verificarTenenciaCompra).not.toHaveBeenCalled();
+      expect(mockTransaccionService.create).not.toHaveBeenCalled();
     });
   });
 
   describe('procesarVenta', () => {
     const ventaDto = { activoId: 1, cantidad: 5 };
-    const inversorMock = { id: 42, saldoVirtual: 1000, portafolio: { costoPortafolio: 2000 } };
     const activoMock = { id: 1, precioActual: 300 };
     const portafolioMock = {
       tenencias: [{ activo: { id: 1 }, precioCompra: 200, cantidad: 10 }] 
     };
-    const transaccionMock = { cantidad: 5, fecha: new Date(), precioEjecutado: 1500, tipoTransaccion: TipoTransaccion.VENTA };
+    const transaccionMock = { 
+      cantidad: 5, 
+      fecha: new Date(), 
+      precioEjecutado: 300, 
+      tipoTransaccion: TipoTransaccion.VENTA 
+    };
 
     it('debería procesar la venta exitosamente si posee las tenencias', async () => {
-      mockInversorService.findOne.mockResolvedValue(inversorMock);
       mockActivoService.findOne.mockResolvedValue(activoMock);
       mockInversorService.findPortafolio.mockResolvedValue(portafolioMock);
+      mockTenenciaService.verificarTenenciaVenta.mockResolvedValue(undefined);
       mockTransaccionService.create.mockResolvedValue(transaccionMock);
-
-      const verificarVentaSpy = jest.spyOn(sistema, 'verificarTenenciaVenta').mockResolvedValue(undefined!);
+      mockInversorService.registrarVenta.mockResolvedValue(undefined);
 
       const result = await sistema.procesarVenta(ventaDto, 42);
 
-      expect(inversorMock.saldoVirtual).toBe(2500);
-      expect(inversorMock.portafolio.costoPortafolio).toBe(1000);
-      expect(mockInversorRepo.save).toHaveBeenCalled();
+      expect(mockTenenciaService.verificarTenenciaVenta).toHaveBeenCalledWith(portafolioMock, activoMock, 5);
+      expect(mockTransaccionService.create).toHaveBeenCalledWith(TipoTransaccion.VENTA, 5, 1500, portafolioMock, activoMock);
+      expect(mockActivoService.actualizarActivo).toHaveBeenCalledWith(activoMock, 5, TipoTransaccion.VENTA);
+      expect(mockInversorService.registrarVenta).toHaveBeenCalledWith(42, 1500, 1000);
+      
       expect(result.cantidad).toBe(5);
-
-      verificarVentaSpy.mockRestore();
+      expect(result.TipoTransaccion).toBe(TipoTransaccion.VENTA);
     });
 
-    it('debería lanzar BadRequestException si el inversor no posee el activo en su portafolio', async () => {
-      mockInversorService.findOne.mockResolvedValue(inversorMock);
+    it('debería propagar el error si verificarTenenciaVenta falla', async () => {
       mockActivoService.findOne.mockResolvedValue(activoMock);
-      mockInversorService.findPortafolio.mockResolvedValue({ tenencias: [] });
+      mockInversorService.findPortafolio.mockResolvedValue(portafolioMock);
+      
+      mockTenenciaService.verificarTenenciaVenta.mockRejectedValue(new BadRequestException('No posee el activo o la cantidad suficiente'));
 
       await expect(sistema.procesarVenta(ventaDto, 42)).rejects.toThrow(BadRequestException);
-    });
-  });
-
-  describe('verificarTenenciaCompra', () => {
-    const activo = { id: 1, precioActual: 200 } as any;
-
-    it('debería crear una nueva tenencia si el activo no existía en el portafolio', async () => {
-      const portafolio = { tenencias: [] } as any;
-      mockTenenciaRepo.create.mockReturnValue({ id: 99 });
-
-      await sistema.verificarTenenciaCompra(portafolio, activo, 10);
-
-      expect(mockTenenciaRepo.create).toHaveBeenCalledWith(expect.objectContaining({
-        cantidad: 10,
-        precioCompra: 200,
-        activo
-      }));
-      expect(mockTenenciaRepo.save).toHaveBeenCalled();
-    });
-
-    it('debería recalcular el precio promedio ponderado si el activo ya existía', async () => {
-      const tenenciaExistente = { activo: { id: 1 }, cantidad: 10, precioCompra: 100 };
-      const portafolio = { tenencias: [tenenciaExistente] } as any;
-
-      // Compra nueva: 10 acciones a $200
-      // Promedio = ((10 * 100) + (10 * 200)) / (10 + 10) = (1000 + 2000) / 20 = 150
-      await sistema.verificarTenenciaCompra(portafolio, activo, 10);
-
-      expect(tenenciaExistente.cantidad).toBe(20);
-      expect(tenenciaExistente.precioCompra).toBe(150);
-      expect(mockTenenciaRepo.save).toHaveBeenCalledWith(tenenciaExistente);
-    });
-  });
-
-  describe('verificarTenenciaVenta', () => {
-    const activo = { id: 1 } as any;
-    
-    it('debería restar la cantidad vendida de la tenencia existente', async () => {
-      const tenenciaExistente = { activo: { id: 1 }, cantidad: 10 };
-      const portafolio = { tenencias: [tenenciaExistente] } as any;
-
-      await sistema.verificarTenenciaVenta(portafolio, activo, 4);
-
-      expect(tenenciaExistente.cantidad).toBe(6);
-      expect(mockTenenciaRepo.save).toHaveBeenCalledWith(tenenciaExistente);
-      expect(mockTenenciaRepo.remove).not.toHaveBeenCalled();
-    });
-
-    it('debería remover por completo la tenencia de la BD si la cantidad llega a 0', async () => {
-      const tenenciaExistente = { activo: { id: 1 }, cantidad: 5 };
-      const portafolio = { tenencias: [tenenciaExistente] } as any;
-
-      await sistema.verificarTenenciaVenta(portafolio, activo, 5);
-
-      expect(tenenciaExistente.cantidad).toBe(0);
-      expect(mockTenenciaRepo.remove).toHaveBeenCalledWith(tenenciaExistente);
-    });
-
-    it('debería lanzar BadRequestException si intenta vender más de lo que tiene', async () => {
-      const tenenciaExistente = { activo: { id: 1 }, cantidad: 2 };
-      const portafolio = { tenencias: [tenenciaExistente] } as any;
-
-      await expect(sistema.verificarTenenciaVenta(portafolio, activo, 5)).rejects.toThrow(BadRequestException);
+      
+      expect(mockTransaccionService.create).not.toHaveBeenCalled();
+      expect(mockInversorService.registrarVenta).not.toHaveBeenCalled();
     });
   });
 });

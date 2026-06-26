@@ -28,6 +28,7 @@ export type Activo = {
     valorMinimo: number;
     cantOperaciones: number;
     totalEjecutado: number;
+    transacciones: Transaccion[];
 }
 
 export type TenenciaActivo = {
@@ -59,8 +60,6 @@ export type Inversor = {
     saldo: number;
 }
 
-
-
 export type TransaccionHistorial = {
     id: number;
     tipoTransaccion: TipoTransaccion;
@@ -68,6 +67,7 @@ export type TransaccionHistorial = {
     precioEjecutado: number;
     fecha: Date;
     ticker: string | null;
+    nombre: string | null;
 }
 
 export type Perfil = {

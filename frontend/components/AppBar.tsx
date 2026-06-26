@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Inversor } from "../types/index";
+import { getInversor } from '@/service/Inversor.service';
+import { useAuth } from "@/app/auth/AuthContext";
 
 export default function AppBar() {
     const pathname = usePathname();
@@ -14,24 +16,16 @@ export default function AppBar() {
     const [loading, setLoading] = useState(true);
 
     const [isOpen, setIsOpen] = useState(false);
+    const { logout } = useAuth();    
 
     useEffect(() => {
         const obtenerPerfil = async () => {
             try {
-                const response = await fetch("http://localhost:3000/inversor/perfil", {
-                    method: "GET",
-                    headers: { "Content-Type": "application/json" },
-                    credentials: "include",
-                });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    setInversor(data);
-                } else {
-                    router.push("/auth/login");
-                }
+                const perfil = await getInversor()
+                setInversor(perfil);
             } catch (error) {
                 console.error("Error al obtener el perfil:", error);
+                window.location.replace('/');
             } finally {
                 setLoading(false);
             }
@@ -54,18 +48,8 @@ export default function AppBar() {
 
     const handleLogout = async () => {
         try {
-            const response = await fetch("http://localhost:3000/auth/logout", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-            });
-
-            if (response.ok) {
-                router.push("/");
-            } else {
-                const data = await response.json();
-                setErrorMessage(data.message || "Error al intentar cerrar sesión.");
-            }
+            await logout();
+            window.location.href = ('/');
         } catch (error) {
             console.error("Error en la conexión con el servidor:", error);
             setErrorMessage("No se pudo conectar con el servidor.");

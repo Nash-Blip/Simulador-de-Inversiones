@@ -1,7 +1,15 @@
 "use client";
 
-import { Activo, Inversor } from "@/types";
 import { useEffect, useState, useCallback } from "react";
+import dynamic from "next/dynamic";
+import { Activo, Inversor } from "@/types";
+import { comprarActivo, getActivosPaginados } from "@/service/Activo.service";
+import { getInversor } from "@/service/Inversor.service";
+
+const GraficoActivo = dynamic(() => import("./GraficoActivo"), {
+    ssr: false,
+    loading: () => <div className="h-44 bg-gray-900/60 animate-pulse rounded-xl mt-1 border border-gray-700" />
+});
 
 let timerExito: NodeJS.Timeout;
 let timerError: NodeJS.Timeout;
@@ -20,39 +28,35 @@ export default function Mercado() {
     const [activoErrorTicker, setActivoErrorTicker] = useState("");
 
     const [inversor, setInversor] = useState<Inversor | null>(null);
+    const [maximoCompra, setMaximoCompra] = useState(0);
+
+    const [pagina, setPagina] = useState<number>(1);
+    const [totalPaginas, setTotalPaginas] = useState<number>(1);
+    const [search, setSearch] = useState("");
 
     const fetchActivos = useCallback(async () => {
         try {
-            const response = await fetch("http://localhost:3000/activo", {
-                credentials: 'include'
+            const json = await getActivosPaginados(pagina, search);
+            setActivos(json.data);
+            setTotalPaginas(json.meta.totalPages);
+
+
+            setActivoSeleccionado((prev) => {
+                if (!prev) return null;
+                const actualizado = json.data.find((a: Activo) => a.id === prev.id);
+                return actualizado ? actualizado : prev;
             });
-            const data = await response.json();
-            if (response.ok) {
-                const activosOrdenados = data.sort((a: Activo, b: Activo) =>
-                    a.ticker.localeCompare(b.ticker)
-                );
-
-                setActivos(activosOrdenados);
-
-                setActivoSeleccionado((prev) => {
-                    if (!prev) return null;
-                    const actualizado = activosOrdenados.find((a: Activo) => a.id === prev.id);
-                    return actualizado ? actualizado : prev;
-                });
-            }
         } catch (error) {
             console.error("Error fetching activos:", error);
         }
-    }, []);
+    }, [pagina, search]);
 
     const fetchInversor = async () => {
-        const response = await fetch("http://localhost:3000/inversor/perfil", {
-            method: 'GET',
-            credentials: 'include'
-        });
-        const data = await response.json();
-        if (response.ok) {
+        try {
+            const data = await getInversor();
             setInversor(data);
+        } catch (error) {
+            console.error("Error al cargar histórico del activo:", error);
         }
     };
 
@@ -67,6 +71,10 @@ export default function Mercado() {
         return () => clearInterval(interval);
     }, [fetchActivos]);
 
+    useEffect(() => {
+        setPagina(1);
+    }, [search]);
+
     function handleSelect(select: Activo) {
         setActivoSeleccionado(select);
         setMostrarCompra(true);
@@ -77,14 +85,9 @@ export default function Mercado() {
         if (cant === "" || cant < 1) return;
 
         const fetchComprar = async () => {
-            const response = await fetch("http://localhost:3000/activo/comprar", {
-                method: 'POST',
-                headers: { 'Content-type': 'application/json' },
-                body: JSON.stringify({ activoId: comprar.id, cantidad: cant }),
-                credentials: 'include'
-            });
+            try {
+                await comprarActivo(comprar.id, cant);
 
-            if (response.ok) {
                 setCantidadCompra(1);
                 setMostrarCompra(false);
                 setActivoSeleccionado(null);
@@ -98,8 +101,7 @@ export default function Mercado() {
                 timerExito = setTimeout(() => {
                     setCompraExitosa(false);
                 }, 4000);
-
-            } else {
+            } catch {
                 setActivoErrorTicker(comprar.ticker);
                 setErrorSaldo(true);
 
@@ -108,15 +110,17 @@ export default function Mercado() {
                     setErrorSaldo(false);
                 }, 4000);
             }
+
         }
         fetchComprar();
-    }
+    };
+
 
     return (
         <div className="min-h-screen bg-[#0b0f19] py-6 px-4">
 
             {/* Toasts / Notificaciones */}
-            <div className="fixed top-5 left-1/4 -translate-x-1/2 z-50 flex flex-col gap-3 max-w-sm w-full px-4">
+            <div className="fixed left-1/2 -translate-x-1/2 md:left-72 md:translate-x-0 z-50 flex flex-col gap-3 max-w-sm w-full px-4">
                 {compraExitosa && (
                     <div className="flex w-full overflow-hidden bg-white rounded-lg shadow-md dark:bg-gray-800 animate-bounce-short">
                         <div className="flex items-center justify-center w-12 shrink-0 bg-status-success">
@@ -156,10 +160,21 @@ export default function Mercado() {
 
             <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400 text-center mb-6">Mercado</h1>
 
-            <div className={`w-full max-w-7xl mx-auto grid grid-cols-1 gap-6 transition-all duration-300 ${activoSeleccionado ? "lg:grid-cols-[1fr_384px]" : "lg:grid-cols-1"}`}>
+            <div className="w-full max-w-6xl mx-auto mb-4">
+                <input
+                    type="text"
+                    placeholder="Buscar por nombre o ticker..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    maxLength={25}
+                    className="w-full sm:w-64 bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                />
+            </div>
+
+            <div className={`w-full max-w-6xl mx-auto grid grid-cols-1 gap-6 transition-all duration-300 ${activoSeleccionado ? "lg:grid-cols-[1fr_384px]" : "lg:grid-cols-1"}`}>
 
                 {/* Tabla de Activos */}
-                <div className="w-full bg-[#0b0f19] rounded-xl border-2 p-4 md:p-6 overflow-x-auto h-fit">
+                <div className="w-full bg-[#0b0f19] rounded-xl border-2 p-4 md:p-6 overflow-x-auto">
                     <table className="w-full text-center border-collapse min-w-[175px]">
                         <thead>
                             <tr className="font-bold text-white border-b border-gray-800">
@@ -209,12 +224,39 @@ export default function Mercado() {
                             })}
                         </tbody>
                     </table>
+                    {activos.length === 0 && (
+                        <div className="text-center py-12 text-gray-500">
+                            {search
+                                ? `No se encontraron activos que coincidan con "${search}".`
+                                : "No hay activos disponibles."
+                            }
+                        </div>
+                    )}
+                    {totalPaginas > 1 && (
+                        <div className="flex justify-center items-center gap-6 mt-6 pt-4 border-t border-gray-800">
+                            <button
+                                onClick={() => setPagina((prev) => Math.max(prev - 1, 1))}
+                                disabled={pagina === 1}
+                                className="px-4 py-2 text-sm bg-gray-900 text-white rounded-md border border-gray-800 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-800 cursor-pointer transition-colors font-medium"
+                            >
+                                ← Anterior
+                            </button>
+                            <span className="text-sm text-gray-400 font-medium">Página {pagina} de {totalPaginas}</span>
+                            <button
+                                onClick={() => setPagina((prev) => prev + 1)}
+                                disabled={pagina >= totalPaginas}
+                                className="px-4 py-2 text-sm bg-gray-900 text-white rounded-md border border-gray-800 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-gray-800 cursor-pointer transition-colors font-medium"
+                            >
+                                Siguiente →
+                            </button>
+                        </div>
+                    )}
                 </div>
 
                 {/* Panel Lateral de Compra */}
                 {activoSeleccionado && (
-                    <div className="w-full h-full min-h-[400px] relative">
-                        <div className="w-full bg-gray-800 rounded-xl border border-white p-6 z-40 lg:fixed lg:w-[420px] lg:top-[110px] max-h-[calc(100vh-180px)] overflow-y-auto shadow-2xl ml-16">
+                    <div className="w-full lg:h-full lg:min-h-[400px] lg:relative">
+                        <div className="w-full max-w-md mx-auto bg-gray-800 rounded-xl border border-white p-6 shadow-2xl mt-6 lg:mt-0 lg:fixed lg:w-[420px] lg:top-[110px]  max-h-[calc(100vh-140px)] overflow-y-auto z-40">
                             <button
                                 onClick={() => setActivoSeleccionado(null)}
                                 className="absolute top-4 right-4 text-gray-400 hover:text-white text-xl font-semibold transition-colors cursor-pointer p-1 rounded-lg hover:bg-gray-600 w-8 h-8 flex items-center justify-center"
@@ -233,7 +275,16 @@ export default function Mercado() {
                                     Saldo disponible: <span className="font-bold text-white">${inversor?.saldo.toFixed(2) ?? '0.00'}</span>
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-4 text-center my-2">
+                                <div className="flex flex-col gap-1 my-1">
+                                    <p className="text-xs text-gray-400 uppercase tracking-wider pl-1">Evolución del Activo</p>
+                                    <GraficoActivo
+                                        id={activoSeleccionado.id}
+                                        ticker={activoSeleccionado.ticker}
+                                        precioActual={activoSeleccionado.precioActual}
+                                    />
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 text-center my-1">
                                     <div className="bg-gray-900/50 p-3 rounded-lg border border-gray-700">
                                         <p className="text-xs text-gray-400 uppercase tracking-wider">Precio Actual</p>
                                         <p className="text-xl font-bold text-status-success mt-1">${activoSeleccionado.precioActual.toFixed(2)}</p>
@@ -248,13 +299,14 @@ export default function Mercado() {
 
                                 {mostrarCompra && (
                                     <form onSubmit={(e) => { e.preventDefault(); handleComprar(activoSeleccionado, cantidad) }}>
-                                        <div className="flex flex-col gap-3 mt-2 items-center">
+                                        <div className="flex flex-col gap-3 mt-1 items-center">
                                             <label htmlFor="cantidad" className="text-white text-sm font-medium">Cantidad a comprar</label>
                                             <input
                                                 className="w-32 text-center bg-gray-700 border-2 border-gray-600 rounded-xl shadow p-2 text-white text-lg font-bold focus:outline-none focus:border-green-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                                                 id="cantidad"
                                                 type="number"
                                                 min="1"
+                                                max="1000"
                                                 step="1"
                                                 value={cantidad}
                                                 onChange={(e) => {
@@ -274,10 +326,15 @@ export default function Mercado() {
                                                     }
                                                 }}
                                             />
+                                            {Number(cantidad) > 1000 && (
+                                                <p className="text-xs text-red-500 font-semibold mt-1 animate-fade-in">
+                                                    * Supera el máximo permitido por operación (1000 unidades).
+                                                </p>
+                                            )}
                                             <button
                                                 className="mt-2 w-full bg-status-success hover:bg-blue-400 text-white font-bold py-3 px-6 rounded-lg transition-colors cursor-pointer text-center shadow-lg shadow-green-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
                                                 type="submit"
-                                                disabled={cantidad === '' || cantidad < 1}
+                                                disabled={cantidad === '' || cantidad < 1 || cantidad > 1000}
                                             >
                                                 Confirmar Compra
                                             </button>

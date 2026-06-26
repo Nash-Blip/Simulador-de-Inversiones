@@ -3,6 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { Activo, Portafolio } from "@/types/index";
 import { ActivoTenencia } from "@/components/ActivoTenencia";
+import { venderActivo } from "@/service/Activo.service";
+import { getPortafolio } from "@/service/Inversor.service";
 
 let timerVenta: NodeJS.Timeout;
 
@@ -13,13 +15,9 @@ export default function PortafolioComp() {
     const [activoVentaTicker, setActivoVentaTicker] = useState("");
 
     const fetchInversor = useCallback(async () => {
-        const response = await fetch("http://localhost:3000/inversor/portafolio", {
-            method: 'GET',
-            credentials: "include",
-        });
-        const data = await response.json();
+        const data = await getPortafolio();
 
-        if (response.ok && data) {
+        if (data) {
             if (data.tenencias && Array.isArray(data.tenencias)) {
                 data.tenencias.sort((a: any, b: any) =>
                     a.activo.ticker.localeCompare(b.activo.ticker)
@@ -38,15 +36,10 @@ export default function PortafolioComp() {
     }, [fetchInversor]);
 
     function handleVender(vender: Activo, cant: number) {
-        const fetchVenta = async () => {
-            const response = await fetch("http://localhost:3000/activo/vender", {
-                method: 'POST',
-                credentials: 'include',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ activoId: vender.id, cantidad: cant })
-            });
+        try {
+            const fetchVenta = async () => {
+                await venderActivo(vender, cant);
 
-            if (response.ok) {
                 setActivoVentaTicker(vender.ticker);
                 setVentaExitosa(true);
 
@@ -56,14 +49,15 @@ export default function PortafolioComp() {
                 timerVenta = setTimeout(() => {
                     setVentaExitosa(false);
                 }, 4000);
-            }
-        };
-
-        fetchVenta();
+            };
+            fetchVenta();
+        } catch{
+            console.error("Error al vender el activo");
+        }
     }
-
     return (
         <div className="p-6 relative min-h-screen">
+            <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400 text-center mb-6">Portafolio</h1>
 
             <div className="fixed bottom-5 right-5 z-50 flex flex-col gap-3 max-w-sm w-full px-4">
                 {ventaExitosa && (
@@ -92,8 +86,8 @@ export default function PortafolioComp() {
                             <thead>
                                 <tr className="bg-gray-100 dark:bg-zinc-800 text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-400 border-b border-gray-200 dark:border-gray-700 text-center">
                                     <th className="px-6 py-3">Saldo Virtual</th>
-                                    <th className="px-6 py-3">Costo Portafolio</th>
                                     <th className="px-6 py-3">Valor Portafolio</th>
+                                    <th className="px-6 py-3">Costo Portafolio</th>
                                     <th className="px-6 py-3">Rendimiento</th>
                                 </tr>
                             </thead>
@@ -103,10 +97,10 @@ export default function PortafolioComp() {
                                         ${portafolio.saldoVirtual.toFixed(2)}
                                     </td>
                                     <td className="px-6 py-4">
-                                        ${(portafolio.costoPortafolio).toFixed(2)}
+                                        ${(portafolio.valorPortafolio).toFixed(2)}
                                     </td>
                                     <td className="px-6 py-4">
-                                        ${(portafolio.valorPortafolio).toFixed(2)}
+                                        ${(portafolio.costoPortafolio).toFixed(2)}
                                     </td>
                                     <td className={`px-6 py-4 font-bold ${portafolio.rendimientoPortafolio >= 0
                                         ? "text-status-success"

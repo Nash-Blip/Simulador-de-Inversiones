@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { login } from '@/service/Auth.service';
 
 export default function LoginForm() {
   const [email, setEmail] = useState('');
@@ -12,30 +13,25 @@ export default function LoginForm() {
 
   function handleSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
+    
     const fetchLogin = async () => {
-      const response = await fetch("http://localhost:3000/auth/login",
+      try {
+        const user = await login(email, password);        
+        if (user.inversor.rol === 'admin') {
+          router.push('/admin/inversores');
+        } else
         {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: "include",
-          body: JSON.stringify({ email, password })
-        });
-      const data = await response.json();
-
-      if (response.ok) {
-        router.push('/mercado');
-      } else {
-        setMessage(data.message);
+          router.push('/mercado');
+        }
+      } catch (error) {
+        console.log(error);
+        setMessage('Cuenta o contraseña incorrecta');
       }
     }
 
     fetchLogin();
   }
 
-  function handleReset() {
-    setEmail('');
-    setPassword('');
-  }
   return (
     <>
       <section className="w-full bg-white dark:bg-gray-900">
@@ -62,7 +58,7 @@ export default function LoginForm() {
                 </svg>
               </span>
 
-              <input id="email" value={email} onChange={(e) => setEmail(e.target.value)} type="email" className="block w-full py-3 text-gray-700 bg-white border rounded-lg px-11 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40" placeholder="Email"/>
+              <input id="email" value={email} onChange={(e) => setEmail(e.target.value)} type="email" className="block w-full py-3 text-gray-700 bg-white border rounded-lg px-11 dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40" placeholder="Email" />
             </div>
 
             <div className="relative flex items-center mt-4">
@@ -71,8 +67,14 @@ export default function LoginForm() {
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
                 </svg>
               </span>
-              <input id="password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" className="block w-full px-10 py-3 text-gray-700 bg-white border rounded-lg dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40" placeholder="Password"/>
+              <input id="password" value={password} onChange={(e) => setPassword(e.target.value)} type="password" className="block w-full px-10 py-3 text-gray-700 bg-white border rounded-lg dark:bg-gray-900 dark:text-gray-300 dark:border-gray-600 focus:border-blue-400 dark:focus:border-blue-300 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40" placeholder="Password" />
             </div>
+
+            {message && (
+              <div className="bg-status-error text-white text-xs p-2 rounded-lg text-center font-medium animate-pulse mt-4">
+                {message}
+              </div>
+            )}
 
             <div className="mt-8 text-center ">
               <button onClick={handleSubmit} type="submit" className="w-2/4 mx-auto px-6 py-3 text-sm font-medium tracking-wide cursor-pointer text-white capitalize transition-colors duration-300 transform bg-blue-500 rounded-lg hover:bg-blue-400 focus:outline-none focus:ring focus:ring-blue-300 focus:ring-opacity-50">

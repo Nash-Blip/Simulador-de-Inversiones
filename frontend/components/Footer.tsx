@@ -13,7 +13,6 @@ export default function Footer() {
                         <div className="flex flex-wrap justify-center mt-6 -mx-4">
                             <Link href="/privacidad" className="mx-4 text-sm text-gray-600 transition-colors duration-300 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400">Privacidad</Link>
                             <Link href="/terminos" className="mx-4 text-sm text-gray-600 transition-colors duration-300 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400">Terminos y Condiciones</Link>
-                            {/* <Link href="/contacto" className="mx-4 text-sm text-gray-600 transition-colors duration-300 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400">Contacto</Link> // No implementado aun */}
                         </div>
                         <div className="flex flex-wrap justify-center mt-6 -mx-4 p-4 bg-white">
                             <Link href="https://www.byma.com.ar/" target='_blank' rel="noopener noreferrer" className="mx-4 mt-2 text-sm text-gray-600 transition-colors duration-300 hover:text-blue-500 dark:text-gray-300 dark:hover:text-blue-400"><img src="/byma.png" alt="Comision Nacional de Valores" className="w-32" /></Link>

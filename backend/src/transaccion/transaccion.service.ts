@@ -4,6 +4,7 @@ import { TipoTransaccion, Transaccion } from "./transaccion.entity";
 import { Repository } from "typeorm";
 import { Portafolio } from "@/portafolio/portafolio.entity";
 import { Activo } from "@/activo/entities/activo.entity";
+import { formatearRespuestaPaginada } from "@/common/utils/pagination.util";
 import { GetTransaccionesQueryDto } from "./dto/input/get-transaccion-query.dto";
 
 @Injectable()
@@ -11,7 +12,7 @@ export class TransaccionService {
     constructor(
         @InjectRepository(Transaccion)
         private readonly transaccionRepo: Repository<Transaccion>
-    ) {}
+    ) { }
 
     async findAll(query: GetTransaccionesQueryDto) {
         const page = query.page ? Number(query.page) : 1;
@@ -29,7 +30,18 @@ export class TransaccionService {
             .take(LIMIT_FIJO);
 
         const [transacciones, totalItems] = await queryBuilder.getManyAndCount();
-        return this.formatearRespuestaPaginada(transacciones, totalItems, page, LIMIT_FIJO);
+
+        const data = transacciones.map((t) => ({
+            id: t.id,
+            tipoTransaccion: t.tipoTransaccion,
+            cantidad: t.cantidad,
+            precioEjecutado: t.precioEjecutado,
+            fecha: t.fecha,
+            ticker: t.activo ? t.activo.ticker : null,
+            nombre: t.activo ? t.activo.nombre : null,
+        }));
+
+        return formatearRespuestaPaginada(data, totalItems, page, LIMIT_FIJO);
     }
 
     async findHistorialTransacciones(inversorId: number, query: GetTransaccionesQueryDto) {
@@ -51,7 +63,18 @@ export class TransaccionService {
             .take(LIMIT_FIJO);
 
         const [transacciones, totalItems] = await queryBuilder.getManyAndCount();
-        return this.formatearRespuestaPaginada(transacciones, totalItems, page, LIMIT_FIJO);
+
+        const data = transacciones.map((t) => ({
+            id: t.id,
+            tipoTransaccion: t.tipoTransaccion,
+            cantidad: t.cantidad,
+            precioEjecutado: t.precioEjecutado,
+            fecha: t.fecha,
+            ticker: t.activo ? t.activo.ticker : null,
+            nombre: t.activo ? t.activo.nombre : null,
+        }));
+
+        return formatearRespuestaPaginada(data, totalItems, page, LIMIT_FIJO);
     }
 
     async create(tipoTransaccion: TipoTransaccion, cantidad: number, precioEjecutado: number, portafolio: Portafolio | null, activo: Activo) {
@@ -72,8 +95,8 @@ export class TransaccionService {
         }
 
         if (query.fechaInicio && query.fechaFin) {
-            const inicio = new Date(`${query.fechaInicio}T00:00:00.000Z`);
-            const fin = new Date(`${query.fechaFin}T23:59:59.999Z`);
+            const inicio = new Date(`${query.fechaInicio}T00:00:00.000`);
+            const fin = new Date(`${query.fechaFin}T23:59:59.999`);
             queryBuilder.andWhere('transaccion.fecha BETWEEN :inicio AND :fin', { inicio, fin });
         }
 
@@ -83,27 +106,5 @@ export class TransaccionService {
                 { search: `%${query.search}%` }
             );
         }
-    }
-
-    private formatearRespuestaPaginada(transacciones: Transaccion[], totalItems: number, page: number, limit: number) {
-        const dataFormateada = transacciones.map((t) => ({
-            id: t.id,
-            tipoTransaccion: t.tipoTransaccion,
-            cantidad: t.cantidad,
-            precioEjecutado: t.precioEjecutado,
-            fecha: t.fecha,
-            ticker: t.activo ? t.activo.ticker : null,
-        }));
-
-        return {
-            data: dataFormateada,
-            meta: {
-                totalItems,
-                itemCount: dataFormateada.length,
-                itemsPerPage: limit,
-                totalPages: Math.ceil(totalItems / limit),
-                currentPage: page,
-            }
-        };
     }
 }

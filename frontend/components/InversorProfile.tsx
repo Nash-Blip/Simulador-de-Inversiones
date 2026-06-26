@@ -1,10 +1,11 @@
 'use client';
 
+import { cambiarPassword, getPerfil } from "@/service/Inversor.service";
 import { useEffect, useState } from "react";
 
 interface PerfilData {
     nombre: string;
-    email?: string; 
+    email?: string;
 }
 
 export default function InversorProfile() {
@@ -22,17 +23,9 @@ export default function InversorProfile() {
     useEffect(() => {
         const fetchPerfil = async () => {
             try {
-                const response = await fetch("http://localhost:3000/inversor/perfil", {
-                    method: "GET",
-                    credentials: "include",
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    setPerfil(data);
-                } else {
-                    setError("No se pudieron cargar los datos del perfil.");
-                }
-            } catch (err) {
+                const data = await getPerfil();
+                setPerfil(data);
+            } catch{
                 setError("Error de conexión con el servidor.");
             } finally {
                 setCargando(false);
@@ -65,27 +58,13 @@ export default function InversorProfile() {
         setEnviando(true);
 
         try {
-            const response = await fetch("http://localhost:3000/inversor/cambiar-password", {
-                method: "PATCH",
-                credentials: "include",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    passwordActual,
-                    passwordNueva
-                }),
-            });
+            await cambiarPassword(passwordActual, passwordNueva);
+            setExito("Contraseña actualizada correctamente.");
 
-            if (response.ok) {
-                setExito("Contraseña actualizada correctamente.");
-
-                setPasswordActual("");
-                setPasswordNueva("");
-                setConfirmarPassword("");
-            } else {
-                const data = await response.json();
-                setError(data.message || "La contraseña actual es incorrecta.");
-            }
-        } catch (err) {
+            setPasswordActual("");
+            setPasswordNueva("");
+            setConfirmarPassword("");
+        } catch{
             setError("Ocurrió un error al intentar cambiar la contraseña.");
         } finally {
             setEnviando(false);
@@ -101,11 +80,12 @@ export default function InversorProfile() {
     }
 
     return (
-        <div className="max-w-4xl mx-auto space-y-6">
+        <div className="max-w-4xl mx-auto space-y-6 py-6">
 
-            <div>
-                <h1 className="text-2xl font-bold tracking-tight">Ajustes de Cuenta</h1>
-                <p className="text-sm text-gray-400">Gestioná tu información personal y la seguridad de tu cuenta.</p>
+            <div className="text-center mb-8">
+                <h1 className="text-3xl font-bold text-blue-600 dark:text-blue-400 tracking-wide">
+                    Ajustes de Cuenta
+                </h1>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

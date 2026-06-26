@@ -18,15 +18,15 @@ export default function Equipo() {
                             <div className="w-20 h-20 bg-blue-600/10 border border-blue-500/30 rounded-full flex items-center justify-center text-blue-400 text-2xl font-bold uppercase shadow-inner">
                                 <span>AB</span>
                             </div>
-                            <h1 className="mt-4 text-2xl font-semibold text-gray-700 capitalize dark:text-white group-hover:text-white text-center">Agustin <br /> Begue</h1>
-                            <p className="mt-2 text-gray-500 capitalize dark:text-gray-300 group-hover:text-gray-300">Developer</p>
+                            <h1 className="mt-4 text-2xl font-semibold text-gray-700 capitalize dark:text-white group-hover:text-white text-center">Agustin <br/> Begue</h1>
+                                <p className="mt-2 text-gray-500 capitalize dark:text-gray-300 group-hover:text-gray-300">Developer</p>
                         </div>
 
                         <div className="flex flex-col items-center p-8 transition-colors duration-300 transform border cursor-pointer rounded-xl hover:border-transparent group hover:bg-blue-600 dark:border-gray-700 dark:hover:border-transparent">
                             <div className="w-20 h-20 bg-blue-600/10 border border-blue-500/30 rounded-full flex items-center justify-center text-blue-400 text-2xl font-bold uppercase shadow-inner">
                                 <span>PD</span>
                             </div>
-                            <h1 className="mt-4 text-2xl font-semibold text-gray-700 capitalize dark:text-white group-hover:text-white text-center">Pablo <br /> Duval</h1>
+                            <h1 className="mt-4 text-2xl font-semibold text-gray-700 capitalize dark:text-white group-hover:text-white text-center">Pablo <br/> Duval</h1>
                             <p className="mt-2 text-gray-500 capitalize dark:text-gray-300 group-hover:text-gray-300">Developer</p>
                         </div>
 
@@ -34,7 +34,7 @@ export default function Equipo() {
                             <div className="w-20 h-20 bg-blue-600/10 border border-blue-500/30 rounded-full flex items-center justify-center text-blue-400 text-2xl font-bold uppercase shadow-inner">
                                 <span>MF</span>
                             </div>
-                            <h1 className="mt-4 text-2xl font-semibold text-gray-700 capitalize dark:text-white group-hover:text-white text-center">Matias <br />Fernandez</h1>
+                            <h1 className="mt-4 text-2xl font-semibold text-gray-700 capitalize dark:text-white group-hover:text-white text-center">Matias <br/>Fernandez</h1>
                             <p className="mt-2 text-gray-500 capitalize dark:text-gray-300 group-hover:text-gray-300">Developer</p>
                         </div>
 
@@ -42,7 +42,7 @@ export default function Equipo() {
                             <div className="w-20 h-20 bg-blue-600/10 border border-blue-500/30 rounded-full flex items-center justify-center text-blue-400 text-2xl font-bold uppercase shadow-inner">
                                 <span>RG</span>
                             </div>
-                            <h1 className="mt-4 text-2xl font-semibold text-gray-700 capitalize dark:text-white group-hover:text-white text-center">Ramiro <br />Gomez Rivelli</h1>
+                                <h1 className="mt-4 text-2xl font-semibold text-gray-700 capitalize dark:text-white group-hover:text-white text-center">Ramiro <br/>Gomez Rivelli</h1>
                             <p className="mt-2 text-gray-500 capitalize dark:text-gray-300 group-hover:text-gray-300">Developer</p>
                         </div>
 
@@ -50,7 +50,7 @@ export default function Equipo() {
                             <div className="w-20 h-20 bg-blue-600/10 border border-blue-500/30 rounded-full flex items-center justify-center text-blue-400 text-2xl font-bold uppercase shadow-inner">
                                 <span>AS</span>
                             </div>
-                            <h1 className="mt-4 text-2xl font-semibold text-gray-700 capitalize dark:text-white group-hover:text-white text-center">Alejo <br /> Suarez</h1>
+                                <h1 className="mt-4 text-2xl font-semibold text-gray-700 capitalize dark:text-white group-hover:text-white text-center">Alejo <br/> Suarez</h1>
                             <p className="mt-2 text-gray-500 capitalize dark:text-gray-300 group-hover:text-gray-300">Developer</p>
                         </div>
                     </div>

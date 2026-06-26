@@ -1,12 +1,12 @@
 > **Proyecto:** Simulador de Inversiones
 
-> **Versión del documento:** 1.4
+> **Versión del documento:** 2.0
 
-> **Fecha:** 2026-06-16
+> **Fecha:** 2026-06-25
 
 > **Autor(es):** Alejo Suarez / Matias Fernandez / Pablo Duval / Ramiro Gomez Rivelli / Agustin Begue
 
-> **Estado:** `En revisión`
+> **Estado:** `Aprobado`
 
 ---
 
@@ -20,13 +20,15 @@
 
 ## Control de Versiones del Documento
 
-| Versión | Fecha      | Autor         | Descripción del Cambio          |
+| Versión | Fecha      | Autor          | Descripción del Cambio          |
 |---------|------------|----------------|---------------------------------|
 | 1.0     | 2026-05-04 | [Alejo Suarez] | Versión inicial del documento   |
 | 1.1     | 2026-05-05 | [Agustin Begue - Matias Fernandez] | Actualización del documento   |
 | 1.2     | 2026-05-20 | [Agustin Begue - Matias Fernandez - Alejo Suarez] | Revision y actualizacion del documento   |
 | 1.3     | 2026-05-21 | [Agustin Begue]| Ajuste en criterios de autorizacion RF-003 al RF-006 |    
 | 1.4     | 2026-06-16 | [Agustin Begue]| Correcciones del docente + Nuevos requerimientos funcionales del sistema |
+| 1.5     | 2026-06-20 | [Alejo Suarez] | Incorporacion de RNF-005 |
+| 2.0     | 2026-06-25 | [Agustin Begue]| Correccion final |
 
 ---
 
@@ -40,18 +42,18 @@
 | **Nombre**    | Registro de Inversor |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Alta`         |
-| **Estado**    | `Completado`    |
+| **Estado**    | `Completado`   |
 
 #### Descripción
 > El usuario interesado en operar en la plataforma accederá a la página de registro, donde se le presentará un formulario para ingresar sus datos personales (nombre completo, correo electrónico, contraseña). El sistema contará con un botón para confirmar el registro. 
 
 ```
-El sistema debe permitir dar de alta a un nuevo inversor siempre y cuando el correo electrónico ingresado no se encuentre registrado previamente y la contraseña cumpla con las políticas de seguridad. En el caso en que esta operación sea exitosa, se creará el perfil del usuario, se le asignará una billetera digital con un saldo inicial de $10000, e iniciará sesión automaticamente al sistema.
+El sistema debe permitir dar de alta a un nuevo inversor siempre y cuando el correo electrónico ingresado no se encuentre registrado previamente y la contraseña cumpla con las políticas de seguridad "La contraseña debe tener al menos 6 caracteres". En el caso en que esta operación sea exitosa, se creará el perfil del usuario, se le asignará una billetera digital con un saldo inicial de $10000, e iniciará sesión automaticamente al sistema.
 ```
 
 #### Criterios de Aceptación
 - [x] El sistema debe mostrar un mensaje de error claro si alguno de los campos obligatorios del formulario queda vacío.
-- [x] El servidor debe validar en tiempo real que el formato del correo electrónico sea válido y que las contraseñas coincidan.
+- [x] El servidor debe validar en tiempo real que el formato del correo electrónico sea válido y que la contraseña coincida.
 - [x] El servidor retorna el código HTTP `201 Created` en caso de que la operación de registro sea exitosa.
 - [x] El servidor retorna el código HTTP `409 Conflict` en caso de que el correo electrónico ya exista en el sistema o los datos enviados no cumplan con las validaciones de negocio.
 
@@ -118,7 +120,7 @@ su saldo digital y se asignara el activo a su portafolio como parte de sus tenen
 | **Nombre**    | Venta de Activos |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Alta`         |
-| **Estado**    | `Completado`    |
+| **Estado**    | `Completado`   |
 
 #### Descripción
 El sistema debe permitir vender activos a un inversor autenticado desde la sección de su portafolio, donde el sistema muestra únicamente los activos con tenencia disponible y muestra la cantidad existente de cada uno de ellos. Debe permitir seleccionar el activo, la cantidad a vender y visualizar un boton para ejecutar la venta.
@@ -151,7 +153,7 @@ se realizaran desde el portafolio lo que imposibilitará al usuario a vender un 
 | **Nombre**    | Creacion de Activos |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Baja`         |
-| **Estado**    | `En desarrollo`    |
+| **Estado**    | `Completado`|
 ---
 
 #### Descripción
@@ -180,7 +182,7 @@ el activo debe integrarse y mostrarse dinámicamente en el listado principal de 
 | **Nombre**    | Modificación de Activos |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Baja`         |
-| **Estado**    | `En desarrollo`    |
+| **Estado**    | `Completado`|
 ---
 
 #### Descripción
@@ -210,17 +212,17 @@ en toda la plataforma, incluyendo el portafolio de los usuarios que ya posean di
 | **ID**        | RF-007         |
 | **Nombre**    | Registro de Transacciones del inversor |
 | **Tipo**      | Funcional      |
-| **Prioridad** | `Media`         |
-| **Estado**    | `En desarrollo`    |
+| **Prioridad** | `Media`        |
+| **Estado**    | `Completado`|
 ---
 
 #### Descripción
-> El sistema debe permitir a un inversor acceder a una pantalla de historial de transacciones desde su portafolio donde se visualizarán todas las operaciones de compra y venta realizadas. La información deberá presentarse de forma paginada y permitir su filtrado por activo.
+> El sistema debe permitir a un inversor acceder a una pantalla de historial de transacciones donde se visualizarán todas las operaciones, solo las de compra o solo las de venta realizadas, según lo que indique el inversor. La información deberá presentarse de forma paginada y permitir su filtrado por nombre o ticker del activo operado. Además, debe permitir filtrar transacciones históricas mediante un rango de fechas (indicando fecha de inicio y fecha de fin). El sistema debe permitir filtrar en simultaneo con todos sus filtros.
 
 ```
 El sistema debe proveer un endpoint que retorne las transacciones asociadas al inversor actual, 
 ordenadas por fecha de creación en orden descendente. Los resultados deben estar paginados en bloques 
-de 10 elementos. El endpoint debe permitir opcionalmente filtrar por activo. 
+de 10 elementos. El endpoint debe permitir opcionalmente filtrar por todas las operaciones, compras o ventas, buscar por nombre o ticker del activo y encontrar transacciones operadas entre un rango de fechas ingresado por el inversor.
 Cada transacción debe incluir: identificador, tipo de operación, activo involucrado, cantidad,
 monto y fecha. La información debe persistirse en la base de datos y recuperarse de forma consistente.
 ```
@@ -229,7 +231,9 @@ monto y fecha. La información debe persistirse en la base de datos y recuperars
 - [x] El servidor debe retornar únicamente las transacciones asociadas al inversor autenticado.
 - [x] El servidor debe paginar los resultados en bloques de 10 transacciones por página.
 - [x] El servidor debe ordenar las transacciones por fecha de creación en orden descendente (más recientes primero).
-- [x] El servidor debe permitir filtrar las transacciones por activo mediante un parámetro opcional.
+- [x] El servidor debe permitir filtrar por todas las transacciones, por las de compra o por las de venta.
+- [x] El servidor debe permitir filtrar las transacciones buscando por nombre o ticker del activo mediante un parámetro opcional.
+- [x] El servidor debe permitir filtrar las transacciones operadas entre un rango de fechas ingresadas por el inversor.
 - [x] El servidor debe garantizar que los datos retornados correspondan a transacciones persistidas en la base de datos.
 - [x] El servidor retorna el código HTTP `500 Internal Server` Error en caso de fallas inesperadas al recuperar la información.
 - [x] Cada transacción debe incluir los siguientes campos obligatorios: (ID de la transacción, Tipo de operación (compra/venta), Activo, Cantidad, Monto, Fecha de creación)
@@ -247,7 +251,7 @@ monto y fecha. La información debe persistirse en la base de datos y recuperars
 | **Nombre**    | Gestión de Fondos |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Alta`         |
-| **Estado**    | `Completado`    |
+| **Estado**    | `Completado`   |
 
 #### Descripción
 > El inversor debe poder ingresar y retirar fondos de su billetera virtual desde la sección de fondos de la plataforma.
@@ -263,6 +267,8 @@ El sistema debe permitir al inversor autenticado realizar tres operaciones finan
 - [x] El servidor debe validar que el número de tarjeta tenga exactamente 16 dígitos numéricos.
 - [x] El servidor debe validar que el CVV tenga exactamente 3 dígitos.
 - [x] El servidor debe validar que la fecha de vencimiento no sea anterior al mes/año actual.
+- [x] El servidor debe validar que el formato de la fecha de la tarjeta sea MM/AA (MM: Mes, AA: Ultimos dos dígitos del año).
+- [x] El servidor debe validar que el mes ingresado este comprendido entre 01 (Enero) y 12 (Diciembre).
 - [x] El servidor debe validar que el CBU tenga exactamente 22 dígitos numéricos.
 - [x] El servidor debe validar que el monto a retirar no supere el saldo virtual disponible del inversor.
 - [x] El servidor retorna el código HTTP `200 OK` en caso de que la operación sea exitosa.
@@ -279,7 +285,7 @@ El sistema debe permitir al inversor autenticado realizar tres operaciones finan
 | **Nombre**    | Visualización de Portafolio |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Alta`         |
-| **Estado**    | `Completado`    |
+| **Estado**    | `Completado`   |
 
 #### Descripción
 > El inversor debe poder consultar el estado actual de su portafolio con métricas de rendimiento y tenencias.
@@ -310,7 +316,7 @@ precio actual de mercado y rendimiento porcentual individual.
 | **Nombre**    | Perfil y Cambio de Contraseña |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Media`        |
-| **Estado**    | `Completado`    |
+| **Estado**    | `Completado`   |
 
 #### Descripción
 > El inversor debe poder consultar su perfil y modificar su contraseña desde la plataforma.
@@ -339,7 +345,7 @@ contraseña actual para verificación y aplicando hashing con bcrypt a la nueva 
 | **Nombre**    | Inicialización de Datos de Demostración |
 | **Tipo**      | Funcional      |
 | **Prioridad** | `Baja`         |
-| **Estado**    | `Completado`    |
+| **Estado**    | `Completado`   |
 
 #### Descripción
 > El sistema debe inicializar datos de demostración al primer inicio para permitir la evaluación de la plataforma.
@@ -347,7 +353,7 @@ contraseña actual para verificación y aplicando hashing con bcrypt a la nueva 
 ```
 Al iniciar la aplicación por primera vez (base de datos vacía), el sistema debe:
 1. Crear un usuario administrador por defecto con credenciales predefinidas.
-2. Crear un conjunto inicial de 20 activos financieros (blue-chip stocks) con tickers y nombres reales.
+2. Crear un conjunto inicial de 24 activos financieros (blue-chip stocks) con tickers y nombres reales.
 3. Obtener los precios de mercado actuales de estos activos a través de una API externa (Finnhub).
 Los seeders deben ejecutarse una sola vez y no sobrescribir datos existentes.
 ```
@@ -368,9 +374,9 @@ Los seeders deben ejecutarse una sola vez y no sobrescribir datos existentes.
 | **ID**         | RNF-001         |
 | **Nombre**     | Seguridad de Datos y Transacciones |
 | **Tipo**       | No Funcional    |
-| **Categoría**  | `Seguridad`    |
+| **Categoría**  | `Seguridad`     |
 | **Prioridad**  | `Alta`          |
-| **Estado**     | `Completado`     |
+| **Estado**     | `Completado`    |
 
 #### Descripción
 > El sistema debe garantizar la integridad y confidencialidad de la información financiera y personal de los usuarios.
@@ -396,7 +402,7 @@ quedar registrada en una base de datos centralizada.
 | **Tipo**       | No Funcional    |
 | **Categoría**  | `Simulacion`    |
 | **Prioridad**  | `Alta`          |
-| **Estado**     | `Completado`     |
+| **Estado**     | `Completado`    |
 
 #### Descripción
 > Para garantizar una experiencia de usuario realista, el sistema debe contar con un motor de simulación que genere operaciones de compra y venta de forma autónoma y continua.
@@ -418,9 +424,9 @@ Este componente debe actuar "en segundo plano" (background), inyectando órdenes
 | **ID**         | RNF-003         |
 | **Nombre**     | Usabilidad y Experiencia de Usuario (UX) |
 | **Tipo**       | No Funcional    |
-| **Categoría**  | `UX`    |
+| **Categoría**  | `UX`            |
 | **Prioridad**  | `Alta`          |
-| **Estado**     | `Completado`     |
+| **Estado**     | `Completado`    |
 
 #### Descripción
 > La interfaz debe guiar al usuario mediante señales visuales explícitas en cada paso, sin requerir documentación externa para completar los flujos principales.
@@ -444,9 +450,9 @@ El sistema debe implementar un diseño Responsive fluido que asegure que las tab
 | **ID**         | RNF-004         |
 | **Nombre**     | Mantenibilidad y Calidad de Código |
 | **Tipo**       | No Funcional    |
-| **Categoría**  | `Mantenibilidad`    |
+| **Categoría**  | `Mantenibilidad`|
 | **Prioridad**  | `Alta`          |
-| **Estado**     | `Pendiente`     |
+| **Estado**     | `Completado`     |
 
 #### Descripción
 > El código debe cumplir con umbrales de mantenibilidad verificables mediante las herramientas ya integradas en el proyecto.
@@ -460,5 +466,30 @@ Se exige el uso de estándares de codificación consistentes (Linting) y una est
 #### Criterios de Aceptación
 - [x] El proyecto debe contar con una cobertura de pruebas unitarias (Unit Tests) de al menos el 80%.
 - [x] El código debe estar documentado siguiendo los estándares del lenguaje utilizado (ej: JSDoc para JS o Swagger para la API).
+
+---
+
+### RNF-005 — Control de Acceso y Autorizacion
+
+| Campo          | Detalle         |
+|----------------|-----------------|
+| **ID**         | RNF-005         |
+| **Nombre**     | Control de Acceso y Autorizacion |
+| **Tipo**       | No Funcional    |
+| **Categoría**  | `Seguridad`     |
+| **Prioridad**  | `Alta`          |
+| **Estado**     | `Completado`    |
+
+#### Descripción
+> El sistema debe restringir el acceso a todas sus funcionalidades y vistas privadas, garantizando que solo los usuarios debidamente autenticados puedan interactuar con la plataforma.
+
+```
+A excepción de las pantallas públicas (Registro e Inicio de Sesión), todas las rutas del frontend y todos los endpoints de la API deben requerir la presentación de un token de autenticación válido. 
+Cualquier solicitud que no incluya un token válido debe ser denegada automáticamente.
+```
+
+#### Criterios de Aceptación
+- [x] El sistema debe interceptar cualquier intento de acceso a rutas protegidas del frontend sin una sesión activa y redireccionar al usuario a la pantalla de Inicio de Sesión (RF-002).
+- [x] El sistema debe aplicar el principio de menor privilegio, asegurando que las credenciales/tokens se validen del lado del servidor en cada transacción y no solo en el cliente.
 
 ---

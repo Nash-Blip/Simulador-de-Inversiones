@@ -2,38 +2,30 @@
 
 import { useEffect, useState } from 'react';
 import { TransaccionHistorial } from '@/types';
+import { getTransacciones, getUserTransacciones } from '@/service/ListTransacciones.service';
 
 export default function TransaccionList() {
     const [transacciones, setTransacciones] = useState<TransaccionHistorial[]>([]);
-
     const [pagina, setPagina] = useState<number>(1);
     const [tipoFiltro, setTipoFiltro] = useState<string>("TODOS");
+    const [search, setSearch] = useState("");
+    const [fechaInicio, setFechaInicio] = useState("");
+    const [fechaFin, setFechaFin] = useState("");
     const [cargando, setCargando] = useState<boolean>(true);
-
     const [totalPaginas, setTotalPaginas] = useState<number>(1);
+
+    useEffect(() => {
+        setPagina(1);
+    }, [search, fechaInicio, fechaFin]);
 
     useEffect(() => {
         const fetchTransacciones = async () => {
             setCargando(true);
             try {
-                let url = `http://localhost:3000/transaccion/historial?page=${pagina}`;
-
-                if (tipoFiltro !== "TODOS") {
-                    url += `&tipoTransaccion=${tipoFiltro}`;
-                }
-
-                const response = await fetch(url, {
-                    credentials: 'include'
-                });
-                const data = await response.json();
-
-                if (response.ok) {
-                    const lista = data.data;
-                    setTransacciones(Array.isArray(lista) ? lista : []);
-
-                    if (data.meta) {
-                        setTotalPaginas(data.meta.totalPages || 1);
-                    }
+                const data = await getUserTransacciones(pagina, tipoFiltro, search, fechaInicio || undefined, fechaFin || undefined);
+                setTransacciones(Array.isArray(data.data) ? data.data : []);
+                if(data.meta){
+                    setTotalPaginas(data.meta.totalPages || 1);
                 }
             } catch (error) {
                 console.error("Error al buscar transacciones:", error);
@@ -41,9 +33,8 @@ export default function TransaccionList() {
                 setCargando(false);
             }
         };
-
         fetchTransacciones();
-    }, [pagina, tipoFiltro]);
+    }, [pagina, tipoFiltro, search, fechaInicio, fechaFin]);
 
     const handleFiltroChange = (nuevoFiltro: string) => {
         setTipoFiltro(nuevoFiltro);
@@ -58,8 +49,38 @@ export default function TransaccionList() {
                 Historial de Transacciones
             </h1>
 
-            <div className="w-full max-w-6xl mx-auto mb-4 flex flex-col sm:flex-row justify-between items-center gap-4">
-                <div className="flex bg-gray-900/60 p-1 rounded-lg border border-gray-800">
+            <div className="w-full max-w-6xl mx-auto mb-4 flex flex-col sm:flex-row items-end gap-4 flex-wrap justify-between">
+                <div className="flex items-end gap-4 flex-wrap">
+                    <input
+                        type="text"
+                        placeholder="Buscar por nombre o ticker..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        maxLength={25}
+                        className="w-full sm:w-64 bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white placeholder-gray-500 text-sm focus:outline-none focus:border-blue-500 transition-colors"
+                    />
+                    <div className="flex items-end gap-2">
+                        <div className="flex flex-col">
+                            <label className="text-xs text-gray-400 mb-0.5">Fecha Inicio</label>
+                            <input
+                                type="date"
+                                value={fechaInicio}
+                                onChange={(e) => setFechaInicio(e.target.value)}
+                                className="w-40 bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors [color-scheme:dark]"
+                            />
+                        </div>
+                        <div className="flex flex-col">
+                            <label className="text-xs text-gray-400 mb-0.5">Fecha Fin</label>
+                            <input
+                                type="date"
+                                value={fechaFin}
+                                onChange={(e) => setFechaFin(e.target.value)}
+                                className="w-40 bg-gray-900 border border-gray-700 rounded-lg px-4 py-2 text-white text-sm focus:outline-none focus:border-blue-500 transition-colors [color-scheme:dark]"
+                            />
+                        </div>
+                    </div>
+                </div>
+                <div className="flex bg-gray-900/60 p-1 rounded-lg border border-gray-800 self-center sm:self-auto">
                     {["TODOS", "COMPRA", "VENTA"].map((tipo) => (
                         <button
                             key={tipo}
@@ -68,9 +89,7 @@ export default function TransaccionList() {
                                     ? "bg-blue-600 text-white"
                                     : "text-gray-400 hover:text-white"
                                 }`}
-                        >
-                            {tipo}
-                        </button>
+                        >{tipo}</button>
                     ))}
                 </div>
             </div>
@@ -86,7 +105,7 @@ export default function TransaccionList() {
                             <thead>
                                 <tr className="font-bold text-white border-b border-gray-800">
                                     <th className="pb-4 px-2 text-left">Tipo</th>
-                                    <th className="pb-4 px-2">Ticker</th>
+                                    <th className="pb-4 px-2">Ticker/Nombre</th>
                                     <th className="pb-4 px-2">Cantidad</th>
                                     <th className="pb-4 px-2">Precio Ejecutado</th>
                                     <th className="pb-4 px-2">Monto Total</th>
@@ -106,8 +125,13 @@ export default function TransaccionList() {
                                                     {transaccion.tipoTransaccion}
                                                 </span>
                                             </td>
-                                            <td className="py-4 px-2">
-                                                <strong className="text-blue-400 font-semibold">{transaccion.ticker}</strong>
+                                            <td className="py-4 px-2 text-left">
+                                                <span className="block">
+                                                    <strong className="text-blue-400 font-semibold">{transaccion.ticker}</strong>
+                                                    {transaccion.nombre && (
+                                                        <span className="text-xs text-gray-400 block mt-0.5">{transaccion.nombre}</span>
+                                                    )}
+                                                </span>
                                             </td>
                                             <td className="py-4 px-2 text-white font-medium">
                                                 {transaccion.cantidad}
@@ -129,7 +153,10 @@ export default function TransaccionList() {
 
                         {transacciones.length === 0 && (
                             <div className="text-center py-12 text-gray-500">
-                                No se encontraron transacciones en tu historial.
+                                {search
+                                    ? `No se encontraron transacciones que coincidan con "${search}".`
+                                    : "No se encontraron transacciones en tu historial."
+                                }
                             </div>
                         )}
 

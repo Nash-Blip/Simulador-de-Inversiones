@@ -3,7 +3,7 @@ import { ActivoService } from './activo.service';
 import { Repository } from 'typeorm';
 import { Activo } from './entities/activo.entity';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { CreateActivoDto } from './dto/create-activo.dto';
+import { CreateActivoDto } from './dto/input/create-activo.dto';
 import { ConflictException, NotFoundException } from '@nestjs/common';
 
 describe('ActivoService', () => {
@@ -90,6 +90,36 @@ describe('ActivoService', () => {
 
       expect(mockActivoRepository.find).toHaveBeenCalled();
       expect(result).toEqual(mockActivos);
+    });
+  });
+
+  describe('findAllPaginado', () => {
+    it('debería retornar activos paginados aplicando filtro search', async () => {
+      const mockQueryBuilder = {
+        andWhere: jest.fn().mockReturnThis(),
+        orderBy: jest.fn().mockReturnThis(),
+        skip: jest.fn().mockReturnThis(),
+        take: jest.fn().mockReturnThis(),
+        getManyAndCount: jest.fn().mockResolvedValue([
+          [{ id: 1, nombre: 'Bitcoin', ticker: 'BTC' }],
+          1,
+        ]),
+      };
+      mockActivoRepository.createQueryBuilder = jest.fn().mockReturnValue(mockQueryBuilder);
+
+      const result = await service.findAllPaginado({ page: 1, search: 'BTC' });
+
+      expect(mockActivoRepository.createQueryBuilder).toHaveBeenCalledWith('activo');
+      expect(mockQueryBuilder.andWhere).toHaveBeenCalledWith(
+        '(activo.nombre ILIKE :search OR activo.ticker ILIKE :search)',
+        { search: '%BTC%' },
+      );
+      expect(mockQueryBuilder.skip).toHaveBeenCalledWith(0);
+      expect(mockQueryBuilder.take).toHaveBeenCalledWith(8);
+      expect(result).toEqual({
+        data: [{ id: 1, nombre: 'Bitcoin', ticker: 'BTC' }],
+        meta: { totalItems: 1, itemCount: 1, itemsPerPage: 8, totalPages: 1, currentPage: 1 },
+      });
     });
   });
 

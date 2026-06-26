@@ -174,7 +174,8 @@ export class InversorService {
     return {
       nombre: inversor.nombre,
       email: inversor.email,
-      saldo: inversor.saldoVirtual
+      saldo: inversor.saldoVirtual,
+      rol: inversor.rol
     };
   }
 
@@ -190,5 +191,23 @@ export class InversorService {
     await this.inversorRepo.save(inversor);
 
     return { message: 'Contraseña actualizada con éxito.' };
+  }
+
+  async registrarCompra(inversorId: number, costoTotal: number) {
+    const inversor = await this.findOne(inversorId);
+
+    inversor.saldoVirtual -= costoTotal; // restamos saldo
+    inversor.portafolio.costoPortafolio = Number((inversor.portafolio.costoPortafolio + costoTotal).toFixed(2)); // sumamos valor del portafolio
+
+    await this.inversorRepo.save(inversor);
+  }
+
+  async registrarVenta(inversorId: number, ingresoVenta: number, costoVendido: number) {
+    const inversor = await this.findOne(inversorId);
+    
+    inversor.saldoVirtual += ingresoVenta;
+    inversor.portafolio.costoPortafolio = Number((inversor.portafolio.costoPortafolio - costoVendido).toFixed(2));
+
+    await this.inversorRepo.save(inversor);
   }
 }

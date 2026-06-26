@@ -19,4 +19,7 @@ export class TransaccionItemDto {
 
   @ApiProperty({ example: 'AAPL', nullable: true, description: 'Ticker del activo' })
   ticker!: string | null;
+
+  @ApiProperty({ example: 'Apple Inc.', nullable: true, description: 'Nombre del activo' })
+  nombre!: string | null;
 }

@@ -1,94 +1,97 @@
-@startuml name diagrama de clases
+@startuml diagrama_de_clases
 
-enum tipoTransaccion{
+enum TipoTransaccion {
     COMPRA
     VENTA
 }
 
-class Inversor{
+enum Rol {
+    USUARIO
+    ADMIN
+}
+
+class Inversor {
+    - id: number
     - nombre: string
     - email: string
     - contraseña: string
     - saldoVirtual: number
-    - portafolio: Portafolio
-
-    - validarTarjeta(tarjeta: number, fechaVencimiento: Date, cvc: number): void
-    + consultarPortafolio(): Portafolio
-    + ingresarFondosTarjeta()
-    + ingresarFondosTransferencia()
-    + retirarFondos()
+    - rol: Rol
 }
 
-class Admin extends Inversor{
-    + crearActivo(nombre: string, precio: number): Activo
-    + listarUsuarios(): Inversor[]
-}
-
-class Portafolio{
-    - transacciones: Transaccion[]
-    - tenenciaActivo: TenenciaActivo[]
+class Portafolio {
+    - id: number
     - valorPortafolio: number
 }
 
-class TenenciaActivo{
+class TenenciaActivo {
     - cantidad: number
-    - activo: Activo
     - precioCompra: number
 }
 
-class Transaccion{
+class Transaccion {
     - ticker: string
-    - tipo: tipoTransaccion
+    - tipo: TipoTransaccion
     - cantidad: number
     - precioEjecutado: number
     - fecha: Date
 }
 
-class Activo{
+class Activo {
     - nombre: string
     - ticker: string
-    - precioInicial: number
     - precioActual: number
-    - valorMaximo: number
-    - valorMinimo: number
-    - cantOperaciones: number
-    - totalEjecutado: number
-    - transacciones: Transaccion[]
 }
 
-class Simulador{
-    + simularMercado()
+' Capa de Servicios (Representación de la lógica)
+class InversorService {
+    + create()
+    + findOne(id)
+    + findPerfil(id)
+    + cambiarContraseña()
+    + findPortafolio()
+    + validarTarjeta(): void
+    + ingresarFondosTarjeta(): void
+    + ingresarFondosTransaccion(): void
 }
 
-class Sistema{
-    + procesarCompra(dto: CompraActivoDto, inversorId: number)
-    + procesarVenta(dto: CompraActivoDto, inversorId: number)
+class SistemaService {
+    + procesarCompra(dto, inversorId): void
+    + procesarVenta(dto, inversorId): void
 }
 
+class AdminService {
+    + crearActivo(nombre, precio): Activo
+    + modificarActivo(id, dto)
+    + listarUsuarios(): Inversor[]
+}
 
-note right of Simulador 
-    simularMercado(){
-        ... decision del activo a operar
-        ... decision de compra/venta
-        ... decision de la cantidad
-        ... creacion de la transaccion 
-    }
-end note
+class ActivoService {
+    + create()
+    + findAll()
+    + findOne()
+    + findAllPaginado()
+    + update(id, dto)
+    + actualizarActivo(activo, cantidad, tipo)
+}
 
-note left of Inversor 
-    ingresarFondos(){
-        this.validarTarjeta()
-        ... modificar saldoVirtual
-    }
-end note
+class TransaccionService {
+    + findAll()
+    + findHistorial()
+    + create()
+}
 
-Inversor o-- Portafolio 
-Portafolio *-- Transaccion
-Transaccion .r.> tipoTransaccion
-Admin ..> Activo
-Portafolio o-- TenenciaActivo
-TenenciaActivo --> Activo
-Simulador *-l- Activo
-Sistema *-d- Activo
+' Relaciones
+Inversor  *-d-  Portafolio
+Portafolio  *-d-  Transaccion
+Portafolio *-d- TenenciaActivo
+TenenciaActivo -d-> Activo
+Transaccion --> Activo
+InversorService .l.> Inversor
+AdminService .r.> Inversor
+ActivoService .r.> Activo
+TransaccionService .r.> Transaccion
+SistemaService .l.> Activo
+AdminService .d.> ActivoService
 
 @enduml

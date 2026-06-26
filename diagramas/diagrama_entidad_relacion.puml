@@ -53,15 +53,10 @@ entity "inversor" as inversor {
     portafolioId : integer <<FK>>
 }
 
-activo ||--o{
-    tenencia_activo
-    portafolio ||--o{
-        tenencia_activo
-        portafolio ||--o{
-            transaccion
-            activo ||--o{
-                transaccion
-                portafolio ||--o{
-                    inversor
+inversor ||..o| portafolio : "tiene"
+portafolio ||--o{ tenencia_activo : "contiene"
+portafolio ||--o{ transaccion : "contiene"
+activo ||--o{ tenencia_activo : "es parte de"
+activo ||--o{ transaccion : "participa en"
 
-                    @enduml
+@enduml
