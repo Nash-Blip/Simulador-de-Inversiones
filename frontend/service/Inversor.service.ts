@@ -1,7 +1,7 @@
 import { API_URL } from './api';
 import { Perfil, Inversor, Portafolio } from '@/types/index';
 
-export async function getPerfil(): Promise<Perfil> {
+export async function getPerfil(): Promise<Inversor> {
     const response = await fetch(`${API_URL}/inversor/perfil`, {
         method: 'GET',
         headers: { "Content-Type": "application/json" },

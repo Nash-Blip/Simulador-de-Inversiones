@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
 import { Inversor } from "@/types/index";
 import { logout as apiLogout } from '@/service/Auth.service';
+import { getPerfil } from "@/service/Inversor.service";
 
 interface AuthContextType {
     inversor: Inversor | null;
@@ -24,25 +25,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     const verificarSesion = useCallback(async () => {
         try {
-            const response = await fetch("http://localhost:3000/inversor/perfil", {
-                method: "GET",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                setInversor(data);
-                return true;
-            }
-
-            if (response.status === 401) {
-                setInversor(null);
-                return false;
-            }
-            return false;
+            const response = await getPerfil()
+            setInversor(response);
+            return true;
         } catch (error) {
-            console.error("Error de red al verificar sesión:", error);
+            setInversor(null);
             return false;
         } finally {
             setLoading(false);
