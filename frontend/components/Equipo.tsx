@@ -4,11 +4,11 @@ export default function Equipo() {
             <section className="bg-white dark:bg-gray-900 w-full">
                 <div className="container px-6 py-4  mx-auto mb-10">
                     <hr className="my-6 border-gray-200 md:my-10 dark:border-gray-700 w-1/3 mx-auto" />
-                    
+
                     <h1 className="text-2xl font-semibold text-center text-gray-800 capitalize lg:text-3xl dark:text-white pt-4">Nosotros</h1>
 
                     <p className="max-w-4xl mx-auto my-6 text-center text-gray-500 dark:text-gray-300">
-                        Este simulador forma parte del proyecto de la materia Programacion III de la Tecnicatura de Programacion de la UTN. 
+                        Este simulador forma parte del proyecto de la materia Programacion III de la Tecnicatura de Programacion de la UTN.
 
                         El objetivo de la plataforma es puramente educativo. Queríamos crear un espacio donde cualquier estudiante o principiante pueda entrar, ver gráficos interactivos con datos reales y simular compras o ventas usando dinero ficticio. Básicamente, diseñamos un entorno seguro para que puedas probar estrategias, experimentar con el mercado en vivo y aprender de los errores sin perder dinero.
                     </p>
