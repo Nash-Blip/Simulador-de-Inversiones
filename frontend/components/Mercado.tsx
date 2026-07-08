@@ -319,6 +319,10 @@ export default function Mercado() {
                                                     if (val >= 1) {
                                                         setCantidadCompra(val);
                                                     }
+
+                                                    if (val > 1000) {
+                                                        setCantidadCompra(1000);
+                                                    }
                                                 }}
                                                 onKeyDown={(e) => {
                                                     if (['e', 'E', '.', ',', '-', '+'].includes(e.key)) {

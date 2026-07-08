@@ -95,7 +95,7 @@ export default function GestionFondos() {
                 return false;
             }
             if (!regexCvv.test(formTarjeta.cvv)) {
-                setMensaje({ tipo: "error", texto: "Código CVV inválido. Deben ser 3 o 4 dígitos." });
+                setMensaje({ tipo: "error", texto: "Código CVV inválido. Deben ser 3 dígitos." });
                 return false;
             }
         }
@@ -190,7 +190,7 @@ export default function GestionFondos() {
                 {tabActual === "ingreso_transf" || tabActual === "retiro" ? (
                     <>
                         <div>
-                            <label className="block text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">Monto a Ingresar</label>
+                            <label className="block text-gray-400 text-xs font-semibold uppercase tracking-wider mb-2">{tabActual === "retiro" ? "Monto a Retirar" : "Monto a Ingresar"}</label>
                             <input
                                 required
                                 name="monto"

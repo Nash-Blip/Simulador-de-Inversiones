@@ -44,7 +44,7 @@ export default function ModificarActivoPage() {
         
             await fetchActivos(); 
             
-            setActivoSeleccionado(null);
+            //setActivoSeleccionado(null);
         } catch (err) {
             setMessage(err instanceof Error ? err.message : 'Error al modificar el activo');
         }

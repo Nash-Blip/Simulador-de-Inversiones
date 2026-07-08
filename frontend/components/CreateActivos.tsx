@@ -1,7 +1,7 @@
 'use client';
 import { SyntheticEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link'; 
+import Link from 'next/link';
 import { CreateActivo } from '@/service/Activo.service';
 
 export default function CreateActivos() {
@@ -17,7 +17,7 @@ export default function CreateActivos() {
             try {
                 await CreateActivo(nombre, ticker, precioInicial);
                 setMessage("Activo creado con éxito.");
-                router.push('/admin/transacciones');
+                handleSuccess();
             } catch (err) {
                 setMessage(err instanceof Error ? err.message : 'Error al crear el activo');
             }
@@ -30,6 +30,12 @@ export default function CreateActivos() {
         setTicker('');
         setPrecioInicial(0);
         setMessage('');
+    }
+
+    function handleSuccess() {
+        setNombre('');
+        setTicker('');
+        setPrecioInicial(0);
     }
 
     return (
